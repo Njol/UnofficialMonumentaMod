@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ch.njol.unofficialmonumentamod.mixins",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "BlockItemMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

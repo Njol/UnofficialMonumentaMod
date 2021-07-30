@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "unofficial-monumenta-mod",
+  "version": "${version}",
+  "name": "Unofficial Monumenta Mod",
+  "description": "An unofficial client-side mod to complement the Monumenta MMO server.",
+  "authors": [
+    "Njol"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/unofficial-monumenta-mod",
+    "issues": "https://github.com/Njol/UnofficialMonumentaMod/issues",
+    "sources": "https://github.com/Njol/UnofficialMonumentaMod"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/unofficial-monumenta-mod/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient"
+    ],
+    "main": [
+      "ch.njol.unofficialmonumentamod.UnofficialMonumentaMod"
+    ]
+  },
+  "mixins": [
+    "unofficial-monumenta-mod.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.16.5"
+  }
+}
