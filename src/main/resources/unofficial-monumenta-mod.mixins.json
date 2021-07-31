@@ -4,7 +4,9 @@
   "package": "ch.njol.unofficialmonumentamod.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "BlockItemMixin"
+    "BlockItemMixin",
+    "HeldItemFeatureRendererMixin",
+    "ItemRendererMixin"
   ],
   "client": [
   ],
