@@ -4,6 +4,7 @@
   "package": "ch.njol.unofficialmonumentamod.mixins",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "ArmorFeatureRendererMixin",
     "BlockItemMixin",
     "HeldItemFeatureRendererMixin",
     "ItemRendererMixin"

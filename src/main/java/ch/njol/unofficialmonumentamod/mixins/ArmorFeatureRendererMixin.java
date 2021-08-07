@@ -10,16 +10,14 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3f;
-import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,10 +41,10 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 			return;
 
 		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
-		Item item = itemStack.getItem();
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
-		BakedModel headModel = bakedModelManager.getModel(new ModelIdentifier(Registry.ITEM.getId(item), "inventory"));
-		if (headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth())
+		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(itemStack, livingEntity.world, livingEntity);
+		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity);
+		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth())
 			return;
 
 		ci.cancel();
@@ -54,7 +52,6 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		// this code is mostly copied from HeadFeatureRenderer
 		matrices.push();
 		if (livingEntity.isBaby() && !(livingEntity instanceof VillagerEntity)) {
-			final float n = 1.4F;
 			matrices.translate(0.0D, 0.03125D, 0.0D);
 			matrices.scale(0.7F, 0.7F, 0.7F);
 			matrices.translate(0.0D, 1.0D, 0.0D);
