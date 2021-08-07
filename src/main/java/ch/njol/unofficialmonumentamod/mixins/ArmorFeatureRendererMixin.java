@@ -16,6 +16,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -41,6 +42,9 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 			return;
 
 		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
+		if (!(itemStack.getItem() instanceof ArmorItem))
+			return;
+
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
 		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(itemStack, livingEntity.world, livingEntity);
 		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity);
