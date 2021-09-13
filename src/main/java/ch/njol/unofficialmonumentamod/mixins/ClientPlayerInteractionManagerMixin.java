@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public abstract class ClientPlayerInteractionManagerMixin {
@@ -51,16 +51,15 @@ public abstract class ClientPlayerInteractionManagerMixin {
 	/**
 	 * Optionally disable the quicksort feature (sort inventory on double right click)
 	 */
-	@Inject(method = "clickSlot(IIILnet/minecraft/screen/slot/SlotActionType;Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/item/ItemStack;",
+	@Inject(method = "clickSlot(IIILnet/minecraft/screen/slot/SlotActionType;Lnet/minecraft/entity/player/PlayerEntity;)V",
 			at = @At("HEAD"), cancellable = true)
-	public void clickSlot_head(int syncId, int slotId, int clickData, SlotActionType actionType, PlayerEntity player, CallbackInfoReturnable<ItemStack> cir) {
+	public void clickSlot_head(int syncId, int slotId, int button, SlotActionType actionType, PlayerEntity player, CallbackInfo ci) {
 		if (actionType == SlotActionType.PICKUP // single click
-				&& clickData == 1 // right click
-				&& player.inventory.getCursorStack().isEmpty()
+				&& button == 1 // right click
+				&& player.currentScreenHandler.getCursorStack().isEmpty()
 				&& player.currentScreenHandler.getSlot(slotId).getStack().isEmpty()
 				&& isChestSortDisabledForInventory(player.currentScreenHandler, slotId)) {
-			cir.setReturnValue(ItemStack.EMPTY);
-			cir.cancel();
+			ci.cancel();
 		}
 	}
 

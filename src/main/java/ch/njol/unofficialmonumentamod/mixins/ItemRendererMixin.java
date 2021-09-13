@@ -26,15 +26,15 @@ public class ItemRendererMixin {
 	private ItemModels models;
 
 	/**
-	 * Pretend that tridents are apples so that the trident-specific code is not executed
+	 * Prevent trident-specific code from being executed
 	 */
 	@Redirect(method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/render/model/BakedModel;)V",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
-	public Item renderItem_tridentFix1(ItemStack itemStack) {
-		Item item = itemStack.getItem();
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isOf(Lnet/minecraft/item/Item;)Z"),
+			expect = 4)
+	public boolean renderItem_tridentFix1(ItemStack itemStack, Item item) {
 		if (UnofficialMonumentaModClient.options.overrideTridentRendering && item == Items.TRIDENT)
-			return Items.APPLE;
-		return item;
+			return false;
+		return itemStack.isOf(item);
 	}
 
 	/**

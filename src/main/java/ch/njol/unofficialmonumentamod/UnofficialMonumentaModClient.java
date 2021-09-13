@@ -21,7 +21,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public void onInitializeClient() {
 
 		FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
-				(itemStack, clientWorld, livingEntity) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
+				(itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
 		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve("./unofficial-monumenta-mod.json").toFile())) {
 			options = new GsonBuilder().create().fromJson(reader, Options.class);
