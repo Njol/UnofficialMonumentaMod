@@ -1,0 +1,11 @@
+{
+  "unofficial-monumenta-mod.config.title": "Unofficial Monumenta Mod Configuration",
+  "unofficial-monumenta-mod.config.option.overrideTridentRendering": "Render trident textures",
+  "unofficial-monumenta-mod.config.option.overrideTridentRendering.tooltip": "If enabled, will render tridents using the item textures.\nRequires the Monumenta resource pack to look good.\nIMPORTANT: The 'Fabric Mods' resource pack needs to be above the Monumenta RP in the resource pack list!",
+  "unofficial-monumenta-mod.config.option.chestsortDisabledForInventory": "Disable ChestSort in Inventory",
+  "unofficial-monumenta-mod.config.option.chestsortDisabledForInventory.tooltip": "Disable ChestSort (double right click) in the player inventory",
+  "unofficial-monumenta-mod.config.option.chestsortDisabledForEnderchest": "Disable ChestSort in Ender Chest",
+  "unofficial-monumenta-mod.config.option.chestsortDisabledForEnderchest.tooltip": "Disable ChestSort (double right click) in the Ender Chest",
+  "unofficial-monumenta-mod.config.option.chestsortDisabledEverywhereElse": "Disable ChestSort everywhere else",
+  "unofficial-monumenta-mod.config.option.chestsortDisabledEverywhereElse.tooltip": "Disable ChestSort (double right click) in every other type of inventory"
+}

@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemModels;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -31,7 +32,7 @@ public class ItemRendererMixin {
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
 	public Item renderItem_tridentFix1(ItemStack itemStack) {
 		Item item = itemStack.getItem();
-		if (item == Items.TRIDENT)
+		if (UnofficialMonumentaModClient.options.overrideTridentRendering && item == Items.TRIDENT)
 			return Items.APPLE;
 		return item;
 	}
@@ -43,7 +44,8 @@ public class ItemRendererMixin {
 			at = @At("HEAD"),
 			ordinal = 0)
 	public BakedModel renderItem_tridentFix2(BakedModel model, ItemStack stack, ModelTransformation.Mode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, BakedModel model2) {
-		if (stack.getItem() == Items.TRIDENT)
+		if (UnofficialMonumentaModClient.options.overrideTridentRendering
+				&& stack.getItem() == Items.TRIDENT)
 			return models.getModelManager().getModel(new ModelIdentifier("minecraft:trident#inventory"));
 		return model;
 	}

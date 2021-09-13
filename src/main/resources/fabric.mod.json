@@ -21,6 +21,9 @@
     ],
     "main": [
       "ch.njol.unofficialmonumentamod.UnofficialMonumentaMod"
+    ],
+    "modmenu": [
+      "ch.njol.unofficialmonumentamod.ConfigMenu"
     ]
   },
   "mixins": [
@@ -30,5 +33,9 @@
     "fabricloader": ">=0.11.3",
     "fabric": "*",
     "minecraft": "1.16.5"
+  },
+  "recommends": {
+    "modmenu": ">=1.16.0",
+    "cloth-config-fabric": ">=4.10.11"
   }
 }

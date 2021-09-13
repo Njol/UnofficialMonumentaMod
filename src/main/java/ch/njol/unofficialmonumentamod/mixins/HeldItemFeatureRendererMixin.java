@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
@@ -32,9 +33,12 @@ public abstract class HeldItemFeatureRendererMixin<T extends LivingEntity, M ext
 	@Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;Lnet/minecraft/util/Arm;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", shift = At.Shift.BEFORE))
 	public void renderItem_tridentFix(LivingEntity entity, ItemStack stack, ModelTransformation.Mode transformationMode, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-		if (stack.getItem() != Items.TRIDENT || !entity.isUsingItem() || (entity.getActiveHand() == Hand.MAIN_HAND) != (entity.getMainArm() == arm))
-			return;
-		matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+		if (UnofficialMonumentaModClient.options.overrideTridentRendering
+				&& stack.getItem() == Items.TRIDENT
+				&& entity.isUsingItem()
+				&& (entity.getActiveHand() == Hand.MAIN_HAND) == (entity.getMainArm() == arm)) {
+			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
+		}
 	}
 
 }

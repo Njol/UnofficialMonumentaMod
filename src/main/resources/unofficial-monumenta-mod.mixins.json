@@ -6,6 +6,7 @@
   "mixins": [
     "ArmorFeatureRendererMixin",
     "BlockItemMixin",
+    "ClientPlayerInteractionManagerMixin",
     "HeldItemFeatureRendererMixin",
     "ItemRendererMixin"
   ],
