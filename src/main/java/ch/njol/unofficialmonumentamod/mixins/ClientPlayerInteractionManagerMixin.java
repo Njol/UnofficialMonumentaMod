@@ -4,49 +4,17 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public abstract class ClientPlayerInteractionManagerMixin {
-
-	/**
-	 * Prevent flickering caused by items with the infinity enchantment by not "consuming" them client-side
-	 * <p>
-	 * TODO currently does not work for some reason?
-	 */
-	@Redirect(method = "interactItem(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/World;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;use(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/TypedActionResult;"))
-	public TypedActionResult<ItemStack> interactItem_useItemStack(ItemStack itemStack, World world, PlayerEntity user, Hand hand) {
-		int oldCount = itemStack.getCount();
-		TypedActionResult<ItemStack> result = itemStack.use(world, user, hand);
-		if (EnchantmentHelper.getLevel(Enchantments.INFINITY, itemStack) <= 0)
-			return result;
-		if (result.getResult() == ActionResult.CONSUME) {
-			return TypedActionResult.success(result.getValue(), true);
-		} else if (result.getResult() == ActionResult.SUCCESS
-				&& result.getValue().getItem() == itemStack.getItem()
-				&& result.getValue().getCount() < oldCount) {
-			result.getValue().setCount(oldCount);
-			user.setStackInHand(hand, result.getValue());
-			return result;
-		}
-		return result;
-	}
 
 	/**
 	 * Optionally disable the quicksort feature (sort inventory on double right click)
