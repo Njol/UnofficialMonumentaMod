@@ -7,8 +7,11 @@
     "ArmorFeatureRendererMixin",
     "BlockItemMixin",
     "ClientPlayerInteractionManagerMixin",
+    "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
-    "ItemRendererMixin"
+    "InGameHudMixin",
+    "ItemRendererMixin",
+    "MinecraftClientMixin"
   ],
   "client": [
   ],
