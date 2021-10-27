@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHead;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
+import net.minecraft.client.render.model.BuiltinBakedModel;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
@@ -48,7 +49,7 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
 		BakedModel baseModel = MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(itemStack, livingEntity.world, livingEntity);
 		BakedModel headModel = baseModel.getOverrides().apply(baseModel, itemStack, (ClientWorld) livingEntity.world, livingEntity);
-		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth() || headModel == baseModel)
+		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth() || headModel instanceof BuiltinBakedModel)
 			return;
 
 		ci.cancel();

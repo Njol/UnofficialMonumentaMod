@@ -60,11 +60,7 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 
 		int remainingCooldown;
 
-		int initialCooldown;
-
 		int remainingCharges;
-
-		int maxCharges;
 
 	}
 

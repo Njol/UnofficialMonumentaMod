@@ -2,11 +2,13 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 
@@ -18,63 +20,65 @@ import java.io.IOException;
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
 
-	// TODO:
-	// sage's insight has no ClassAbility, but has stacks
-	// spellshock however has a ClassAbility, but doesn't really need to be displayed...
+    // TODO:
+    // sage's insight has no ClassAbility, but has stacks
+    // spellshock however has a ClassAbility, but doesn't really need to be displayed...
 
-	public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
+    public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
 
-	public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
+    public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
 
-	public static Options options = new Options();
+    public static Options options = new Options();
 
-	public static AbilityHandler abilityHandler = new AbilityHandler();
+    public static final AbilityHandler abilityHandler = new AbilityHandler();
 
-	@Override
-	public void onInitializeClient() {
+    @Override
+    public void onInitializeClient() {
 
-		FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
-				(itemStack, clientWorld, livingEntity) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
+        FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
+                (itemStack, clientWorld, livingEntity) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
-		try {
-			options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
-		} catch (FileNotFoundException e) {
-			// Config file doesn't exist, so use default config (and write config file).
-			writeJsonFile(options, OPTIONS_FILE_NAME);
-		} catch (IOException e) {
-			// Any issue with the config file silently reverts to the default config
-			e.printStackTrace();
-		}
+        try {
+            options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
+        } catch (FileNotFoundException e) {
+            // Config file doesn't exist, so use default config (and write config file).
+            writeJsonFile(options, OPTIONS_FILE_NAME);
+        } catch (IOException | JsonParseException e) {
+            // Any issue with the config file silently reverts to the default config
+            e.printStackTrace();
+        }
 
-		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			abilityHandler.tick();
-		});
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            abilityHandler.tick();
+        });
 
-		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
+        ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
-	}
+    }
 
-	public static void onDisconnect() {
-		abilityHandler.onDisconnect();
-	}
+    public static void onDisconnect() {
+        abilityHandler.onDisconnect();
+    }
 
-	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException {
-		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
-			return new GsonBuilder().create().fromJson(reader, c);
-		}
-	}
+    private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
+        try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
+            return new GsonBuilder().create().fromJson(reader, c);
+        }
+    }
 
-	public static void writeJsonFile(Object o, String filePath) {
-		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
-			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
-		} catch (IOException e) {
-			// Silently ignore save errors
-			e.printStackTrace();
-		}
-	}
+    private static void writeJsonFile(Object o, String filePath) {
+        try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
+            writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
+        } catch (IOException e) {
+            // Silently ignore save errors
+            e.printStackTrace();
+        }
+    }
 
-	public static void saveConfig() {
-		writeJsonFile(options, OPTIONS_FILE_NAME);
-	}
+    public static void saveConfig() {
+        MinecraftClient.getInstance().execute(() -> {
+            writeJsonFile(options, OPTIONS_FILE_NAME);
+        });
+    }
 
 }
