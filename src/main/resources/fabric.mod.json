@@ -23,7 +23,7 @@
       "ch.njol.unofficialmonumentamod.UnofficialMonumentaMod"
     ],
     "modmenu": [
-      "ch.njol.unofficialmonumentamod.ConfigMenu"
+      "ch.njol.unofficialmonumentamod.options.ConfigMenu"
     ]
   },
   "mixins": [

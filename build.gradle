@@ -1,13 +1,15 @@
 plugins {
     id 'fabric-loom' version '0.9-SNAPSHOT'
     id 'maven-publish'
+//    id 'java'
+//    id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-archivesBaseName = project.archives_base_name
-version = "mc" + project.minecraft_version + "-v" + project.mod_version
+archivesBaseName = project.archives_base_name + "-mc" + project.minecraft_version
+version = project.mod_version
 group = project.maven_group
 
 dependencies {
@@ -20,7 +22,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     modApi "com.terraformersmc:modmenu:1.16.0"
-    modApi("me.shedaniel.cloth:cloth-config-fabric:4.10.11") {
+    modImplementation("me.shedaniel.cloth:cloth-config-fabric:4.10.11") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 }
@@ -63,6 +65,11 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 jar {
     from "LICENSE"
 }
+//shadowJar {
+//    dependencies {
+//        include(dependency('me.shedaniel.cloth:cloth-config-fabric:.*'))
+//    }
+//}
 
 // configure the maven publication
 publishing {
