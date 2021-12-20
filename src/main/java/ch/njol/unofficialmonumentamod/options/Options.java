@@ -57,8 +57,6 @@ public class Options {
     @Category("abilities")
     public boolean abilitiesDisplay_enabled = true;
     @Category("abilities")
-    public boolean abilitiesDisplay_showOnlyOnCooldown = false;
-    @Category("abilities")
     public boolean abilitiesDisplay_showCooldownAsText = true;
     @Category("abilities")
     public boolean abilitiesDisplay_hideAbilityRelatedMessages = true;
@@ -98,6 +96,8 @@ public class Options {
     public int abilitiesDisplay_textColorRaw = 0xffeeeeee;
     @Category("abilities")
     public int abilitiesDisplay_textOffset = 4;
+    @Category("abilities")
+    public boolean abilitiesDisplay_showOnlyOnCooldown = false;
     @Category("abilities")
     public boolean abilitiesDisplay_ascendingRenderOrder = false;
 

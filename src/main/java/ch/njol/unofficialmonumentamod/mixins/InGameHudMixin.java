@@ -262,7 +262,9 @@ public class InGameHudMixin extends DrawableHelper {
             if (StringUtils.startsWithIgnoreCase(m, "You are silenced")
                     || StringUtils.startsWithIgnoreCase(m, "All your cooldowns have been reset")
                     || StringUtils.startsWithIgnoreCase(m, "Cloak stacks:")
-                    || StringUtils.startsWithIgnoreCase(m, "Rage:")) {
+                    || StringUtils.startsWithIgnoreCase(m, "Rage:")
+                    || StringUtils.startsWithIgnoreCase(m, "Holy energy radiates from your hands")
+                    || StringUtils.startsWithIgnoreCase(m, "The light from your hands fades")) {
                 ci.cancel();
                 return;
             }
