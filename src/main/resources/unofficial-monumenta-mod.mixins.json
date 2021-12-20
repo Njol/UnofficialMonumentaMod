@@ -6,9 +6,13 @@
   "mixins": [
     "ArmorFeatureRendererMixin",
     "BlockItemMixin",
+    "ChatScreenMixin",
     "ClientPlayerInteractionManagerMixin",
+    "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
-    "ItemRendererMixin"
+    "InGameHudMixin",
+    "ItemRendererMixin",
+    "MinecraftClientMixin"
   ],
   "client": [
   ],
