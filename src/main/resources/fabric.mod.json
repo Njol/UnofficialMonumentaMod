@@ -23,7 +23,7 @@
       "ch.njol.unofficialmonumentamod.UnofficialMonumentaMod"
     ],
     "modmenu": [
-      "ch.njol.unofficialmonumentamod.ConfigMenu"
+      "ch.njol.unofficialmonumentamod.options.ConfigMenu"
     ]
   },
   "mixins": [
@@ -34,8 +34,9 @@
     "fabric": "*",
     "minecraft": "1.17.1"
   },
-  "recommends": {
-    "modmenu": ">=1.16.0",
-    "cloth-config-fabric": ">=4.10.11"
+  "suggests": {
+    "modmenu": ">=2.0.0",
+    "cloth-config-fabric": ">=5.0.0",
+    "citresewn": "*"
   }
 }
