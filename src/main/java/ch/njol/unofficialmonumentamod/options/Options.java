@@ -45,6 +45,8 @@ public class Options {
     public boolean chestsortDisabledForEnderchest = false;
     @Category("misc")
     public boolean chestsortDisabledEverywhereElse = false;
+    @Category("misc")
+    public boolean crossbowFix = true;
 
     // TODO implement item cooldown display
     // requires sever-side adaptions to send the cooldown (on use and on connect)
