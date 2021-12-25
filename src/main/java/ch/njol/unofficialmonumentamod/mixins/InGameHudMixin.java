@@ -81,7 +81,7 @@ public class InGameHudMixin extends DrawableHelper {
 
     @Unique
     private void renderAbilities(MatrixStack matrices, float tickDelta, boolean inFrontOfChat) {
-        if (this.client.options.hudHidden) {
+        if (client.options.hudHidden || client.player == null || client.player.isSpectator()) {
             return;
         }
         Options options = UnofficialMonumentaModClient.options;
