@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -35,21 +36,24 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 	 * If a helmet has a model, do not render it as usual and instead render its model
 	 */
 	@Inject(method = "renderArmor(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/EquipmentSlot;ILnet/minecraft/client/render/entity/model/BipedEntityModel;)V",
-			at = @At("HEAD"), cancellable = true)
+		at = @At("HEAD"), cancellable = true)
 	public void renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T livingEntity, EquipmentSlot equipmentSlot,
-							int i, M bipedEntityModel, CallbackInfo ci) {
-		if (equipmentSlot != EquipmentSlot.HEAD)
+	                        int i, M bipedEntityModel, CallbackInfo ci) {
+		if (equipmentSlot != EquipmentSlot.HEAD) {
 			return;
+		}
 
 		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
-		if (!(itemStack.getItem() instanceof ArmorItem))
+		if (!(itemStack.getItem() instanceof ArmorItem)) {
 			return;
+		}
 
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
 		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(itemStack, livingEntity.world, livingEntity, 0);
 		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);
-		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth())
+		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth()) {
 			return;
+		}
 
 		ci.cancel();
 
@@ -64,11 +68,11 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		matrices.translate(0.0D, -0.25D, 0.0D);
 		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180.0F));
 		matrices.scale(0.625F, -0.625F, -0.625F);
-		if (livingEntity instanceof VillagerEntity || livingEntity instanceof ZombieVillagerEntity) {
+		if (!UnofficialMonumentaModClient.options.lowerVillagerHelmets && (livingEntity instanceof VillagerEntity || livingEntity instanceof ZombieVillagerEntity)) {
 			matrices.translate(0.0D, 0.1875D, 0.0D);
 		}
 		MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.HEAD,
-				false, matrices, vertexConsumers, i, OverlayTexture.DEFAULT_UV, headModel);
+			false, matrices, vertexConsumers, i, OverlayTexture.DEFAULT_UV, headModel);
 		matrices.pop();
 	}
 

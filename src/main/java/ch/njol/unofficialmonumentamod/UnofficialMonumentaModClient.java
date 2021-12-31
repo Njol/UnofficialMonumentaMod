@@ -20,65 +20,76 @@ import java.io.IOException;
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
 
-    // TODO:
-    // sage's insight has no ClassAbility, but has stacks
-    // spellshock however has a ClassAbility, but doesn't really need to be displayed...
+	// TODO:
+	// sage's insight has no ClassAbility, but has stacks
+	// spellshock however has a ClassAbility, but doesn't really need to be displayed...
 
-    public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
+	public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
 
-    public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
+	public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
 
-    public static Options options = new Options();
+	public static Options options = new Options();
 
-    public static final AbilityHandler abilityHandler = new AbilityHandler();
+	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
-    @Override
-    public void onInitializeClient() {
+	// This is a hacky way to pass data around...
+	public static boolean isReorderingAbilities = false;
 
-        FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
-                (itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
+	@Override
+	public void onInitializeClient() {
 
-        try {
-            options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
-        } catch (FileNotFoundException e) {
-            // Config file doesn't exist, so use default config (and write config file).
-            writeJsonFile(options, OPTIONS_FILE_NAME);
-        } catch (IOException | JsonParseException e) {
-            // Any issue with the config file silently reverts to the default config
-            e.printStackTrace();
-        }
+		FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
+			(itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            abilityHandler.tick();
-        });
+		try {
+			options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
+		} catch (FileNotFoundException e) {
+			// Config file doesn't exist, so use default config (and write config file).
+			writeJsonFile(options, OPTIONS_FILE_NAME);
+		} catch (IOException | JsonParseException e) {
+			// Any issue with the config file silently reverts to the default config
+			e.printStackTrace();
+		}
 
-        ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			abilityHandler.tick();
+		});
 
-    }
+		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
-    public static void onDisconnect() {
-        abilityHandler.onDisconnect();
-    }
+	}
 
-    private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
-        try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
-            return new GsonBuilder().create().fromJson(reader, c);
-        }
-    }
+	public static void onDisconnect() {
+		abilityHandler.onDisconnect();
+	}
 
-    private static void writeJsonFile(Object o, String filePath) {
-        try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
-            writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
-        } catch (IOException e) {
-            // Silently ignore save errors
-            e.printStackTrace();
-        }
-    }
+	private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
+		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
+			return new GsonBuilder().create().fromJson(reader, c);
+		}
+	}
 
-    public static void saveConfig() {
-        MinecraftClient.getInstance().execute(() -> {
-            writeJsonFile(options, OPTIONS_FILE_NAME);
-        });
-    }
+	private static void writeJsonFile(Object o, String filePath) {
+		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
+			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
+		} catch (IOException e) {
+			// Silently ignore save errors
+			e.printStackTrace();
+		}
+	}
+
+	public static void saveConfig() {
+		MinecraftClient.getInstance().execute(() -> {
+			writeJsonFile(options, OPTIONS_FILE_NAME);
+		});
+	}
+
+	public static boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo) {
+		// abilities are visible with showOnlyOnCooldown IFF they are on cooldown or don't have a cooldown (and should have stacks instead)
+		return !options.abilitiesDisplay_showOnlyOnCooldown
+			       || isReorderingAbilities
+			       || abilityInfo.remainingCooldown > 0
+			       || abilityInfo.maxCharges > 0 && (abilityInfo.initialCooldown <= 0 || options.abilitiesDisplay_alwaysShowAbilitiesWithCharges);
+	}
 
 }
