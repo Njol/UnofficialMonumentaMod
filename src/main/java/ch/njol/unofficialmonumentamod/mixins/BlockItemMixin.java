@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -25,12 +26,13 @@ public abstract class BlockItemMixin {
 	 * Prevents Firmament (and its skinned version) from being consumed when placed, allowing fast placement regardless of ping.
 	 */
 	@Redirect(method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;decrement(I)V"))
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;decrement(I)V"))
 	public void place_consumeBlock(ItemStack itemStack, int amount) {
-		if (itemStack.isEmpty())
+		if (itemStack.isEmpty() || !UnofficialMonumentaModClient.options.firmamentPingFix) {
 			return;
+		}
 		if (getBlock() instanceof ShulkerBoxBlock
-				&& Arrays.asList("Firmament", "Doorway from Eternity").contains(Utils.getPlainDisplayName(itemStack))) {
+			    && Arrays.asList("Firmament", "Doorway from Eternity").contains(Utils.getPlainDisplayName(itemStack))) {
 			// do nothing, i.e. keep the Firmament
 			return;
 		}
@@ -42,8 +44,11 @@ public abstract class BlockItemMixin {
 	 * This both looks better and also prevents the client trying to open the placed Shulker box instead of placing another block.
 	 */
 	@Redirect(method = "getPlacementState(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/block/BlockState;",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getPlacementState(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/block/BlockState;"))
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;getPlacementState(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/block/BlockState;"))
 	BlockState place_getPlacementState(Block block, ItemPlacementContext ctx) {
+		if (!UnofficialMonumentaModClient.options.firmamentPingFix) {
+			return block.getPlacementState(ctx);
+		}
 		ItemStack itemStack = ctx.getStack();
 		if (getBlock() instanceof ShulkerBoxBlock && "Firmament".equals(Utils.getPlainDisplayName(itemStack))) {
 			return Blocks.PRISMARINE.getDefaultState();
