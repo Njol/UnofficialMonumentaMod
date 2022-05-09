@@ -9,7 +9,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.client.util.math.MatrixStack;
@@ -139,9 +144,9 @@ public class InGameHudMixin extends DrawableHelper {
 					if (UnofficialMonumentaModClient.isAbilityVisible(abilityInfo)) {
 						// some settings are affected by called methods, so set them anew for each ability to render
 						RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                        RenderSystem.enableBlend();
-                        RenderSystem.defaultBlendFunc();
+						RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+						RenderSystem.enableBlend();
+						RenderSystem.defaultBlendFunc();
 
 						if (layer == 0) {
 
@@ -161,13 +166,13 @@ public class InGameHudMixin extends DrawableHelper {
 								final int numCooldownTextures = 16;
 								int cooldownTextureIndex = (int) Math.floor((1 - cooldownFraction) * numCooldownTextures);
 								RenderSystem.setShaderTexture(0, COOLDOWN_OVERLAY);
-                                drawTextureSmooth(matrices,
-                                        scaledX, scaledY, scaledIconSize, scaledIconSize,
-                                        0, 1, 1f * cooldownTextureIndex / numCooldownTextures, 1f * (cooldownTextureIndex + 1) / numCooldownTextures);
-                            }
-                            if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
-                                RenderSystem.setShaderTexture(0, COOLDOWN_FLASH);
-                                RenderSystem.setShaderColor(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
+								drawTextureSmooth(matrices,
+									scaledX, scaledY, scaledIconSize, scaledIconSize,
+									0, 1, 1f * cooldownTextureIndex / numCooldownTextures, 1f * (cooldownTextureIndex + 1) / numCooldownTextures);
+							}
+							if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
+								RenderSystem.setShaderTexture(0, COOLDOWN_FLASH);
+								RenderSystem.setShaderColor(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
 								drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
 								RenderSystem.setShaderColor(1, 1, 1, 1);
 							}
@@ -206,10 +211,10 @@ public class InGameHudMixin extends DrawableHelper {
 	@Unique
 	private void bindTextureOrDefault(Identifier identifier, Identifier defaultIdentifier) {
 		AbstractTexture texture = this.client.getTextureManager().getTexture(identifier);
-        if (texture == null || texture == MissingSprite.getMissingSpriteTexture()) {
-            RenderSystem.setShaderTexture(0, defaultIdentifier);
-        } else {
-            RenderSystem.setShaderTexture(0, identifier);
+		if (texture == null || texture == MissingSprite.getMissingSpriteTexture()) {
+			RenderSystem.setShaderTexture(0, defaultIdentifier);
+		} else {
+			RenderSystem.setShaderTexture(0, identifier);
 		}
 	}
 
@@ -283,24 +288,24 @@ public class InGameHudMixin extends DrawableHelper {
 
 	@Unique
 	private static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height) {
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
 	}
 
 	@Unique
 	private static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height, float u0, float u1, float v0, float v1) {
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
 	}
 
 	@Unique
 	private static void drawTexturedQuadSmooth(Matrix4f matrices, float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-        bufferBuilder.vertex(matrices, x0, y1, z).texture(u0, v1).next();
-        bufferBuilder.vertex(matrices, x1, y1, z).texture(u1, v1).next();
-        bufferBuilder.vertex(matrices, x1, y0, z).texture(u1, v0).next();
-        bufferBuilder.vertex(matrices, x0, y0, z).texture(u0, v0).next();
-        bufferBuilder.end();
+		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+		bufferBuilder.vertex(matrices, x0, y1, z).texture(u0, v1).next();
+		bufferBuilder.vertex(matrices, x1, y1, z).texture(u1, v1).next();
+		bufferBuilder.vertex(matrices, x1, y0, z).texture(u1, v0).next();
+		bufferBuilder.vertex(matrices, x0, y0, z).texture(u0, v0).next();
+		bufferBuilder.end();
 		BufferRenderer.draw(bufferBuilder);
 	}
 

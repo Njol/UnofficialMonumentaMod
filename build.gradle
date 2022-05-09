@@ -1,12 +1,12 @@
 plugins {
-    id 'fabric-loom' version '0.9-SNAPSHOT'
+    id 'fabric-loom' version '0.11-SNAPSHOT'
     id 'maven-publish'
 //    id 'java'
 //    id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 archivesBaseName = project.archives_base_name + "-mc" + project.minecraft_version
 version = project.mod_version

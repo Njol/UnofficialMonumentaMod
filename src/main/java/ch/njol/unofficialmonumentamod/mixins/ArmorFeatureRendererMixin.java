@@ -49,7 +49,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		}
 
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
-		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(itemStack, livingEntity.world, livingEntity, 0);
+		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.world, livingEntity, 0);
 		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);
 		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth()) {
 			return;
