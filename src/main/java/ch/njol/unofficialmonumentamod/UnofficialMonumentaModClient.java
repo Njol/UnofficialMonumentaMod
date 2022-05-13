@@ -84,8 +84,18 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		});
 	}
 
-	public static boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo) {
-		// abilities are visible with showOnlyOnCooldown IFF they are on cooldown or don't have a cooldown (and should have stacks instead)
+	public static boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo, boolean forSpaceCalculation) {
+		// Passive abilities are visible iff passives are enabled in the options
+		if (abilityInfo.initialCooldown == 0 && abilityInfo.maxCharges == 0) {
+			return options.abilitiesDisplay_showPassiveAbilities;
+		}
+
+		// Active abilities take up space even if hidden unless condenseOnlyOnCooldown is enabled
+		if (forSpaceCalculation && !UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
+			return true;
+		}
+
+		// Active abilities are visible with showOnlyOnCooldown iff they are on cooldown or don't have a cooldown (and should have stacks instead)
 		return !options.abilitiesDisplay_showOnlyOnCooldown
 			       || isReorderingAbilities
 			       || abilityInfo.remainingCooldown > 0
