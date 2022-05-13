@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 
@@ -45,6 +46,8 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 			int remainingCharges;
 			int maxCharges;
 
+			@Nullable String mode;
+
 		}
 
 	}
@@ -61,6 +64,8 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 		int remainingCooldown;
 
 		int remainingCharges;
+
+		@Nullable String mode;
 
 	}
 
@@ -79,8 +84,9 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 		String message = buf.readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
 		JsonElement json = new JsonParser().parse(message);
-		if (UnofficialMonumentaModClient.options.logPackets)
+		if (UnofficialMonumentaModClient.options.logPackets) {
 			System.out.println("[UMM] read packet: " + json);
+		}
 		String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
 		switch (packetType) {
 			case "ClassUpdatePacket": {

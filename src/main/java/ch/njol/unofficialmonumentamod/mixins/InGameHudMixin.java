@@ -17,6 +17,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Mixin(InGameHud.class)
@@ -43,6 +45,9 @@ public class InGameHudMixin extends DrawableHelper {
 	private static final Identifier UNKNOWN_ABILITY_ICON = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "textures/abilities/unknown_ability.png");
 	@Unique
 	private static final Identifier UNKNOWN_CLASS_BORDER = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "textures/abilities/unknown_border.png");
+
+	@Unique
+	private static final Pattern IDENTIFIER_SANITATION_PATTERN = Pattern.compile("[^a-zA-Z0-9/._-]");
 
 	@Shadow
 	@Final
@@ -96,9 +101,7 @@ public class InGameHudMixin extends DrawableHelper {
 
 			// NB: this code is partially duplicated in ChatScreenMixin!
 
-			if (options.abilitiesDisplay_condenseOnlyOnCooldown) {
-				abilityInfos = abilityInfos.stream().filter(UnofficialMonumentaModClient::isAbilityVisible).collect(Collectors.toList());
-			}
+			abilityInfos = abilityInfos.stream().filter(a -> UnofficialMonumentaModClient.isAbilityVisible(a, true)).collect(Collectors.toList());
 
 			int iconSize = options.abilitiesDisplay_iconSize;
 			int iconGap = options.abilitiesDisplay_iconGap;
@@ -136,7 +139,7 @@ public class InGameHudMixin extends DrawableHelper {
 				for (int i = 0; i < abilityInfos.size(); i++) {
 					AbilityHandler.AbilityInfo abilityInfo = abilityInfos.get(ascendingRenderOrder ? i : abilityInfos.size() - 1 - i);
 
-					if (UnofficialMonumentaModClient.isAbilityVisible(abilityInfo)) {
+					if (UnofficialMonumentaModClient.isAbilityVisible(abilityInfo, false)) {
 						// some settings are affected by called methods, so set them anew for each ability to render
 						RenderSystem.setShader(GameRenderer::getPositionTexShader);
                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -151,7 +154,7 @@ public class InGameHudMixin extends DrawableHelper {
 							float scaledX = x - (scaledIconSize - iconSize) / 2;
 							float scaledY = y - (scaledIconSize - iconSize) / 2;
 
-							bindTextureOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name), UNKNOWN_ABILITY_ICON);
+							bindTextureOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name, abilityInfo.mode), UNKNOWN_ABILITY_ICON);
 							drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
 
 							// silenceCooldownFraction is >= 0 so this is also >= 0
@@ -172,7 +175,7 @@ public class InGameHudMixin extends DrawableHelper {
 								RenderSystem.setShaderColor(1, 1, 1, 1);
 							}
 
-							bindTextureOrDefault(getBorderFileIdentifier(abilityInfo.className), UNKNOWN_CLASS_BORDER);
+							bindTextureOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER);
 							drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
 
 						} else {
@@ -217,18 +220,25 @@ public class InGameHudMixin extends DrawableHelper {
 	private static final Map<String, Identifier> abilityIdentifiers = new HashMap<>();
 
 	@Unique
-	private static Identifier getAbilityFileIdentifier(String className, String name) {
-		return abilityIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + "/" + name, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
-			"textures/abilities/" + key.replaceAll("[^a-zA-Z0-9/._-]", "_").toLowerCase(Locale.ROOT) + ".png"));
+	private static Identifier getAbilityFileIdentifier(String className, String name, @Nullable String mode) {
+		return abilityIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + "/" + name + (mode == null ? "" : "_" + mode),
+			key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
+				"textures/abilities/" + sanitizeForIdentifier(key) + ".png"));
 	}
 
 	@Unique
 	private static final Map<String, Identifier> borderIdentifiers = new HashMap<>();
 
 	@Unique
-	private static Identifier getBorderFileIdentifier(String className) {
-		return borderIdentifiers.computeIfAbsent(className == null ? "unknown" : className, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
-			"textures/abilities/" + key.replaceAll("[^a-zA-Z0-9/._-]", "_").toLowerCase(Locale.ROOT) + "/border.png"));
+	private static Identifier getBorderFileIdentifier(String className, boolean silenced) {
+		return borderIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + (silenced ? "_silenced" : ""),
+			key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
+				"textures/abilities/" + sanitizeForIdentifier(className == null ? "unknown" : className) + "/border" + (silenced ? "_silenced" : "") + ".png"));
+	}
+
+	@Unique
+	private static String sanitizeForIdentifier(String string) {
+		return IDENTIFIER_SANITATION_PATTERN.matcher(string).replaceAll("_").toLowerCase(Locale.ROOT);
 	}
 
 	/**
@@ -250,6 +260,7 @@ public class InGameHudMixin extends DrawableHelper {
 	/**
 	 * If configured, do not show ability messages
 	 * TODO the messages here are translated, so only work for English. Maybe just check for the ability name in the message? (assuming that one isn't translated as well...)
+	 * TODO Or maybe make this an option server-side?
 	 */
 	@Inject(method = "setOverlayMessage(Lnet/minecraft/text/Text;Z)V", at = @At("HEAD"), cancellable = true)
 	void setOverlayMessage(Text message, boolean tinted, CallbackInfo ci) {

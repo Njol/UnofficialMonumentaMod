@@ -1,5 +1,12 @@
 package ch.njol.unofficialmonumentamod;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -7,104 +14,122 @@ import java.util.Locale;
 
 public class AbilityHandler {
 
-    public static final int MAX_ANIMATION_TICKS = 20;
+	private static final Identifier COOLDOWN_SOUND = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "cooldown_ping");
 
-    public static class AbilityInfo {
-        public String name;
-        public String className;
-        public int initialCooldown;
-        public int remainingCooldown;
-        public int offCooldownAnimationTicks;
-        public int charges;
-        public int maxCharges;
+	public static final int MAX_ANIMATION_TICKS = 20;
 
-        public AbilityInfo(ChannelHandler.ClassUpdatePacket.AbilityInfo info) {
-            this.name = info.name;
-            this.className = info.className;
-            this.initialCooldown = info.initialCooldown;
-            this.remainingCooldown = info.remainingCooldown;
-            this.charges = info.remainingCharges;
-            this.maxCharges = info.maxCharges;
-            offCooldownAnimationTicks = MAX_ANIMATION_TICKS;
-        }
+	public static class AbilityInfo {
+		public String name;
+		public String className;
+		public int initialCooldown;
+		public int remainingCooldown;
+		public int offCooldownAnimationTicks;
+		public int charges;
+		public int maxCharges;
+		public @Nullable String mode;
 
-        public String getOrderId() {
-            return (className + "/" + name).toLowerCase(Locale.ROOT);
-        }
-    }
+		public AbilityInfo(ChannelHandler.ClassUpdatePacket.AbilityInfo info) {
+			this.name = info.name;
+			this.className = info.className;
+			this.initialCooldown = info.initialCooldown;
+			this.remainingCooldown = info.remainingCooldown;
+			this.charges = info.remainingCharges;
+			this.maxCharges = info.maxCharges;
+			this.mode = info.mode;
+			offCooldownAnimationTicks = MAX_ANIMATION_TICKS;
+		}
 
-    // accesses must be synchronized on the AbilityHandler
-    public final List<AbilityInfo> abilityData = new ArrayList<>();
+		public String getOrderId() {
+			return (className + "/" + name).toLowerCase(Locale.ROOT);
+		}
+	}
 
-    // accesses should be synchronized on the AbilityHandler (if reading both fields)
-    public volatile int initialSilenceDuration = 0;
-    public volatile int silenceDuration = 0;
+	// accesses must be synchronized on the AbilityHandler
+	public final List<AbilityInfo> abilityData = new ArrayList<>();
 
-    public synchronized void updateAbilities(ChannelHandler.ClassUpdatePacket packet) {
-        abilityData.clear();
-        // class update also clears silence
-        initialSilenceDuration = 0;
-        silenceDuration = 0;
-        for (ChannelHandler.ClassUpdatePacket.AbilityInfo abilityInfo : packet.abilities) {
-            abilityData.add(new AbilityInfo(abilityInfo));
-        }
-        List<String> order = new ArrayList<>(UnofficialMonumentaModClient.options.abilitiesDisplay_order);
-        boolean added = false;
-        for (AbilityInfo info : abilityData) {
-            String id = info.getOrderId();
-            if (!order.contains(id)) {
-                order.add(id);
-                added = true;
-            }
-        }
-        if (added) {
-            UnofficialMonumentaModClient.options.abilitiesDisplay_order = order;
-            UnofficialMonumentaModClient.saveConfig();
-        }
-        sortAbilities();
-    }
+	// accesses should be synchronized on the AbilityHandler (if reading both fields)
+	public volatile int initialSilenceDuration = 0;
+	public volatile int silenceDuration = 0;
 
-    public synchronized void sortAbilities() {
-        List<String> order = UnofficialMonumentaModClient.options.abilitiesDisplay_order;
-        abilityData.sort(Comparator.comparingInt(info -> order.indexOf(info.getOrderId())));
-    }
+	public synchronized void updateAbilities(ChannelHandler.ClassUpdatePacket packet) {
+		abilityData.clear();
+		// class update also clears silence
+		initialSilenceDuration = 0;
+		silenceDuration = 0;
+		for (ChannelHandler.ClassUpdatePacket.AbilityInfo abilityInfo : packet.abilities) {
+			abilityData.add(new AbilityInfo(abilityInfo));
+		}
+		List<String> order = new ArrayList<>(UnofficialMonumentaModClient.options.abilitiesDisplay_order);
+		boolean added = false;
+		for (AbilityInfo info : abilityData) {
+			String id = info.getOrderId();
+			if (!order.contains(id)) {
+				order.add(id);
+				added = true;
+			}
+		}
+		if (added) {
+			UnofficialMonumentaModClient.options.abilitiesDisplay_order = order;
+			UnofficialMonumentaModClient.saveConfig();
+		}
+		sortAbilities();
+	}
 
-    public synchronized void updateAbility(ChannelHandler.AbilityUpdatePacket packet) {
-        for (AbilityInfo abilityInfo : this.abilityData) {
-            if (abilityInfo.name.equals(packet.name)) {
-                int previousCooldown = abilityInfo.remainingCooldown;
-                abilityInfo.remainingCooldown = packet.remainingCooldown;
-                if (previousCooldown > 0 && packet.remainingCooldown == 0)
-                    abilityInfo.offCooldownAnimationTicks = 0;
-                abilityInfo.charges = packet.remainingCharges;
-                return;
-            }
-        }
-    }
+	public synchronized void sortAbilities() {
+		List<String> order = UnofficialMonumentaModClient.options.abilitiesDisplay_order;
+		abilityData.sort(Comparator.comparingInt(info -> order.indexOf(info.getOrderId())));
+	}
 
-    public synchronized void updateStatus(ChannelHandler.PlayerStatusPacket packet) {
-        silenceDuration = packet.silenceDuration;
-        initialSilenceDuration = packet.silenceDuration;
-    }
+	public synchronized void updateAbility(ChannelHandler.AbilityUpdatePacket packet) {
+		for (AbilityInfo abilityInfo : this.abilityData) {
+			if (abilityInfo.name.equals(packet.name)) {
+				int previousCooldown = abilityInfo.remainingCooldown;
+				abilityInfo.remainingCooldown = packet.remainingCooldown;
+				if (previousCooldown > 0 && packet.remainingCooldown == 0) {
+					abilityInfo.offCooldownAnimationTicks = 0;
+				}
+				abilityInfo.charges = packet.remainingCharges;
+				abilityInfo.mode = packet.mode;
+				return;
+			}
+		}
+	}
 
-    public synchronized void onDisconnect() {
-        abilityData.clear();
-        initialSilenceDuration = 0;
-        silenceDuration = 0;
-    }
+	public synchronized void updateStatus(ChannelHandler.PlayerStatusPacket packet) {
+		silenceDuration = packet.silenceDuration;
+		initialSilenceDuration = packet.silenceDuration;
+	}
 
-    public synchronized void tick() {
-        // this never lowers cooldowns/silence below 1 - only the message from the server that a cooldown is over can set it to 0
-        for (AbilityInfo abilityInfo : this.abilityData) {
-            if (abilityInfo.remainingCooldown > 1) {
-                abilityInfo.remainingCooldown--;
-            }
-            if (abilityInfo.offCooldownAnimationTicks < MAX_ANIMATION_TICKS)
-                abilityInfo.offCooldownAnimationTicks++;
-        }
-        if (silenceDuration > 1)
-            silenceDuration--;
-    }
+	public synchronized void onDisconnect() {
+		abilityData.clear();
+		initialSilenceDuration = 0;
+		silenceDuration = 0;
+	}
+
+	public synchronized void tick() {
+		// this never lowers cooldowns/silence below 1 - only the message from the server that a cooldown is over can set it to 0
+		List<AbilityInfo> data = this.abilityData;
+		for (int i = 0; i < data.size(); i++) {
+			AbilityInfo abilityInfo = data.get(i);
+			if (abilityInfo.remainingCooldown > 1) {
+				abilityInfo.remainingCooldown--;
+			}
+			if (abilityInfo.offCooldownAnimationTicks == 0 && UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume > 0) {
+				float pitchMin = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMin;
+				float pitchMax = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMax;
+				MinecraftClient.getInstance().getSoundManager().play(
+					new PositionedSoundInstance(COOLDOWN_SOUND, SoundCategory.MASTER, UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume,
+						pitchMin + (i == 0 ? 0 : (pitchMax - pitchMin) * i / (data.size() - 1)),
+						false, 0, SoundInstance.AttenuationType.NONE, 0, 0, 0, true));
+			}
+			if (abilityInfo.offCooldownAnimationTicks < MAX_ANIMATION_TICKS) {
+				abilityInfo.offCooldownAnimationTicks++;
+			}
+		}
+		if (silenceDuration > 1) {
+			silenceDuration--;
+		}
+	}
 
 
 }

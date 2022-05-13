@@ -31,6 +31,8 @@ public class Options {
 		float max();
 
 		float step();
+
+		String unit();
 	}
 
 	public interface DescriptionLine {
@@ -92,8 +94,17 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_offCooldownResize = true;
 	@Category("abilities")
-	@Slider(min = 0, max = 1, step = 0.01f)
+	@Slider(min = 0, max = 1, step = 0.01f, unit = "%")
 	public float abilitiesDisplay_offCooldownFlashIntensity = 1;
+	@Category("abilities")
+	@Slider(min = 0, max = 1, step = 0.01f, unit = "%")
+	public float abilitiesDisplay_offCooldownSoundVolume = 0f;
+	@Category("abilities")
+	@Slider(min = 0, max = 2, step = 0.05f, unit = "")
+	public float abilitiesDisplay_offCooldownSoundPitchMin = 1f;
+	@Category("abilities")
+	@Slider(min = 0, max = 2, step = 0.05f, unit = "")
+	public float abilitiesDisplay_offCooldownSoundPitchMax = 1f;
 	@Category("abilities")
 	public int abilitiesDisplay_iconSize = 32;
 	@Category("abilities")
@@ -111,6 +122,8 @@ public class Options {
 	public boolean abilitiesDisplay_alwaysShowAbilitiesWithCharges = false;
 	@Category("abilities")
 	public boolean abilitiesDisplay_condenseOnlyOnCooldown = false;
+	@Category("abilities")
+	public boolean abilitiesDisplay_showPassiveAbilities = false;
 
 	/**
 	 * List of [class]/[ability]. Abilities not present in this list are sorted alphabetically.

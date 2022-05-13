@@ -53,9 +53,7 @@ public abstract class ChatScreenMixin extends Screen {
 			if (abilityInfos.isEmpty()) {
 				return;
 			}
-			if (UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
-				abilityInfos = abilityInfos.stream().filter(UnofficialMonumentaModClient::isAbilityVisible).collect(Collectors.toList());
-			}
+			abilityInfos = abilityInfos.stream().filter(a -> UnofficialMonumentaModClient.isAbilityVisible(a, true)).collect(Collectors.toList());
 
 			int index = getClosestAbilityIndex(abilityInfos, mouseX, mouseY, true);
 			if (index < 0) {
@@ -239,9 +237,7 @@ public abstract class ChatScreenMixin extends Screen {
 			if (abilityInfos.isEmpty()) {
 				return style;
 			}
-			if (UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
-				abilityInfos = abilityInfos.stream().filter(UnofficialMonumentaModClient::isAbilityVisible).collect(Collectors.toList());
-			}
+			abilityInfos = abilityInfos.stream().filter(a -> UnofficialMonumentaModClient.isAbilityVisible(a, true)).collect(Collectors.toList());
 
 			int index = getClosestAbilityIndex(abilityInfos, mouseX, mouseY, true);
 			if (index < 0) {
