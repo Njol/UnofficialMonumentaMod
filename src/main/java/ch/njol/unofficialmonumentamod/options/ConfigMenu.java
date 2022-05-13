@@ -93,7 +93,7 @@ public class ConfigMenu implements ModMenuApi {
 							category.addEntry(config.entryBuilder()
 								.startLongSlider(new TranslatableText(translateKey), Math.round((Float) value / step), Math.round(slider.min() / step), Math.round(slider.max() / step))
 								.setDefaultValue(Math.round((Float) defaultValue / slider.step()))
-								.setTextGetter(l -> new LiteralText(l + "%"))
+								.setTextGetter(val -> new LiteralText("%".equals(slider.unit()) ? Math.round(val * step * 100) + "%" : "" + String.format("%.2f", val * step)))
 								.setTooltip(new TranslatableText(translateKey + ".tooltip"))
 								.setSaveConsumer(l -> saveConsumer.accept(l * step))
 								.build());
