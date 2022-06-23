@@ -12,6 +12,15 @@ archivesBaseName = project.archives_base_name + "-mc" + project.minecraft_versio
 version = project.mod_version
 group = project.maven_group
 
+repositories {
+    mavenCentral()
+    maven { url = "https://maven.terraformersmc.com" }
+    maven { url = "https://maven.shedaniel.me/" }
+
+    jcenter()
+    maven { url = "https://jitpack.io/" }
+}
+
 dependencies {
     //to change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -25,11 +34,9 @@ dependencies {
     modImplementation("me.shedaniel.cloth:cloth-config-fabric:4.10.11") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-}
-repositories {
-    mavenCentral()
-    maven { url = "https://maven.terraformersmc.com" }
-    maven { url = "https://maven.shedaniel.me/" }
+
+    include(implementation ('club.minnced:discord-rpc-release:v3.4.0'))
+    include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 }
 
 processResources {

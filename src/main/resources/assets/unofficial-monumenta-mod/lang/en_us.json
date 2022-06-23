@@ -77,5 +77,10 @@
   "unofficial-monumenta-mod.config.option.debugOptionsEnabled": "Enable debug options",
   "unofficial-monumenta-mod.config.option.debugOptionsEnabled.tooltip": "",
   "unofficial-monumenta-mod.config.option.logPackets": "Log packets",
-  "unofficial-monumenta-mod.config.option.logPackets.tooltip": ""
+  "unofficial-monumenta-mod.config.option.logPackets.tooltip": "",
+  "unofficial-monumenta-mod.config.category.discord": "Discord Rich Presence",
+  "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence (Requires restart)",
+  "unofficial-monumenta-mod.config.option.discordEnabled.tooltip": "Defines if the rich presence should be active or not",
+  "unofficial-monumenta-mod.config.option.discordDetails": "Discord rich presence details",
+  "unofficial-monumenta-mod.config.option.discordDetails.tooltip": "{player} returns the player name. \n{shard} returns the shard name. \n{server} returns the server name. \n{holding} returns the name of the item held in main hand."
 }

@@ -1,11 +1,13 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -30,6 +32,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static Options options = new Options();
 
+	public static DiscordRPC discordpresence = new DiscordRPC();
+
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
 	// This is a hacky way to pass data around...
@@ -50,6 +54,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			// Any issue with the config file silently reverts to the default config
 			e.printStackTrace();
 		}
+
+		if (options.discordEnabled) discordpresence.Init();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
