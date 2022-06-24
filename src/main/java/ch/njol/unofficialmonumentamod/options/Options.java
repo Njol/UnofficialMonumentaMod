@@ -128,6 +128,7 @@ public class Options {
      * {shard} returns the shard name
      * {server} returns the server name
      * {holding} returns the item held in the main hand
+     * {class} returns the class the user is playing as
      *
      * everything else is a string literal
      */
