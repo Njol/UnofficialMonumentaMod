@@ -107,7 +107,7 @@ public class DiscordRPC {
                     detail = detail.replace("{shard}", this.shard);
                     detail = detail.replace("{server}", mc.getCurrentServerEntry().name);
                     detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
-
+                    detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT));
 
                     presence.details = detail;
 
