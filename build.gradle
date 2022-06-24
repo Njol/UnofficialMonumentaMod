@@ -25,11 +25,17 @@ dependencies {
     modImplementation("me.shedaniel.cloth:cloth-config-fabric:5.0.38") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+
+    include(implementation ('club.minnced:discord-rpc-release:v3.4.0'))
+    include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 }
 repositories {
     mavenCentral()
     maven { url = "https://maven.terraformersmc.com" }
     maven { url = "https://maven.shedaniel.me/" }
+
+    jcenter()
+    maven { url = "https://jitpack.io/" }
 }
 
 processResources {

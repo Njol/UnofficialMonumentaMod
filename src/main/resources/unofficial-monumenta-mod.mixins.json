@@ -12,7 +12,8 @@
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "PlayerListHudAccessor"
   ],
   "client": [
   ],
