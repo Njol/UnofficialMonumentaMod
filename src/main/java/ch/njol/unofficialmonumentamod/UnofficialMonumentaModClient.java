@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -30,6 +31,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
     public static Options options = new Options();
 
+    public static DiscordRPC discordRPC = new DiscordRPC();
+
     public static final AbilityHandler abilityHandler = new AbilityHandler();
 
     @Override
@@ -47,6 +50,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
             // Any issue with the config file silently reverts to the default config
             e.printStackTrace();
         }
+
+        if (options.discordEnabled) discordRPC.Init();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             abilityHandler.tick();
