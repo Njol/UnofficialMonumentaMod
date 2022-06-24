@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.PlayerListHud;
@@ -82,11 +83,7 @@ public class DiscordRPC {
                 if (!isOnMonumenta) {
                     presence.state = "Playing Multiplayer - " + mc.getCurrentServerEntry().name.toUpperCase();
                 } else {
-                    Class<? extends PlayerListHud> obj = mc.inGameHud.getPlayerListWidget().getClass();
-                    Field field = obj.getDeclaredField("header");
-                    field.setAccessible(true);
-
-                    Text header = (Text) field.get(mc.inGameHud.getPlayerListWidget());
+                    Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
 
                     for (Text text: header.getSiblings()) {
                         if (text.getString().matches("<.*>")) {
