@@ -4,11 +4,9 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 public class DiscordRPC {
@@ -65,7 +63,7 @@ public class DiscordRPC {
         lib.Discord_UpdatePresence(presence);
     }
 
-    private void updatePresence() throws NoSuchFieldException, IllegalAccessException {
+    private void updatePresence() {
         if (mc.world != null) {
             times++;
             boolean isSinglePlayer = mc.isInSingleplayer();
