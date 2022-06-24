@@ -64,7 +64,7 @@ public class DiscordRPC {
         lib.Discord_UpdatePresence(presence);
     }
 
-    private void updatePresence() throws NoSuchFieldException, IllegalAccessException {
+    private void updatePresence() {
         if (mc.world != null) {
             times++;
             boolean isSinglePlayer = mc.isInSingleplayer();
