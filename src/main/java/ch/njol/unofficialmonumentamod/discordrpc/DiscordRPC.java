@@ -1,13 +1,13 @@
 package ch.njol.unofficialmonumentamod.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 
 import java.util.*;
+
+import static ch.njol.unofficialmonumentamod.discordrpc.Locations.getShard;
 
 public class DiscordRPC {
     club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;
@@ -81,17 +81,10 @@ public class DiscordRPC {
                 if (!isOnMonumenta) {
                     presence.state = "Playing Multiplayer - " + mc.getCurrentServerEntry().name.toUpperCase();
                 } else {
-                    Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
-
-                    for (Text text: header.getSiblings()) {
-                        if (text.getString().matches("<.*>")) {
-                            //player shard
-                            this.shard = text.getString().substring(1, text.getString().length()-1);
-                        }
-                    }
+                    this.shard = getShard();
 
                     presence.state = this.shard != null ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
-                    //set smol image
+                    //set small image
                     String shortShard = shard;
                     if (shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isle number
 
@@ -108,6 +101,7 @@ public class DiscordRPC {
                     detail = detail.replace("{server}", mc.getCurrentServerEntry().name);
                     detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
                     detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT));
+                    detail = detail.replace("{location}", UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shortShard));
 
                     presence.details = detail;
 

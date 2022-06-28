@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.discordrpc.Locations;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -34,6 +35,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static DiscordRPC discordpresence = new DiscordRPC();
 
+	public static Locations locations = new Locations();
+
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
 	// This is a hacky way to pass data around...
@@ -57,6 +60,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		if (options.discordEnabled) discordpresence.Init();
 
+		locations.populate();
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 		});
