@@ -145,6 +145,8 @@ public class Options {
 	public boolean discordEnabled = true;
 	@Category("discord")
 	public String discordDetails = "{player} is on {shard}";
+	@Category("discord")
+	public boolean locationUpdate = true;
 
 	/**
 	 * discordDetails replace values:
@@ -154,7 +156,7 @@ public class Options {
 	 * {server} returns the server name
 	 * {holding} returns the item held in the main hand
 	 * {class} returns the class the user is playing as
-	 *
+	 * {location} returns the location or if not found the shard name
 	 * everything else is a string literal
 	 */
 

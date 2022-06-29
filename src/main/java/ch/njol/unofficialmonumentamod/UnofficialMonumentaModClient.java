@@ -8,7 +8,6 @@ import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -60,7 +59,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		if (options.discordEnabled) discordpresence.Init();
 
-		locations.populate();
+		locations.load();
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 		});
@@ -73,13 +73,13 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		abilityHandler.onDisconnect();
 	}
 
-	private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
+	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
 		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
 			return new GsonBuilder().create().fromJson(reader, c);
 		}
 	}
 
-	private static void writeJsonFile(Object o, String filePath) {
+	public static void writeJsonFile(Object o, String filePath) {
 		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
 			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
 		} catch (IOException e) {

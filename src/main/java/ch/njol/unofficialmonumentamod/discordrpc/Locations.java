@@ -1,26 +1,60 @@
 package ch.njol.unofficialmonumentamod.discordrpc;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.lang.reflect.Field;
 
+import static ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient.readJsonFile;
+import static ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient.writeJsonFile;
+import static ch.njol.unofficialmonumentamod.Utils.getUrl;
 import static java.lang.Integer.parseInt;
 
 public class Locations {
 
+
+    //add shards with locations here
     public ArrayList<String> VALLEY;
     public ArrayList<String> PLOTS;
     public ArrayList<String> ISLES;
 
+    private static final String CACHE_FILE_PATH = "unofficial-monumenta-mod-locations.json";
+    private String update_commit;
+    private static final String UPDATE_GIST_URL = "https://api.github.com/gists/4b1602b907da62a9cca6f135fd334737";//put new locations in that gist
+
+    public static class locationFile {
+        //add the shards here too
+        public String[] VALLEY;
+        public String[] PLOTS;
+        public String[] ISLES;
+
+        public String update_commit;
+    }
+
 
     public Locations() {
+        for (Field f: this.getClass().getDeclaredFields()) {
+            if (f.getType() != java.util.ArrayList.class) continue;
+                try {
+                    f.set(this, new ArrayList<>());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+        }
     }
 
     public static String getShard() {
@@ -28,7 +62,7 @@ public class Locations {
 
         Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
 
-        String shard = "unknown";
+        String shard = null;
 
         for (Text text: header.getSiblings()) {
             if (text.getString().matches("<.*>")) {
@@ -37,7 +71,7 @@ public class Locations {
             }
         }
 
-        return shard;
+        return shard != null ? shard : "unknown";
     }
 
     private void addToShard(String addition, String shard) {
@@ -49,7 +83,7 @@ public class Locations {
             ArrayList<String> location = getLocations(shard.toUpperCase());
             if (location != null) {//shard's list exist
                 for (String addition: additions) {
-                    if (!addition.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)\\/(?<name>.*)")) continue;//only add correctly made locations
+                    if (!addition.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)")) continue;//only adds correctly made locations
                     location.add(addition);
                 };
                 this.getClass().getField(shard.toUpperCase()).set(this, location);
@@ -57,59 +91,65 @@ public class Locations {
         } catch (Exception ignored) {}
     }
 
-    public void populate() {
-        VALLEY = new ArrayList<>();
-        PLOTS = new ArrayList<>();
-        ISLES = new ArrayList<>();
+    private void update() {
+        try {
+            URL url = new URL(UPDATE_GIST_URL);
+            String content = getUrl(url);
 
+            JsonParser jsonParser = new JsonParser();
+
+            JsonObject json =  jsonParser.parse(content).getAsJsonObject();
+
+            JsonObject jsonContent = jsonParser.parse(json.get("files").getAsJsonObject().get("Locations.json").getAsJsonObject().get("content").getAsString()).getAsJsonObject();
+            Gson gson = new Gson();
+            Type type = new TypeToken<String[]>(){}.getType();
+
+            for (Map.Entry<String, JsonElement> entry: jsonContent.entrySet()) {
+                addToShard((String[]) gson.fromJson(entry.getValue(), type), entry.getKey());
+            }
+
+            this.update_commit = jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
+
+        }catch (Exception nE) {
+            nE.printStackTrace();
+        }
+
+        writeJsonFile(this, CACHE_FILE_PATH);
+    }
+
+    public void load() {
+        try {
+            locationFile cache = readJsonFile(locationFile.class, CACHE_FILE_PATH);
+
+            if (UnofficialMonumentaModClient.options.locationUpdate) {
+                JsonParser jsonParser = new JsonParser();
+                if (jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString() != cache.update_commit) {
+                    update();
+                    return;
+                }
+            }
+
+            for (Field f: cache.getClass().getFields()) {
+                for (Field parentField: this.getClass().getFields()) {
+                    if (f.getName().equals(parentField.getName()) && f.getType() == parentField.getType()) {
+                        parentField.set(this, f.get(cache));
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // file doesn't exist,
+           update();
+        } catch (IOException | JsonParseException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         /*
           locations that will be included:
           cities (ex: Ta'eldim)
           World bosses (ex: Kaul Arena)
           Important locations (ex: Player Market)
 
-           this method is probably gonna take the data from an internet hosted data sheet at one point or another
-
            (+X:-Z)(-X:+Z)/Name
          */
-        addToShard("(-762:931)(-539:1210)/Player Market", "plots");
-
-        addToShard(new String[]{
-                "(701:-32)(777:56)/Kaul Arena",
-                "(-497:-282)(-1069:343)/Sierhaven",
-                "(-78:-166)(-180:29)/Nyr",
-                "(658:100)(538:229)/Farr",
-                "(1319:-271)(1259:180)/Highwatch Monument",
-                "(1319:-271)(1115:-62)/Highwatch",//added 30:20 as overflow to East-North
-                "(765:421)(642:513)/Lowtide",//added overflow 20:0 as overflow to East-North
-                "(642:513)(557:569)/Lowtide",//lowtide gate (lowtide and gate have different borders)
-                "(-1548:-18)(-1685:165)/Oceangate",
-                "(520:-400)(380:-340)/Ta'eldim",
-                //TODO add Azacor lobby / Azacor Arena coords
-                "/Overworld"//TODO get the coordinates of the playable borders
-        }, "valley");
-
-        addToShard(new String[]{
-                "(-632:1218)(-871:1487)/Mistport",
-                "(-92:397)(-209:502)/Rahkeri",//not based on border
-                "(460:640)(289:865)/Alnera",
-                "(130:-107)(34:48)/Hekawt Arena",//should contain both the arena and the place where the npcs are
-                "(316:2)(133:191)/Molta",
-                "(-1415:72)(-1523:246)/Eldrask Arena",
-                "(-1332:528)(-1371:551)/Nightroost",//around the drask tp
-                "(-1241:444)(-1362:527)/Nightroost",
-                "(-1418:871)(-1640:1086)/Frostgate",
-                "(-1677:-135)(-1855:36)/Wispervale",
-                "(-671:-202)(-755:-139)/Breachpoint",
-                "(-511:-548)(-545:-514)/Steelmeld Monument",
-                "(-493:-563)(-676:-424)/Steelmeld",
-                "(-1155:-569)(-1273:-445)/Headless Horseman",
-                "(-412:1506)(-519:1615)/The Floating Carnival",
-                "(-64:3248)(-223:3375)/The Black Mist",
-                "(292:3367)(225:3447)/Sealed Remorse",
-                "(-1394:-1342)(-1450:-1275)/Darkest Depths",
-                "(862:-654)(-2222:1902)/Overworld"
-        }, "isles");
     }
 
     private ArrayList<String> getLocations(String shard) throws IllegalAccessException {
@@ -123,9 +163,12 @@ public class Locations {
 
     public String getLocation(double X, double Z, String shard) {
         try {
-            for (String location : Objects.requireNonNull(getLocations(shard))) {
-                if (location.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)\\/(?<name>.*)")) {//skips badly made locations
-                    Pattern locationTest = Pattern.compile("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)\\/(?<name>.*)");
+            ArrayList<String> locations = getLocations(shard);
+            if (Objects.isNull(locations)) return shard;
+
+            for (String location : locations) {
+                if (location.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)")) {//skips badly made locations
+                    Pattern locationTest = Pattern.compile("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)");
                     Matcher matcher = locationTest.matcher(location);
                     matcher.matches();//runs the pattern
 
@@ -152,10 +195,10 @@ public class Locations {
         } catch (Exception e) {
             e.printStackTrace();
 
-            return "Unknown";//doesn't exist in lists
+            return shard;//doesn't exist in lists
         }
 
-        return "Unknown";//didn't found coordinates in existing lists
+        return shard;//didn't find coordinates in existing lists
     }
 
 

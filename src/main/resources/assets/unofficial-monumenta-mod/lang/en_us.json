@@ -82,5 +82,7 @@
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence (Requires restart)",
   "unofficial-monumenta-mod.config.option.discordEnabled.tooltip": "Defines if the rich presence should be active or not",
   "unofficial-monumenta-mod.config.option.discordDetails": "Discord rich presence details",
-  "unofficial-monumenta-mod.config.option.discordDetails.tooltip": "{player} returns the player name. \n{shard} returns the shard name. \n{server} returns the server name. \n{holding} returns the name of the item held in main hand. \n{class} returns the name of the class the user is playing as."
+  "unofficial-monumenta-mod.config.option.discordDetails.tooltip": "{player} returns the player name. \n{shard} returns the shard name. \n{server} returns the server name. \n{holding} returns the name of the item held in main hand. \n{class} returns the name of the class the user is playing as. \n{location} returns the location or if not found the shard name. ",
+  "unofficial-monumenta-mod.config.option.locationUpdate": "Auto update location list when outdated. ",
+  "unofficial-monumenta-mod.config.option.locationUpdate.tooltip": "If you modify the file, it will avoid it being overridden at launch."
 }
