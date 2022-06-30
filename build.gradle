@@ -35,7 +35,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    include(implementation ('club.minnced:discord-rpc-release:v3.4.0'))
+    include(implementation('club.minnced:discord-rpc-release:v3.4.0'))
     include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 }
 

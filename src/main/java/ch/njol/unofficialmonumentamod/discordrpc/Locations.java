@@ -71,7 +71,7 @@ public class Locations {
             }
         }
 
-        return shard != null ? shard : "unknown";
+        return shard;
     }
 
     private void addToShard(String addition, String shard) {

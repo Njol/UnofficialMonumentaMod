@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +30,7 @@ public abstract class Utils {
         return f * f * (3 - 2 * f);
     }
 
-    public static String getUrl(URL url) throws IOException {
+    public static String getUrl(@NotNull URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
 
