@@ -1,5 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.discordrpc.Locations;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -30,6 +32,10 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static Options options = new Options();
 
+	public static DiscordRPC discordpresence = new DiscordRPC();
+
+	public static Locations locations = new Locations();
+
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
 	// This is a hacky way to pass data around...
@@ -51,6 +57,10 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
+		if (options.discordEnabled) discordpresence.Init();
+
+		locations.load();
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 		});
@@ -63,13 +73,13 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		abilityHandler.onDisconnect();
 	}
 
-	private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
+	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
 		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
 			return new GsonBuilder().create().fromJson(reader, c);
 		}
 	}
 
-	private static void writeJsonFile(Object o, String filePath) {
+	public static void writeJsonFile(Object o, String filePath) {
 		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
 			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
 		} catch (IOException e) {

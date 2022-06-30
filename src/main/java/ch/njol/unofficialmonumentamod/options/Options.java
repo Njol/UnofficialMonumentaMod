@@ -138,6 +138,28 @@ public class Options {
 	@Category("debug")
 	public boolean logPackets = false;
 
+	/**
+	 * Discord RPC Configuration
+	 */
+	@Category("discord")
+	public boolean discordEnabled = true;
+	@Category("discord")
+	public String discordDetails = "{player} is on {shard}";
+	@Category("discord")
+	public boolean locationUpdate = true;
+
+	/**
+	 * discordDetails replace values:
+	 *
+	 * {player} returns the player's name
+	 * {shard} returns the shard name
+	 * {server} returns the server name
+	 * {holding} returns the item held in the main hand
+	 * {class} returns the class the user is playing as
+	 * {location} returns the location or if not found the shard name
+	 * everything else is a string literal
+	 */
+
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {
 			abilitiesDisplay_horizontal = abilitiesDisplay_preset.horizontal;
