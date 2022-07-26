@@ -1,7 +1,8 @@
 package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
-import ch.njol.unofficialmonumentamod.discordrpc.Locations;
+import ch.njol.unofficialmonumentamod.misc.Locations;
+import ch.njol.unofficialmonumentamod.misc.Notifier;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -63,6 +64,10 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
+		});
+
+		ClientTickEvents.END_WORLD_TICK.register(world -> {
+			Notifier.tick();
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());

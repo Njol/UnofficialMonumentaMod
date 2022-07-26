@@ -7,7 +7,7 @@ import net.minecraft.util.Hand;
 
 import java.util.*;
 
-import static ch.njol.unofficialmonumentamod.discordrpc.Locations.getShard;
+import static ch.njol.unofficialmonumentamod.misc.Locations.getShard;
 
 public class DiscordRPC {
     club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;
@@ -23,7 +23,7 @@ public class DiscordRPC {
     Timer t = new Timer();
 
     public void Init() {
-        handlers.ready = (user) -> System.out.println("Ready!");
+        handlers.ready = (user) -> System.out.println("Loaded Discord RPC!");
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
 
         startPresence();
@@ -52,7 +52,6 @@ public class DiscordRPC {
     }
 
     private void startPresence() {
-
         DiscordRichPresence presence = new DiscordRichPresence();
 
         presence.startTimestamp = start_time;
@@ -86,9 +85,9 @@ public class DiscordRPC {
                     presence.state = this.shard != null ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
                     //set small image
                     String shortShard = shard;
-                    if (shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isle number
+                    if (shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isles / depths number
 
-                    presence.smallImageKey = shortShard; //this is a test
+                    presence.smallImageKey = shortShard;
 
                     //set details
 
@@ -98,7 +97,7 @@ public class DiscordRPC {
                     //replace each call
 
                     if (detail.matches(".*?\\{.*?\\}.*?")) {
-                        detail = detail.replace("{player}", mc.player.getName().getString());
+                        detail = detail.replace("{player}", mc.player.getName().getString() != null ? mc.player.getName().getString() : "player");
                         detail = detail.replace("{shard}", this.shard);
                         detail = detail.replace("{server}", mc.getCurrentServerEntry().name);
                         detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");

@@ -138,17 +138,14 @@ public class Options {
 	@Category("debug")
 	public boolean logPackets = false;
 
-	/**
+	/*
 	 * Discord RPC Configuration
 	 */
 	@Category("discord")
 	public boolean discordEnabled = true;
 	@Category("discord")
 	public String discordDetails = "{player} is on {shard}";
-	@Category("discord")
-	public boolean locationUpdate = true;
-
-	/**
+	/*
 	 * discordDetails replace values:
 	 *
 	 * {player} returns the player's name
@@ -159,6 +156,14 @@ public class Options {
 	 * {location} returns the location or if not found the shard name
 	 * everything else is a string literal
 	 */
+
+	/*
+	 * Misc features
+	 */
+	@Category("misc")
+	public boolean locationUpdate = true;
+	@Category("misc")
+	public boolean notifyLocation = true;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {

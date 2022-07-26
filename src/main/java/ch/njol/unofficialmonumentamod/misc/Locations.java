@@ -1,9 +1,10 @@
-package ch.njol.unofficialmonumentamod.discordrpc;
+package ch.njol.unofficialmonumentamod.misc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
@@ -11,7 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -19,7 +22,6 @@ import java.util.regex.Pattern;
 
 import java.lang.reflect.Field;
 
-import static ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient.readJsonFile;
 import static ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient.writeJsonFile;
 import static ch.njol.unofficialmonumentamod.Utils.getUrl;
 import static java.lang.Integer.parseInt;
@@ -45,33 +47,35 @@ public class Locations {
         public String update_commit;
     }
 
-
     public Locations() {
         for (Field f: this.getClass().getDeclaredFields()) {
             if (f.getType() != java.util.ArrayList.class) continue;
-                try {
-                    f.set(this, new ArrayList<>());
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
+            try {
+                f.set(this, new ArrayList<>());
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static String getShard() {
         MinecraftClient mc = MinecraftClient.getInstance();
 
-        Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
+        try {
+            Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
 
-        String shard = null;
+            String shard = null;
 
-        for (Text text: header.getSiblings()) {
-            if (text.getString().matches("<.*>")) {
-                //player shard
-                shard = text.getString().substring(1, text.getString().length()-1);
+            for (Text text : header.getSiblings()) {
+                if (text.getString().matches("<.*>")) {
+                    //player shard
+                    shard = text.getString().substring(1, text.getString().length() - 1);
+                }
             }
-        }
+            return shard;
+        }catch (NullPointerException ignored) {};
 
-        return shard;
+        return null;
     }
 
     private void addToShard(String addition, String shard) {
@@ -91,6 +95,20 @@ public class Locations {
         } catch (Exception ignored) {}
     }
 
+    private void loadJson(String jsonString) {
+        JsonParser jsonParser = new JsonParser();
+
+        JsonObject json = jsonParser.parse(jsonString).getAsJsonObject();
+        Gson gson = new Gson();
+        Type type = new TypeToken<String[]>(){}.getType();
+
+        for (Map.Entry<String, JsonElement> entry: json.entrySet()) {
+            if (Objects.equals(entry.getKey(), "update_commit")) continue;
+
+            addToShard((String[]) gson.fromJson(entry.getValue(), type), entry.getKey());
+        }
+    }
+
     private void update() {
         try {
             URL url = new URL(UPDATE_GIST_URL);
@@ -101,45 +119,47 @@ public class Locations {
             JsonObject json =  jsonParser.parse(content).getAsJsonObject();
 
             JsonObject jsonContent = jsonParser.parse(json.get("files").getAsJsonObject().get("Locations.json").getAsJsonObject().get("content").getAsString()).getAsJsonObject();
-            Gson gson = new Gson();
-            Type type = new TypeToken<String[]>(){}.getType();
-
-            for (Map.Entry<String, JsonElement> entry: jsonContent.entrySet()) {
-                addToShard((String[]) gson.fromJson(entry.getValue(), type), entry.getKey());
-            }
+            loadJson(jsonContent.getAsString());
 
             this.update_commit = jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
 
-        }catch (Exception nE) {
-            nE.printStackTrace();
+        }catch (Exception e) {
+            e.printStackTrace();
         }
 
         writeJsonFile(this, CACHE_FILE_PATH);
     }
 
+    public static String readFile(String filePath) throws IOException {
+        StringBuilder builder = new StringBuilder();
+
+        List<String> list = Files.readAllLines(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile().toPath());
+
+        list.forEach(s -> builder.append(s).append("\n"));
+
+        return builder.toString();
+    }
+
     public void load() {
         try {
-            locationFile cache = readJsonFile(locationFile.class, CACHE_FILE_PATH);
+            String cache = readFile(CACHE_FILE_PATH);
 
             if (UnofficialMonumentaModClient.options.locationUpdate) {
                 JsonParser jsonParser = new JsonParser();
-                if (jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString() != cache.update_commit) {
+                if (!Objects.equals(jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString(), jsonParser.parse(cache).getAsJsonObject().get("update_commit").getAsString())) {
                     update();
                     return;
                 }
             }
 
-            for (Field f: cache.getClass().getFields()) {
-                for (Field parentField: this.getClass().getFields()) {
-                    if (f.getName().equals(parentField.getName()) && f.getType() == parentField.getType()) {
-                        parentField.set(this, f.get(cache));
-                    }
-                }
-            }
+            loadJson(cache);
+
         } catch (FileNotFoundException e) {
             // file doesn't exist,
-           update();
-        } catch (IOException | JsonParseException | IllegalAccessException e) {
+           if (UnofficialMonumentaModClient.options.locationUpdate) update();
+           else writeJsonFile(this, CACHE_FILE_PATH);//create with empty values
+
+        } catch (IOException | JsonParseException e) {
             e.printStackTrace();
         }
         /*
