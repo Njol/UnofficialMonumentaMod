@@ -60,8 +60,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		if (options.discordEnabled) discordpresence.Init();
 
-		locations.load();
-
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 		});

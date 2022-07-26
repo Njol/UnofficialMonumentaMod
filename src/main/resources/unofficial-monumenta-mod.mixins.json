@@ -13,7 +13,8 @@
     "InGameHudMixin",
     "ItemRendererMixin",
     "MinecraftClientMixin",
-    "PlayerListHudAccessor"
+    "PlayerListHudAccessor",
+    "ReloadableResourceManagerImplMixin"
   ],
   "client": [
   ],

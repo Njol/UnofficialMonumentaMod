@@ -62,6 +62,14 @@ public class Options {
 //	@Category("misc")
 //	public boolean renderItemCooldowns = true;
 
+	/*
+	 * Location related settings
+	 */
+	@Category("misc")
+	public boolean locationUpdate = true;
+	@Category("misc")
+	public boolean notifyLocation = true;
+
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;
 	@Category("abilities")
@@ -156,14 +164,6 @@ public class Options {
 	 * {location} returns the location or if not found the shard name
 	 * everything else is a string literal
 	 */
-
-	/*
-	 * Misc features
-	 */
-	@Category("misc")
-	public boolean locationUpdate = true;
-	@Category("misc")
-	public boolean notifyLocation = true;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {

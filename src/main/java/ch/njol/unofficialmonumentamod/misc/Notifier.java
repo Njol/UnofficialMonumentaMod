@@ -33,7 +33,7 @@ public class Notifier {
                 if (!Objects.equals(loc, shard) && !Objects.equals(loc, UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard))) {
                     CustomToast toast = new CustomToast(Text.of("Entering Area"), Text.of("Entering " + loc), false, 5000);
                     addCustomToast(toast);
-                } else if (loc == null && UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard) != null) {
+                } else if (Objects.equals(loc, shard) && UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard) != null) {
                     CustomToast toast = new CustomToast(Text.of("Leaving area"), Text.of("Leaving " + UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard)), false, 5000);
                     addCustomToast(toast);
                 }
