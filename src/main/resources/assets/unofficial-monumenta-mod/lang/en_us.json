@@ -86,5 +86,7 @@
   "unofficial-monumenta-mod.config.option.locationUpdate": "Auto update location list when outdated. ",
   "unofficial-monumenta-mod.config.option.locationUpdate.tooltip": "If you modify the file, it will avoid it being overridden at launch.",
   "unofficial-monumenta-mod.config.option.notifyLocation": "Notifies in the form of an \"achievement\" like ui element when you change location.",
-  "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Disabling this will not disable the change of location in the discordRPC"
+  "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Disabling this will not disable the change of location in the discordRPC",
+  "unofficial-monumenta-mod.config.option.notifierShowTime": "How long a notification will stay on the screen for.",
+  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": ""
 }

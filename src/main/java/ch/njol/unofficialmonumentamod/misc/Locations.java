@@ -82,6 +82,12 @@ public class Locations {
         addToShard(new String[]{addition}, shard);
     }
 
+    private void resetLocations() {
+        VALLEY.clear();
+        ISLES.clear();
+        PLOTS.clear();
+    }
+
     private void addToShard(String[] additions, String shard) {
         try {
             ArrayList<String> location = getLocations(shard.toUpperCase());
@@ -102,6 +108,7 @@ public class Locations {
         Gson gson = new Gson();
         Type type = new TypeToken<String[]>(){}.getType();
 
+        resetLocations();
         for (Map.Entry<String, JsonElement> entry: json.entrySet()) {
             if (Objects.equals(entry.getKey(), "update_commit")) continue;
 

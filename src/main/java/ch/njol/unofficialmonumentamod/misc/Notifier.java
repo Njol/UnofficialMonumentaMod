@@ -16,6 +16,10 @@ public class Notifier {
 
     private static ArrayList<CustomToast> queue = new ArrayList<>();
 
+    private static long getMillisHideTime() {
+        return Float.valueOf(UnofficialMonumentaModClient.options.notifierShowTime).longValue() * 1000;
+    }
+
     public static void tick() {
         if (!UnofficialMonumentaModClient.options.notifyLocation) return;
         MinecraftClient client = MinecraftClient.getInstance();
@@ -31,15 +35,18 @@ public class Notifier {
 
             if (lastX != null && lastZ != null) {
                 if (!Objects.equals(loc, shard) && !Objects.equals(loc, UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard))) {
-                    CustomToast toast = new CustomToast(Text.of("Entering Area"), Text.of("Entering " + loc), false, 5000);
+                    CustomToast toast = new CustomToast(Text.of("Entering Area"), Text.of("Entering " + loc), false, getMillisHideTime());
                     addCustomToast(toast);
-                } else if (Objects.equals(loc, shard) && UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard) != null) {
-                    CustomToast toast = new CustomToast(Text.of("Leaving area"), Text.of("Leaving " + UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard)), false, 5000);
+                } else if (Objects.equals(loc, shard)) {
+                    CustomToast toast = new CustomToast(Text.of("Leaving Area"), Text.of("Leaving " + UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard)), false, getMillisHideTime());
+                    if (Objects.equals(lastToast.getDescription().getString(), toast.getDescription().getString()) || Objects.equals(UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard), shard)) return;
                     addCustomToast(toast);
                 }
             } else {
-                CustomToast toast = new CustomToast(Text.of("Entering Area"), Text.of("Entering " + loc), false, 5000);
-                addCustomToast(toast);
+                if (!Objects.equals(shard, loc)) {
+                    CustomToast toast = new CustomToast(Text.of("Entering Area"), Text.of("Entering " + loc), false, getMillisHideTime());
+                    addCustomToast(toast);
+                }
             }
         lastX = client.player.getX();
         lastZ = client.player.getZ();
@@ -54,6 +61,7 @@ public class Notifier {
         queue.removeIf(toast -> toast.getVisibility() == Toast.Visibility.HIDE);
         if (queue.size() > 0) {
             if (!lastToastActive()) {
+                queue.get(0).setHideTime(getMillisHideTime());
                 lastToast = queue.get(0);
                 MinecraftClient.getInstance().getToastManager().add(queue.get(0));
             }
@@ -63,10 +71,12 @@ public class Notifier {
     public static void addCustomToast(CustomToast toast) {
         boolean alreadyExists = false;
         for (CustomToast queueToast: queue) {
-            if (queueToast.getTitle() == toast.getTitle() && queueToast.getDescription() == toast.getDescription()) {
-                alreadyExists = true;
-                break;
-            }
+            try {
+                if (Objects.equals(queueToast.getTitle().getString(), toast.getTitle().getString()) && Objects.equals(queueToast.getDescription().getString(), toast.getDescription().getString())) {
+                    alreadyExists = true;
+                    break;
+                }
+            }catch (Exception ignored) {}
         }
         if (!alreadyExists) queue.add(toast);
     }

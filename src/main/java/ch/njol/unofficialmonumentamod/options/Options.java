@@ -56,6 +56,14 @@ public class Options {
 	@Category("misc")
 	public boolean crossbowFix = true;
 
+	@Category("misc")
+	public boolean locationUpdate = true;
+	@Category("misc")
+	public boolean notifyLocation = true;
+	@Category("misc")
+	@Slider(min = 1.5F, max = 60F, step = 0.1F, unit = "second")
+	public float notifierShowTime = 5F;
+
 	// TODO implement item cooldown display
 	// requires sever-side adaptions to send the cooldown (on use and on connect)
 	// biggest issue: most tesseracts are apparently done in mcfunctions
@@ -65,10 +73,6 @@ public class Options {
 	/*
 	 * Location related settings
 	 */
-	@Category("misc")
-	public boolean locationUpdate = true;
-	@Category("misc")
-	public boolean notifyLocation = true;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;

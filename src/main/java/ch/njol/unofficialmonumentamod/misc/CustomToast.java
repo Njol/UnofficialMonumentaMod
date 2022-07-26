@@ -17,7 +17,7 @@ public class CustomToast implements Toast {
     private final Text description;
     private final boolean hasProgressBar;
     private Toast.Visibility visibility;
-    private final long hideTime;
+    private long hideTime;
 
     private long lastTime;
     private float lastProgress;
@@ -39,8 +39,13 @@ public class CustomToast implements Toast {
     public Text getTitle() {
         return this.title;
     }
+    @Nullable
     public Text getDescription() {
         return this.description;
+    }
+
+    public void setHideTime(long newValue) {
+        this.hideTime = System.currentTimeMillis() + newValue;
     }
 
     @Override
