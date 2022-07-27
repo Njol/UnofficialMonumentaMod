@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.misc;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -7,10 +8,13 @@ import net.minecraft.client.util.math.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 public class CustomToast implements Toast {
+
+    Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "/textures/gui/notifications.png");
 
     private final Text title;
     @Nullable
@@ -19,18 +23,27 @@ public class CustomToast implements Toast {
     private Toast.Visibility visibility;
     private long hideTime;
 
+    private int TYPE;
+
     private long lastTime;
     private float lastProgress;
     private float progress;
 
     public CustomToast(Text title, @Nullable Text description, boolean hasProgressbar, long timeBeforeRemove) {
         this.visibility = Visibility.SHOW;
-
+        this.TYPE = 2;
         this.hideTime = System.currentTimeMillis() + timeBeforeRemove;
 
         this.title = title;
         this.description = description;
         this.hasProgressBar = hasProgressbar;
+    }
+
+    public CustomToast setToastRender(int type) {
+        if ( 4 >= this.TYPE && this.TYPE < 0) {
+            this.TYPE = type;
+        }
+        return this;
     }
 
     public Visibility getVisibility() {
@@ -54,13 +67,13 @@ public class CustomToast implements Toast {
         if (System.currentTimeMillis() < this.hideTime) {
             manager.getGame().getTextureManager().bindTexture(TEXTURE);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-            manager.drawTexture(matrices, 0, 0, 0, 32, this.getWidth(), this.getHeight());
+            manager.drawTexture(matrices, 0, 0, 0, (this.TYPE - 1) * 32, this.getWidth(), this.getHeight());
 
             if (this.description == null) {
-                manager.getGame().textRenderer.draw(matrices, this.title, 5.0F, 12.0F, -11534256);
+                manager.getGame().textRenderer.draw(matrices, this.title, center(manager.getGame().textRenderer.getWidth(this.title)), 7.0F, -11534256);
             } else {
-                manager.getGame().textRenderer.draw(matrices, this.title, 5.0F, 7.0F, -11534256);
-                manager.getGame().textRenderer.draw(matrices, this.description, 5.0F, 18.0F, -16777216);
+                manager.getGame().textRenderer.draw(matrices, this.title, center(manager.getGame().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+                manager.getGame().textRenderer.draw(matrices, this.description, center(manager.getGame().textRenderer.getWidth(this.description)), 18.0F, -16777216);
             }
 
             if (this.hasProgressBar) {
@@ -80,6 +93,13 @@ public class CustomToast implements Toast {
 
             return this.visibility;
         } else return this.visibility = Visibility.HIDE;
+    }
+
+    private int center(int fontWidth) {
+        //toasts are 160x32
+        int toastWidth = 160;
+
+        return (toastWidth - fontWidth) / 2;
     }
 
     public void hide() {

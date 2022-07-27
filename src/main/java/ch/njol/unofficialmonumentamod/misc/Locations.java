@@ -78,6 +78,14 @@ public class Locations {
         return null;
     }
 
+    public static String getShortShard() {
+        String shard = getShard();
+        if (shard == null) return null;
+        if (shard.matches(".*-[1-3]")) shard = shard.substring(0, shard.length() - 2);
+
+        return shard;
+    }
+
     private void addToShard(String addition, String shard) {
         addToShard(new String[]{addition}, shard);
     }
@@ -180,6 +188,7 @@ public class Locations {
     }
 
     private ArrayList<String> getLocations(String shard) throws IllegalAccessException {
+        if (shard.matches(".*-[1-3]")) shard = shard.substring(0, shard.length() - 2);
         for (Field f: this.getClass().getFields()) {
             if (f.getName().equals(shard.toUpperCase()) && f.getType().getTypeName().equals(this.VALLEY.getClass().getTypeName()))
                     return (ArrayList<String>) f.get(this);
@@ -190,6 +199,7 @@ public class Locations {
 
     public String getLocation(double X, double Z, String shard) {
         try {
+            if (shard.matches(".*-[1-3]")) shard = shard.substring(0, shard.length() - 2);
             ArrayList<String> locations = getLocations(shard);
             if (Objects.isNull(locations)) return shard;
 

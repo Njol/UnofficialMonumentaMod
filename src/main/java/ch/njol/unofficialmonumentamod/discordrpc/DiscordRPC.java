@@ -85,9 +85,9 @@ public class DiscordRPC {
                     presence.state = this.shard != null ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
                     //set small image
                     String shortShard = shard;
-                    if (shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isles / depths number
+                    if (shard != null && shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isles / depths number
 
-                    presence.smallImageKey = shortShard;
+                    presence.smallImageKey = shortShard != null ? shortShard : "valley";
 
                     //set details
 
