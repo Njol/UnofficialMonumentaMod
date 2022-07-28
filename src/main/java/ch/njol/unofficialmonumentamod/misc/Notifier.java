@@ -6,12 +6,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.toast.Toast;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Objects;
 
 public class Notifier {
-    private static CustomToast lastToast;
+    private static NotificationToast lastToast;
 
-    private static ArrayList<CustomToast> queue = new ArrayList<>();
+    private static ArrayList<NotificationToast> queue = new ArrayList<>();
 
     public static long getMillisHideTime() {
         return Float.valueOf(UnofficialMonumentaModClient.options.notifierShowTime).longValue() * 1000;
@@ -22,15 +23,15 @@ public class Notifier {
         LocationNotifier.tick();
     }
 
-    public static CustomToast getLastToast() {
+    public static NotificationToast getLastToast() {
         return lastToast;
     }
 
-    public static void addCustomToast(CustomToast toast) {
+    public static void addCustomToast(NotificationToast toast) {
         boolean alreadyExists = false;
-        for (CustomToast queueToast: queue) {
+        for (NotificationToast queueToast: queue) {
             try {
-                if (Objects.equals(queueToast.getTitle().getString(), toast.getTitle().getString()) && Objects.equals(queueToast.getDescription().getString(), toast.getDescription().getString())) {
+                if (Objects.equals(queueToast.getTitle().getString(), toast.getTitle().getString()) && new HashSet<>(queueToast.getDescription()).containsAll(toast.getDescription())) {
                     alreadyExists = true;
                     break;
                 }
