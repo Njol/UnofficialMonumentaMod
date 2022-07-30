@@ -14,7 +14,7 @@ public abstract class Utils {
      * @return The plain display name of the item, i.e. the value of NBT node plain.display.Name.
      */
     public static String getPlainDisplayName(ItemStack itemStack) {
-        return itemStack.getTag() == null ? null : itemStack.getTag().getCompound("plain").getCompound("display").getString("Name");
+        return itemStack.getNbt() == null ? null : itemStack.getNbt().getCompound("plain").getCompound("display").getString("Name");
     }
 
     public static float smoothStep(float f) {

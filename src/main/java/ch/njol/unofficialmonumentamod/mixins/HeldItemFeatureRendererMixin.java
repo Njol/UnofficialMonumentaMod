@@ -9,12 +9,12 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithArms;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,7 +37,7 @@ public abstract class HeldItemFeatureRendererMixin<T extends LivingEntity, M ext
 				&& stack.getItem() == Items.TRIDENT
 				&& entity.isUsingItem()
 				&& (entity.getActiveHand() == Hand.MAIN_HAND) == (entity.getMainArm() == arm)) {
-			matrices.multiply(Vector3f.POSITIVE_Z.getDegreesQuaternion(180));
+			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 		}
 	}
 

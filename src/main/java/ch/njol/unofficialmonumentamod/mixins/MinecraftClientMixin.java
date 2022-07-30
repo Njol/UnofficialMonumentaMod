@@ -18,26 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
 
-	@Shadow
-	@Nullable
-	public ClientPlayerEntity player;
-
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
 	void disconnect(Screen screen, CallbackInfo ci) {
 		UnofficialMonumentaModClient.onDisconnect();
-	}
-
-	// Send a position update before firing a crossbow for the Recoil fix to work
-	// NB: not needed on MC 1.17
-	@Inject(method = "doItemUse()V", at = @At("HEAD"))
-	void doItemUse_crossbowFix(CallbackInfo ci) {
-		if (player == null || !UnofficialMonumentaModClient.options.crossbowFix) {
-			return;
-		}
-		if (player.getMainHandStack() != null && player.getMainHandStack().getItem() == Items.CROSSBOW
-			    || player.getOffHandStack() != null && player.getOffHandStack().getItem() == Items.CROSSBOW) {
-			player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookOnly(player.yaw, player.pitch, player.isOnGround()));
-		}
 	}
 
 	@Inject(method = "<init>(Lnet/minecraft/client/RunArgs;)V",

@@ -7,7 +7,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.MissingSprite;
@@ -33,10 +35,11 @@ public abstract class HudElement {
 	}
 
 	public void bindTextureOrDefault(Identifier identifier, Identifier defaultIdentifier) {
-		client.getTextureManager().bindTexture(identifier);
-		AbstractTexture texture = client.getTextureManager().getTexture(identifier);
+		AbstractTexture texture = this.client.getTextureManager().getTexture(identifier);
 		if (texture == null || texture == MissingSprite.getMissingSpriteTexture()) {
-			client.getTextureManager().bindTexture(defaultIdentifier);
+			RenderSystem.setShaderTexture(0, defaultIdentifier);
+		} else {
+			RenderSystem.setShaderTexture(0, identifier);
 		}
 	}
 
@@ -95,28 +98,28 @@ public abstract class HudElement {
 	}
 
 	public static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height) {
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
 	}
 
 	public static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height, float u0, float u1, float v0, float v1) {
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
 	}
 
 	public static void drawTexturedQuadSmooth(Matrix4f matrices, float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1) {
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE);
+		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 		bufferBuilder.vertex(matrices, x0, y1, z).texture(u0, v1).next();
 		bufferBuilder.vertex(matrices, x1, y1, z).texture(u1, v1).next();
 		bufferBuilder.vertex(matrices, x1, y0, z).texture(u1, v0).next();
 		bufferBuilder.vertex(matrices, x0, y0, z).texture(u0, v0).next();
 		bufferBuilder.end();
-		RenderSystem.enableAlphaTest();
 		BufferRenderer.draw(bufferBuilder);
 	}
 
 	public static void drawSprite(MatrixStack matrices, Sprite sprite, float x, float y, float width, float height) {
-		sprite.getAtlas().bindTexture();
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV());
+		RenderSystem.setShaderTexture(0, sprite.getAtlas().getId());
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV());
 	}
 
 	// need to draw lots of quads for this as the sprite texture is in an atlas and thus wrapping UV isn't possible
@@ -124,12 +127,12 @@ public abstract class HudElement {
 		if (xRepetitions * yRepetitions > 1000) {
 			throw new IllegalArgumentException("Too many sprite repetitions requested! (" + xRepetitions + ", " + yRepetitions + ")");
 		}
-		MinecraftClient.getInstance().getTextureManager().bindTexture(sprite.getAtlas().getId());
+		RenderSystem.setShaderTexture(0, sprite.getAtlas().getId());
 		for (int xrep = 0; xrep < xRepetitions; xrep++) {
 			for (int yrep = 0; yrep < yRepetitions; yrep++) {
 				float xfactor = Math.min(1.0f, xRepetitions - xrep);
 				float yfactor = Math.min(1.0f, yRepetitions - yrep);
-				drawTexturedQuadSmooth(matrices.peek().getModel(),
+				drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(),
 					x + width * xrep, x + width * (xrep + xfactor), y + height * yrep, y + height * (yrep + yfactor), 0,
 					sprite.getMinU(), sprite.getMinU() + (sprite.getMaxU() - sprite.getMinU()) * xfactor, sprite.getMinV(), sprite.getMinV() + (sprite.getMaxV() - sprite.getMinV()) * yfactor);
 			}

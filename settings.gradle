@@ -5,6 +5,14 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
+        mavenCentral()
         gradlePluginPortal()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.namespace == 'fabric-loom') {
+                useModule("fabric-loom:fabric-loom.gradle.plugin:${requested.version}")
+            }
+        }
     }
 }

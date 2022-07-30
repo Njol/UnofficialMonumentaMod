@@ -1,0 +1,5 @@
+{
+	"cooldown_ping": {
+		"sounds": [{"name": "unofficial-monumenta-mod:cooldown_ping"}]
+	}
+}

@@ -5,7 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasHolder;
 import net.minecraft.client.texture.TextureManager;
-import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.ReloadableResourceManagerImpl;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class ModSpriteAtlasHolder extends SpriteAtlasHolder {
 		};
 		HealthBar.registerSprites(register);
 		HUD_ATLAS = new ModSpriteAtlasHolder(client.getTextureManager(), "hud", sprites);
-		((ReloadableResourceManager) client.getResourceManager()).registerListener(HUD_ATLAS);
+		((ReloadableResourceManagerImpl) client.getResourceManager()).registerReloader(HUD_ATLAS);
 	}
 
 }

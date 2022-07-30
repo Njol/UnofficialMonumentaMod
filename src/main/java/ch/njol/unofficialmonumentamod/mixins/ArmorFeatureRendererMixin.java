@@ -12,7 +12,6 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.util.math.Vector3f;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
@@ -20,6 +19,7 @@ import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -49,8 +49,8 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		}
 
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
-		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getHeldItemModel(itemStack, livingEntity.world, livingEntity);
-		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity);
+		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.world, livingEntity, 0);
+		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);
 		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth()) {
 			return;
 		}
@@ -66,7 +66,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		}
 		this.getContextModel().getHead().rotate(matrices);
 		matrices.translate(0.0D, -0.25D, 0.0D);
-		matrices.multiply(Vector3f.POSITIVE_Y.getDegreesQuaternion(180.0F));
+		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180.0F));
 		matrices.scale(0.625F, -0.625F, -0.625F);
 		if (!UnofficialMonumentaModClient.options.lowerVillagerHelmets && (livingEntity instanceof VillagerEntity || livingEntity instanceof ZombieVillagerEntity)) {
 			matrices.translate(0.0D, 0.1875D, 0.0D);

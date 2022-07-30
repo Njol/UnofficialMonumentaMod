@@ -80,32 +80,34 @@ public class InGameHudMixin {
 	/**
 	 * If configured, do not show ability messages
 	 * TODO the messages here are translated, so only work for English. Maybe just check for the ability name in the message? (assuming that one isn't translated as well...)
-	 * or maybe send something to the server to make it not display these any more?
+	 * TODO Or maybe make this an option server-side?
 	 */
 	@Inject(method = "setOverlayMessage(Lnet/minecraft/text/Text;Z)V", at = @At("HEAD"), cancellable = true)
 	void setOverlayMessage(Text message, boolean tinted, CallbackInfo ci) {
-		if (!UnofficialMonumentaModClient.options.abilitiesDisplay_hideAbilityRelatedMessages
-			    || !UnofficialMonumentaModClient.options.abilitiesDisplay_enabled
-			    || UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty()) {
-			return;
-		}
-		String m = message.getString();
-		if (StringUtils.startsWithIgnoreCase(m, "You are silenced")
-			    || StringUtils.startsWithIgnoreCase(m, "All your cooldowns have been reset")
-			    || StringUtils.startsWithIgnoreCase(m, "Cloak stacks:")
-			    || StringUtils.startsWithIgnoreCase(m, "Rage:")
-			    || StringUtils.startsWithIgnoreCase(m, "Holy energy radiates from your hands")
-			    || StringUtils.startsWithIgnoreCase(m, "The light from your hands fades")) {
-			ci.cancel();
-			return;
-		}
-		for (AbilityHandler.AbilityInfo abilityInfo : UnofficialMonumentaModClient.abilityHandler.abilityData) {
-			if (StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " is now off cooldown")
-				    || StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " has been activated")
-				    || StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " stacks")
-				    || StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " charges")) {
+		synchronized (UnofficialMonumentaModClient.abilityHandler) {
+			if (!UnofficialMonumentaModClient.options.abilitiesDisplay_hideAbilityRelatedMessages
+				    || !UnofficialMonumentaModClient.options.abilitiesDisplay_enabled
+				    || UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty()) {
+				return;
+			}
+			String m = message.getString();
+			if (StringUtils.startsWithIgnoreCase(m, "You are silenced")
+				    || StringUtils.startsWithIgnoreCase(m, "All your cooldowns have been reset")
+				    || StringUtils.startsWithIgnoreCase(m, "Cloak stacks:")
+				    || StringUtils.startsWithIgnoreCase(m, "Rage:")
+				    || StringUtils.startsWithIgnoreCase(m, "Holy energy radiates from your hands")
+				    || StringUtils.startsWithIgnoreCase(m, "The light from your hands fades")) {
 				ci.cancel();
 				return;
+			}
+			for (AbilityHandler.AbilityInfo abilityInfo : UnofficialMonumentaModClient.abilityHandler.abilityData) {
+				if (StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " is now off cooldown")
+					    || StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " has been activated")
+					    || StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " stacks")
+					    || StringUtils.startsWithIgnoreCase(m, abilityInfo.name + " charges")) {
+					ci.cancel();
+					return;
+				}
 			}
 		}
 	}

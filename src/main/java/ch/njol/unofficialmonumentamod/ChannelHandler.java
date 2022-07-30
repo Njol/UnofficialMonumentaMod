@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 
@@ -45,6 +46,8 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 			int remainingCharges;
 			int maxCharges;
 
+			@Nullable String mode;
+
 		}
 
 	}
@@ -61,6 +64,8 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 		int remainingCooldown;
 
 		int remainingCharges;
+
+		@Nullable String mode;
 
 	}
 

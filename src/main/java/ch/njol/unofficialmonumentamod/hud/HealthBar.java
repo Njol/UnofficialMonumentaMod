@@ -3,6 +3,7 @@ package ch.njol.unofficialmonumentamod.hud;
 import ch.njol.unofficialmonumentamod.ModSpriteAtlasHolder;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.options.Options;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -58,7 +59,7 @@ public class HealthBar extends HudElement {
 
 	@Override
 	protected int getWidth() {
-		return 2 * MARGIN + UnofficialMonumentaModClient.options.hud_heathBarSize * PIXELS_PER_SIZE;
+		return 2 * MARGIN + UnofficialMonumentaModClient.options.hud_healthBarSize * PIXELS_PER_SIZE;
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class HealthBar extends HudElement {
 
 	@Override
 	protected Options.Position getPosition() {
-		return UnofficialMonumentaModClient.options.hud_heathBarPosition;
+		return UnofficialMonumentaModClient.options.hud_healthBarPosition;
 	}
 
 	@Override
@@ -106,9 +107,9 @@ public class HealthBar extends HudElement {
 		}
 
 		int width = getWidth();
-		int size = UnofficialMonumentaModClient.options.hud_heathBarSize;
+		int size = UnofficialMonumentaModClient.options.hud_healthBarSize;
 
-		client.getTextureManager().bindTexture(ModSpriteAtlasHolder.HUD_ATLAS.getSprite(BACKGROUND_LEFT).getAtlas().getId());
+		RenderSystem.setShaderTexture(0, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(BACKGROUND_LEFT).getAtlas().getId());
 
 		drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(BACKGROUND_LEFT), 0, 0, PIXELS_PER_SIZE + MARGIN, HEIGHT);
 		drawRepeatingSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(BACKGROUND_MID), MARGIN + PIXELS_PER_SIZE, 0, PIXELS_PER_SIZE, HEIGHT, size - 2, 1);

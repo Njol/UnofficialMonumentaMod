@@ -63,14 +63,14 @@ public class ConfigMenu implements ModMenuApi {
 				UnofficialMonumentaModClient.saveConfig();
 			});
 			if (client != null) {
-				client.openScreen(config.build());
+				client.setScreen(config.build());
 			}
 		}
 
 		@Override
-		public void onClose() {
+		public void close() {
 			if (client != null) {
-				client.openScreen(parent);
+				client.setScreen(parent);
 			}
 		}
 	}
@@ -91,7 +91,11 @@ public class ConfigMenu implements ModMenuApi {
 			TranslatableText text = new TranslatableText(translateKey);
 			TranslatableText tooltip = new TranslatableText(translateKey + ".tooltip");
 			// this code cannot be simplified because ClothConfig sucks
-			if (field.getType() == Boolean.TYPE) {
+			if (field.getType() == Options.DescriptionLine.class) {
+				return ConfigEntryBuilderImpl.create()
+					.startTextDescription(text)
+					.build();
+			} else if (field.getType() == Boolean.TYPE) {
 				return ConfigEntryBuilderImpl.create()
 					.startBooleanToggle(text, (Boolean) value)
 					.setDefaultValue((Boolean) defaultValue)
@@ -155,14 +159,10 @@ public class ConfigMenu implements ModMenuApi {
 					.setTooltip(tooltip)
 					.setSaveConsumer(saveConsumer::accept)
 					.build();
-			} else if (field.getType() == Options.DescriptionLine.class) {
-				return ConfigEntryBuilderImpl.create()
-					.startTextDescription(text)
-					.build();
 			} else if (field.getType() == Position.class) {
 				List<AbstractConfigListEntry> entries = new ArrayList<>();
 				for (Field posField : Position.class.getDeclaredFields()) {
-					entries.add(buildConfigEntry(value, defaultValue, posField, "position"));
+					entries.add(buildConfigEntry(value, defaultValue, posField, "unofficial-monumenta-mod.config.position"));
 				}
 				return ConfigEntryBuilderImpl.create()
 					.startSubCategory(text, entries)

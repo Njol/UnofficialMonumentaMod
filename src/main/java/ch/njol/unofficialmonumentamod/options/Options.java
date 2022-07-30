@@ -30,6 +30,8 @@ public class Options {
 		float max();
 
 		float step();
+
+		String unit();
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
@@ -94,9 +96,6 @@ public class Options {
 	@Category("misc")
 	public boolean chestsortDisabledEverywhereElse = false;
 
-	@Category("misc")
-	public boolean crossbowFix = true;
-
 	// TODO implement item cooldown display
 	// requires sever-side adaptions to send the cooldown (on use and on connect)
 	// biggest issue: most tesseracts are apparently done in mcfunctions
@@ -130,8 +129,17 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_offCooldownResize = true;
 	@Category("abilities")
-	@FloatSlider(min = 0, max = 1, step = 0.01f)
+	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%")
 	public float abilitiesDisplay_offCooldownFlashIntensity = 1;
+	@Category("abilities")
+	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%")
+	public float abilitiesDisplay_offCooldownSoundVolume = 0f;
+	@Category("abilities")
+	@FloatSlider(min = 0, max = 2, step = 0.05f, unit = "")
+	public float abilitiesDisplay_offCooldownSoundPitchMin = 1f;
+	@Category("abilities")
+	@FloatSlider(min = 0, max = 2, step = 0.05f, unit = "")
+	public float abilitiesDisplay_offCooldownSoundPitchMax = 1f;
 	@Category("abilities")
 	public int abilitiesDisplay_iconSize = 32;
 	@Category("abilities")
@@ -149,16 +157,20 @@ public class Options {
 	public boolean abilitiesDisplay_alwaysShowAbilitiesWithCharges = false;
 	@Category("abilities")
 	public boolean abilitiesDisplay_condenseOnlyOnCooldown = false;
+	@Category("abilities")
+	public boolean abilitiesDisplay_showPassiveAbilities = false;
 
+	@Category("hud")
+	public DescriptionLine hud_info;
 	@Category("hud")
 	public boolean hud_enabled = true;
 	//	@Category("hud")
 //	public HudMode hud_statusBarsMode = HudMode.REPLACE;
 	@Category("hud")
-	public Position hud_heathBarPosition = new Position(0.5f, 0, 1.0f, -100, 0.5f, 0);
+	public Position hud_healthBarPosition = new Position(0.5f, 0, 1.0f, -100, 0.5f, 0);
 	@Category("hud")
 	@IntSlider(min = 2, max = 10)
-	public int hud_heathBarSize = 3;
+	public int hud_healthBarSize = 3;
 //	@Category("hud")
 //	public HudMode hud_experienceBarMode = HudMode.REPLACE;
 

@@ -8,6 +8,7 @@ import ch.njol.unofficialmonumentamod.options.Options.Position;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AbiltiesHud extends HudElement {
@@ -81,9 +83,7 @@ public class AbiltiesHud extends HudElement {
 
 		// NB: this code is partially duplicated in ChatScreenMixin!
 
-		if (options.abilitiesDisplay_condenseOnlyOnCooldown) {
-			abilityInfos = abilityInfos.stream().filter(this::isAbilityVisible).collect(Collectors.toList());
-		}
+		abilityInfos = abilityInfos.stream().filter(a -> isAbilityVisible(a, true)).collect(Collectors.toList());
 
 		int iconSize = options.abilitiesDisplay_iconSize;
 		int iconGap = options.abilitiesDisplay_iconGap;
@@ -115,13 +115,12 @@ public class AbiltiesHud extends HudElement {
 			for (int i = 0; i < abilityInfos.size(); i++) {
 				AbilityHandler.AbilityInfo abilityInfo = abilityInfos.get(ascendingRenderOrder ? i : abilityInfos.size() - 1 - i);
 
-				if (isAbilityVisible(abilityInfo)) {
+				if (isAbilityVisible(abilityInfo, false)) {
 					// some settings are affected by called methods, so set them anew for each ability to render
-					RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-					RenderSystem.enableRescaleNormal();
+					RenderSystem.setShader(GameRenderer::getPositionTexShader);
+					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 					RenderSystem.enableBlend();
 					RenderSystem.defaultBlendFunc();
-					RenderSystem.enableAlphaTest();
 
 					if (layer == 0) {
 
@@ -131,7 +130,7 @@ public class AbiltiesHud extends HudElement {
 						float scaledX = x - (scaledIconSize - iconSize) / 2;
 						float scaledY = y - (scaledIconSize - iconSize) / 2;
 
-						bindTextureOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name), UNKNOWN_ABILITY_ICON);
+						bindTextureOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name, abilityInfo.mode), UNKNOWN_ABILITY_ICON);
 						drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
 
 						// silenceCooldownFraction is >= 0 so this is also >= 0
@@ -140,19 +139,19 @@ public class AbiltiesHud extends HudElement {
 							// cooldown overlay is a series of 16 images, starting will full cooldown at the top, and successive shorter cooldowns below.
 							final int numCooldownTextures = 16;
 							int cooldownTextureIndex = (int) Math.floor((1 - cooldownFraction) * numCooldownTextures);
-							client.getTextureManager().bindTexture(COOLDOWN_OVERLAY);
+							RenderSystem.setShaderTexture(0, COOLDOWN_OVERLAY);
 							drawTextureSmooth(matrices,
 								scaledX, scaledY, scaledIconSize, scaledIconSize,
 								0, 1, 1f * cooldownTextureIndex / numCooldownTextures, 1f * (cooldownTextureIndex + 1) / numCooldownTextures);
 						}
 						if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
-							this.client.getTextureManager().bindTexture(COOLDOWN_FLASH);
-							RenderSystem.color4f(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
+							RenderSystem.setShaderTexture(0, COOLDOWN_FLASH);
+							RenderSystem.setShaderColor(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
 							drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
-							RenderSystem.color4f(1, 1, 1, 1);
+							RenderSystem.setShaderColor(1, 1, 1, 1);
 						}
 
-						bindTextureOrDefault(getBorderFileIdentifier(abilityInfo.className), UNKNOWN_CLASS_BORDER);
+						bindTextureOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER);
 						drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
 
 					} else {
@@ -182,23 +181,41 @@ public class AbiltiesHud extends HudElement {
 		}
 	}
 
+	private static final Pattern IDENTIFIER_SANITATION_PATTERN = Pattern.compile("[^a-zA-Z0-9/._-]");
+
+	private static String sanitizeForIdentifier(String string) {
+		return IDENTIFIER_SANITATION_PATTERN.matcher(string).replaceAll("_").toLowerCase(Locale.ROOT);
+	}
+
 	private static final Map<String, Identifier> abilityIdentifiers = new HashMap<>();
 
-	// TODO use Sprites instead for animation and a neat isPixelTransparent() method
-	private static Identifier getAbilityFileIdentifier(String className, String name) {
-		return abilityIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + "/" + name, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
-			"textures/abilities/" + key.replaceAll("[^a-zA-Z0-9/._-]", "_").toLowerCase(Locale.ROOT) + ".png"));
+	private static Identifier getAbilityFileIdentifier(String className, String name, String mode) {
+		return abilityIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + "/" + name + (mode == null ? "" : "_" + mode),
+			key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
+				"textures/abilities/" + sanitizeForIdentifier(key) + ".png"));
 	}
 
 	private static final Map<String, Identifier> borderIdentifiers = new HashMap<>();
 
-	private static Identifier getBorderFileIdentifier(String className) {
-		return borderIdentifiers.computeIfAbsent(className == null ? "unknown" : className, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
-			"textures/abilities/" + key.replaceAll("[^a-zA-Z0-9/._-]", "_").toLowerCase(Locale.ROOT) + "/border.png"));
+	private static Identifier getBorderFileIdentifier(String className, boolean silenced) {
+		return borderIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + (silenced ? "_silenced" : ""),
+			key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER,
+				"textures/abilities/" + sanitizeForIdentifier(className == null ? "unknown" : className) + "/border" + (silenced ? "_silenced" : "") + ".png"));
 	}
 
-	public boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo) {
-		// abilities are visible with showOnlyOnCooldown IFF they are on cooldown or don't have a cooldown (and should have stacks instead)
+
+	public boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo, boolean forSpaceCalculation) {
+		// Passive abilities are visible iff passives are enabled in the options
+		if (abilityInfo.initialCooldown == 0 && abilityInfo.maxCharges == 0) {
+			return UnofficialMonumentaModClient.options.abilitiesDisplay_showPassiveAbilities;
+		}
+
+		// Active abilities take up space even if hidden unless condenseOnlyOnCooldown is enabled
+		if (forSpaceCalculation && !UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
+			return true;
+		}
+
+		// Active abilities are visible with showOnlyOnCooldown iff they are on cooldown or don't have a cooldown (and should have stacks instead)
 		return !UnofficialMonumentaModClient.options.abilitiesDisplay_showOnlyOnCooldown
 			       || draggedAbility != null
 			       || abilityInfo.remainingCooldown > 0
@@ -212,9 +229,7 @@ public class AbiltiesHud extends HudElement {
 		if (abilityInfos.isEmpty()) {
 			return Hud.ClickResult.NONE;
 		}
-		if (UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
-			abilityInfos = abilityInfos.stream().filter(this::isAbilityVisible).collect(Collectors.toList());
-		}
+		abilityInfos = abilityInfos.stream().filter(a -> isAbilityVisible(a, true)).collect(Collectors.toList());
 
 		int index = getClosestAbilityIndex(abilityInfos, mouseX, mouseY, true);
 		if (index < 0) {
@@ -270,9 +285,7 @@ public class AbiltiesHud extends HudElement {
 		if (abilityInfos.isEmpty()) {
 			return;
 		}
-		if (UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
-			abilityInfos = abilityInfos.stream().filter(this::isAbilityVisible).collect(Collectors.toList());
-		}
+		abilityInfos = abilityInfos.stream().filter(a -> isAbilityVisible(a, true)).collect(Collectors.toList());
 
 		int index = getClosestAbilityIndex(abilityInfos, mouseX, mouseY, true);
 		if (index < 0) {
