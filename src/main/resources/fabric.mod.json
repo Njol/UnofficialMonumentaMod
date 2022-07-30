@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "unofficial-monumenta-mod",
-  "version": "${version}",
+  "version": "${mod_version}",
   "name": "Unofficial Monumenta Mod",
   "description": "An unofficial client-side mod to complement the Monumenta MMO server.",
   "authors": [
@@ -30,9 +30,9 @@
     "unofficial-monumenta-mod.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.11.3",
-    "fabric": "*",
-    "minecraft": "~1.16.4"
+    "fabricloader": ">=${loader_version}",
+    "fabric": ">=${fabric_version}",
+    "minecraft": "~${minecraft_version}"
   },
   "recommends": {
     "modmenu": ">=1.16.0",

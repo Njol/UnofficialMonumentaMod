@@ -32,9 +32,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
-	// This is a hacky way to pass data around...
-	public static boolean isReorderingAbilities = false;
-
 	@Override
 	public void onInitializeClient() {
 
@@ -56,7 +53,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
-
 	}
 
 	public static void onDisconnect() {
@@ -82,14 +78,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		MinecraftClient.getInstance().execute(() -> {
 			writeJsonFile(options, OPTIONS_FILE_NAME);
 		});
-	}
-
-	public static boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo) {
-		// abilities are visible with showOnlyOnCooldown IFF they are on cooldown or don't have a cooldown (and should have stacks instead)
-		return !options.abilitiesDisplay_showOnlyOnCooldown
-			       || isReorderingAbilities
-			       || abilityInfo.remainingCooldown > 0
-			       || abilityInfo.maxCharges > 0 && (abilityInfo.initialCooldown <= 0 || options.abilitiesDisplay_alwaysShowAbilitiesWithCharges);
 	}
 
 }

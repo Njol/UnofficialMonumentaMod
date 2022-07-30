@@ -79,26 +79,29 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 		String message = buf.readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
 		JsonElement json = new JsonParser().parse(message);
-		if (UnofficialMonumentaModClient.options.logPackets)
+		if (UnofficialMonumentaModClient.options.logPackets) {
 			System.out.println("[UMM] read packet: " + json);
-		String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
-		switch (packetType) {
-			case "ClassUpdatePacket": {
-				ClassUpdatePacket packet = gson.fromJson(json, ClassUpdatePacket.class);
-				abilityHandler.updateAbilities(packet);
-				break;
-			}
-			case "AbilityUpdatePacket": {
-				AbilityUpdatePacket packet = gson.fromJson(json, AbilityUpdatePacket.class);
-				abilityHandler.updateAbility(packet);
-				break;
-			}
-			case "PlayerStatusPacket": {
-				PlayerStatusPacket packet = gson.fromJson(json, PlayerStatusPacket.class);
-				abilityHandler.updateStatus(packet);
-				break;
-			}
 		}
+		client.execute(() -> {
+			String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
+			switch (packetType) {
+				case "ClassUpdatePacket": {
+					ClassUpdatePacket packet = gson.fromJson(json, ClassUpdatePacket.class);
+					abilityHandler.updateAbilities(packet);
+					break;
+				}
+				case "AbilityUpdatePacket": {
+					AbilityUpdatePacket packet = gson.fromJson(json, AbilityUpdatePacket.class);
+					abilityHandler.updateAbility(packet);
+					break;
+				}
+				case "PlayerStatusPacket": {
+					PlayerStatusPacket packet = gson.fromJson(json, PlayerStatusPacket.class);
+					abilityHandler.updateStatus(packet);
+					break;
+				}
+			}
+		});
 	}
 
 }

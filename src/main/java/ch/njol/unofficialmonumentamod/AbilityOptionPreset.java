@@ -1,5 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.options.Options.Position;
+
 public enum AbilityOptionPreset {
 
 	CUSTOM("Custom", false, 0, 0, 0, 0, 0),
@@ -12,20 +14,17 @@ public enum AbilityOptionPreset {
 
 	public final String name;
 	public final boolean horizontal;
-	public final float align;
-	public final float offsetXRelative;
-	public final float offsetYRelative;
-	public final int offsetXAbsolute;
-	public final int offsetYAbsolute;
+	public final Position position = new Position();
 
 	AbilityOptionPreset(String name, boolean horizontal, float align, float offsetXRelative, float offsetYRelative, int offsetXAbsolute, int offsetYAbsolute) {
 		this.name = name;
 		this.horizontal = horizontal;
-		this.align = align;
-		this.offsetXRelative = offsetXRelative;
-		this.offsetYRelative = offsetYRelative;
-		this.offsetXAbsolute = offsetXAbsolute;
-		this.offsetYAbsolute = offsetYAbsolute;
+		position.alignX = horizontal ? align : 0;
+		position.alignY = horizontal ? 0 : align;
+		position.offsetXRelative = offsetXRelative;
+		position.offsetYRelative = offsetYRelative;
+		position.offsetXAbsolute = offsetXAbsolute;
+		position.offsetYAbsolute = offsetYAbsolute;
 	}
 
 	@Override

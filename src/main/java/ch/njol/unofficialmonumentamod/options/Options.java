@@ -22,10 +22,9 @@ public class Options {
 	public @interface Color {
 	}
 
-	// apparently there's no slider for floats....
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface Slider {
+	public @interface FloatSlider {
 		float min();
 
 		float max();
@@ -33,13 +32,57 @@ public class Options {
 		float step();
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface IntSlider {
+		int min();
+
+		int max();
+	}
+
 	public interface DescriptionLine {
+	}
+
+	public static class Position {
+		public float offsetXRelative;
+		public float offsetYRelative;
+		public int offsetXAbsolute;
+		public int offsetYAbsolute;
+		public float alignX;
+		public float alignY;
+
+		public Position() {
+		}
+
+		public Position(float offsetXRelative, int offsetXAbsolute, float offsetYRelative, int offsetYAbsolute, float alignX, float alignY) {
+			this.offsetXRelative = offsetXRelative;
+			this.offsetXAbsolute = offsetXAbsolute;
+			this.offsetYRelative = offsetYRelative;
+			this.offsetYAbsolute = offsetYAbsolute;
+			this.alignX = alignX;
+			this.alignY = alignY;
+		}
+
+		public Position clone() {
+			Position clone = new Position();
+			clone.offsetXRelative = offsetXRelative;
+			clone.offsetYRelative = offsetYRelative;
+			clone.offsetXAbsolute = offsetXAbsolute;
+			clone.offsetYAbsolute = offsetYAbsolute;
+			clone.alignX = alignX;
+			clone.alignY = alignY;
+			return clone;
+		}
+	}
+
+	public enum HudMode {
+		VANILLA, REPLACE, REMOVE;
 	}
 
 	@Category("misc")
 	public boolean overrideTridentRendering = true;
 	@Category("misc")
-	public boolean lowerVillagerHelmets = true;
+	public boolean lowerVillagerHelmets = false;
 
 	@Category("misc")
 	public boolean firmamentPingFix = true;
@@ -80,22 +123,14 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_horizontal = AbilityOptionPreset.ABOVE_HOTBAR.horizontal;
 	@Category("abilities")
-	public float abilitiesDisplay_align = AbilityOptionPreset.ABOVE_HOTBAR.align;
-	@Category("abilities")
-	public float abilitiesDisplay_offsetXRelative = AbilityOptionPreset.ABOVE_HOTBAR.offsetXRelative;
-	@Category("abilities")
-	public float abilitiesDisplay_offsetYRelative = AbilityOptionPreset.ABOVE_HOTBAR.offsetYRelative;
-	@Category("abilities")
-	public int abilitiesDisplay_offsetXAbsolute = AbilityOptionPreset.ABOVE_HOTBAR.offsetXAbsolute;
-	@Category("abilities")
-	public int abilitiesDisplay_offsetYAbsolute = AbilityOptionPreset.ABOVE_HOTBAR.offsetYAbsolute;
+	public Position abilitiesDisplay_position = AbilityOptionPreset.ABOVE_HOTBAR.position.clone();
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_miscInfo;
 	@Category("abilities")
 	public boolean abilitiesDisplay_offCooldownResize = true;
 	@Category("abilities")
-	@Slider(min = 0, max = 1, step = 0.01f)
+	@FloatSlider(min = 0, max = 1, step = 0.01f)
 	public float abilitiesDisplay_offCooldownFlashIntensity = 1;
 	@Category("abilities")
 	public int abilitiesDisplay_iconSize = 32;
@@ -115,6 +150,18 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_condenseOnlyOnCooldown = false;
 
+	@Category("hud")
+	public boolean hud_enabled = true;
+	//	@Category("hud")
+//	public HudMode hud_statusBarsMode = HudMode.REPLACE;
+	@Category("hud")
+	public Position hud_heathBarPosition = new Position(0.5f, 0, 1.0f, -100, 0.5f, 0);
+	@Category("hud")
+	@IntSlider(min = 2, max = 10)
+	public int hud_heathBarSize = 3;
+//	@Category("hud")
+//	public HudMode hud_experienceBarMode = HudMode.REPLACE;
+
 	/**
 	 * List of [class]/[ability]. Abilities not present in this list are sorted alphabetically.
 	 */
@@ -128,11 +175,7 @@ public class Options {
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {
 			abilitiesDisplay_horizontal = abilitiesDisplay_preset.horizontal;
-			abilitiesDisplay_align = abilitiesDisplay_preset.align;
-			abilitiesDisplay_offsetXRelative = abilitiesDisplay_preset.offsetXRelative;
-			abilitiesDisplay_offsetYRelative = abilitiesDisplay_preset.offsetYRelative;
-			abilitiesDisplay_offsetXAbsolute = abilitiesDisplay_preset.offsetXAbsolute;
-			abilitiesDisplay_offsetYAbsolute = abilitiesDisplay_preset.offsetYAbsolute;
+			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
 	}
