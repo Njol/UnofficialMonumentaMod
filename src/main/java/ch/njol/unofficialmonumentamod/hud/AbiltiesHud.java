@@ -43,6 +43,11 @@ public class AbiltiesHud extends HudElement {
 		return UnofficialMonumentaModClient.options.abilitiesDisplay_enabled && !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty();
 	}
 
+	@Override
+	protected boolean isVisible() {
+		return true;
+	}
+
 	private int getTotalSize() {
 		int numAbilities = UnofficialMonumentaModClient.abilityHandler.abilityData.size();
 		return UnofficialMonumentaModClient.options.abilitiesDisplay_iconSize * numAbilities + UnofficialMonumentaModClient.options.abilitiesDisplay_iconGap * (numAbilities - 1);

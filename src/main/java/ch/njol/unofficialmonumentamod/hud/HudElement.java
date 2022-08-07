@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.hud;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.options.Options.Position;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -44,12 +45,16 @@ public abstract class HudElement {
 	}
 
 	public void renderAbsolute(MatrixStack matrices, float tickDelta) {
-		if (!isEnabled()) {
+		if (!isEnabled() || (!isVisible() && !isInEditMode())) {
 			return;
 		}
 		Rectangle dimension = getDimension();
 		matrices.push();
 		matrices.translate(dimension.x, dimension.y, getZOffset());
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 		try {
 			render(matrices, tickDelta);
 		} catch (Exception e) {
@@ -68,7 +73,21 @@ public abstract class HudElement {
 		return new Rectangle(x, y, width, height);
 	}
 
+	/**
+	 * Returns whether this HUD element is enabled at all.
+	 * If not enabled, it will not appear when the reorder screen is opened.
+	 */
 	protected abstract boolean isEnabled();
+
+	/**
+	 * Returns whether this HUD element is currently visible, given that it {@link #isEnabled() is enabled}.
+	 * This is ignored when the reorder screen is opened.
+	 */
+	protected abstract boolean isVisible();
+
+	public boolean isInEditMode() {
+		return client.currentScreen instanceof HudEditScreen;
+	}
 
 	protected abstract int getWidth();
 
@@ -98,14 +117,14 @@ public abstract class HudElement {
 	}
 
 	public static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height) {
-		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, y, x + width, y + height, 0, 0, 0, 1, 1);
 	}
 
 	public static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height, float u0, float u1, float v0, float v1) {
-		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, y, x + width, y + height, 0, u0, v0, u1, v1);
 	}
 
-	public static void drawTexturedQuadSmooth(Matrix4f matrices, float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1) {
+	public static void drawTexturedQuadSmooth(Matrix4f matrices, float x0, float y0, float x1, float y1, float z, float u0, float v0, float u1, float v1) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
 		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
@@ -119,7 +138,21 @@ public abstract class HudElement {
 
 	public static void drawSprite(MatrixStack matrices, Sprite sprite, float x, float y, float width, float height) {
 		RenderSystem.setShaderTexture(0, sprite.getAtlas().getId());
-		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, sprite.getMinU(), sprite.getMaxU(), sprite.getMinV(), sprite.getMaxV());
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, y, x + width, y + height, 0, sprite.getMinU(), sprite.getMinV(), sprite.getMaxU(), sprite.getMaxV());
+	}
+
+	/**
+	 * Draws a sub-rectangle of the given sprite into the given area (thus filling the area only partially).
+	 * The 'cut' coordinates are relative offsets, e.g. a cutX0=0.1 and cutX1=0.8 will cut off the leftmost 10% of the sprite and the rightmost 20%.
+	 */
+	public static void drawPartialSprite(MatrixStack matrices, Sprite sprite, float x, float y, float width, float height, float cutX0, float cutY0, float cutX1, float cutY1) {
+		if (cutX0 >= cutX1 || cutY0 >= cutX1 || width == 0 || height == 0) {
+			return;
+		}
+		RenderSystem.setShaderTexture(0, sprite.getAtlas().getId());
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x + width * cutX0, y + height * cutY0, x + width * cutX1, y + height * cutY1, 0,
+			sprite.getMinU() + cutX0 * (sprite.getMaxU() - sprite.getMinU()), sprite.getMinV() + cutY0 * (sprite.getMaxV() - sprite.getMinV()),
+			sprite.getMinU() + cutX1 * (sprite.getMaxU() - sprite.getMinU()), sprite.getMinV() + cutY1 * (sprite.getMaxV() - sprite.getMinV()));
 	}
 
 	// need to draw lots of quads for this as the sprite texture is in an atlas and thus wrapping UV isn't possible
@@ -133,8 +166,8 @@ public abstract class HudElement {
 				float xfactor = Math.min(1.0f, xRepetitions - xrep);
 				float yfactor = Math.min(1.0f, yRepetitions - yrep);
 				drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(),
-					x + width * xrep, x + width * (xrep + xfactor), y + height * yrep, y + height * (yrep + yfactor), 0,
-					sprite.getMinU(), sprite.getMinU() + (sprite.getMaxU() - sprite.getMinU()) * xfactor, sprite.getMinV(), sprite.getMinV() + (sprite.getMaxV() - sprite.getMinV()) * yfactor);
+					x + width * xrep, y + height * yrep, x + width * (xrep + xfactor), y + height * (yrep + yfactor), 0,
+					sprite.getMinU(), sprite.getMinV(), sprite.getMinU() + (sprite.getMaxU() - sprite.getMinU()) * xfactor, sprite.getMinV() + (sprite.getMaxV() - sprite.getMinV()) * yfactor);
 			}
 		}
 	}
@@ -144,6 +177,26 @@ public abstract class HudElement {
 	private double dragX;
 	private double dragY;
 
+	/**
+	 * Checks whether the given mouse coordinates (relative to this element) are valid for mouse operations.
+	 */
+	protected boolean isClickable(double mouseX, double mouseY) {
+		return true;
+	}
+
+	protected boolean isPixelTransparent(Sprite sprite, double mouseX, double mouseY) {
+		return sprite.isPixelTransparent(0, Utils.clamp(0, (int) (mouseX / getWidth() * sprite.getWidth()), sprite.getWidth() - 1),
+			Utils.clamp(0, (int) (mouseY / getHeight() * sprite.getHeight()), sprite.getHeight() - 1));
+	}
+
+	/**
+	 * The mouse has been clicked while the cursor was above this element.
+	 *
+	 * @param mouseX Mouse X coordinate relative to this element
+	 * @param mouseY Mouse Y coordinate relative to this element
+	 * @param button Which mouse button was pressed
+	 * @return A click result specifying which action has been taken
+	 */
 	Hud.ClickResult mouseClicked(double mouseX, double mouseY, int button) {
 		if (Screen.hasControlDown()) {
 			dragging = true;

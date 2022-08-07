@@ -30,7 +30,7 @@ public abstract class ChatScreenMixin extends Screen {
 		if (cir.getReturnValueZ()) {
 			return;
 		}
-		cir.setReturnValue(hud.mouseClicked(mouseX, mouseY, button));
+		cir.setReturnValue(hud.mouseClicked(this, mouseX, mouseY, button));
 	}
 
 	@Override

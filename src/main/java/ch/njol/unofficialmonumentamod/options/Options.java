@@ -164,15 +164,34 @@ public class Options {
 	public DescriptionLine hud_info;
 	@Category("hud")
 	public boolean hud_enabled = true;
-	//	@Category("hud")
-//	public HudMode hud_statusBarsMode = HudMode.REPLACE;
 	@Category("hud")
-	public Position hud_healthBarPosition = new Position(0.5f, 0, 1.0f, -100, 0.5f, 0);
+	public boolean hud_statusBarsEnabled = true;
 	@Category("hud")
-	@IntSlider(min = 2, max = 10)
-	public int hud_healthBarSize = 3;
-//	@Category("hud")
-//	public HudMode hud_experienceBarMode = HudMode.REPLACE;
+	public float hud_regenerationSpeed = 10;
+	@Category("hud")
+	public int hud_healthTextOffset = -5;
+	@Category("hud")
+	public boolean hud_healthMirror = false;
+	@Category("hud")
+	public boolean hud_hungerMirror = false;
+	@Category("hud")
+	public boolean hud_breathMirror = true;
+	@Category("hud")
+	public boolean hud_hideBreathWithWaterBreathing = false;
+	@Category("hud")
+	public boolean hud_mountHealthEnabled = true;
+	@Category("hud")
+	public boolean hud_mountHealthMirror = false;
+	@Category("hud")
+	public int hud_mountHealthTextOffset = -5;
+	@Category("hud")
+	public Position hud_healthBarPosition = new Position(0.5f, 0, 1.0f, -69, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_hungerBarPosition = new Position(0.5f, 60, 1.0f, -23, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_breathBarPosition = new Position(0.5f, -61, 1.0f, -23, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_mountHealthBarPosition = new Position(0.5f, 60, 1.0f, -38, 0.5f, 1.0f);
 
 	/**
 	 * List of [class]/[ability]. Abilities not present in this list are sorted alphabetically.

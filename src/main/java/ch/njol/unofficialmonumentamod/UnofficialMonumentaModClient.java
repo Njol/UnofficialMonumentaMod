@@ -1,16 +1,21 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.hud.HudEditScreen;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,6 +37,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
+	public static KeyBinding openHudEditScreenKeybinding;
+
 	@Override
 	public void onInitializeClient() {
 
@@ -48,8 +55,23 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
+		openHudEditScreenKeybinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			MOD_IDENTIFIER + ".keybindings.key.editHud",
+			InputUtil.Type.KEYSYM,
+			GLFW.GLFW_KEY_UNKNOWN,
+			MOD_IDENTIFIER + ".keybindings.category"
+		));
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
+
+			if (openHudEditScreenKeybinding.wasPressed() && !client.options.hudHidden) {
+				if (client.currentScreen instanceof HudEditScreen) {
+					client.currentScreen.close();
+				} else {
+					client.setScreen(new HudEditScreen(client.currentScreen));
+				}
+			}
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());

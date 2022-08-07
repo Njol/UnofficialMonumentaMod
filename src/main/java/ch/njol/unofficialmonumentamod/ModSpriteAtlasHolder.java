@@ -1,6 +1,9 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.hud.BreathBar;
 import ch.njol.unofficialmonumentamod.hud.HealthBar;
+import ch.njol.unofficialmonumentamod.hud.HungerBar;
+import ch.njol.unofficialmonumentamod.hud.MountHealthBar;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasHolder;
@@ -45,6 +48,9 @@ public class ModSpriteAtlasHolder extends SpriteAtlasHolder {
 			return id;
 		};
 		HealthBar.registerSprites(register);
+		HungerBar.registerSprites(register);
+		BreathBar.registerSprites(register);
+		MountHealthBar.registerSprites(register);
 		HUD_ATLAS = new ModSpriteAtlasHolder(client.getTextureManager(), "hud", sprites);
 		((ReloadableResourceManagerImpl) client.getResourceManager()).registerReloader(HUD_ATLAS);
 	}
