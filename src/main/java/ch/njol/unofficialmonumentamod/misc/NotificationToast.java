@@ -20,8 +20,12 @@ public class NotificationToast implements Toast {
     Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "/textures/gui/notifications.png");
 
     private final Text title;
+
     @Nullable
-    private final ArrayList<OrderedText> lines;
+    private ArrayList<OrderedText> lines;
+    @Nullable
+    private final Text originalDescription;
+
     private Toast.Visibility visibility;
     private long hideTime;
 
@@ -33,23 +37,30 @@ public class NotificationToast implements Toast {
         this.hideTime = System.currentTimeMillis() + timeBeforeRemove;
 
         this.title = title;
-        this.lines = getTextAsList(description);
+        this.originalDescription = description;
+        this.lines = getTextAsList(originalDescription, this.renderType.offset);
     }
 
-    private static ArrayList<OrderedText> getTextAsList(@Nullable Text text) {
+    private static ArrayList<OrderedText> getTextAsList(@Nullable Text text, @Nullable Integer offset) {
         if (text == null) {
             return new ArrayList<>();
         } else {
             ArrayList<OrderedText> list = new ArrayList<>();
             for (String line: text.getString().split("\n")) {
-                list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), 160));
+                list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), 160 - (offset != null ? offset : 0)));
             }
             return list;
         }
     }
 
+    public void wrapDescription() {
+        if (this.originalDescription == null) return;
+        this.lines = getTextAsList(this.originalDescription, this.renderType.offset);
+    }
+
     public NotificationToast setToastRender(RenderType type) {
         this.renderType = type;
+        wrapDescription();
         return this;
     }
 
@@ -70,7 +81,6 @@ public class NotificationToast implements Toast {
 
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
-
         if (System.currentTimeMillis() < this.hideTime) {
             manager.getGame().getTextureManager().bindTexture(TEXTURE);
             RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -97,7 +107,7 @@ public class NotificationToast implements Toast {
             } else {
                 manager.getGame().textRenderer.draw(matrices, this.title, center(manager.getGame().textRenderer.getWidth(this.title)), 7.0F, -11534256);
                 for(o = 0; o < this.lines.size(); ++o) {
-                    manager.getGame().textRenderer.draw(matrices, this.lines.get(o), center(manager.getGame().textRenderer.getWidth(this.lines.get(o))), (float)(18 + o * 12), -1);
+                    manager.getGame().textRenderer.draw(matrices, this.lines.get(o), center(manager.getGame().textRenderer.getWidth(this.lines.get(o))), (float)(18 + o * 12), 0x404040);
                 }
             }
 

@@ -88,5 +88,7 @@
   "unofficial-monumenta-mod.config.option.notifyLocation": "Notifies in the form of an \"achievement\" like ui element when you change location.",
   "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Disabling this will not disable the change of location in the discordRPC",
   "unofficial-monumenta-mod.config.option.notifierShowTime": "How long a notification will stay on the screen for.",
-  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": ""
+  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "",
+  "unofficial-monumenta-mod.config.option.showCalculatorInPlots": "Adds a calculator in the container gui while in the plots shard",
+  "unofficial-monumenta-mod.config.option.showCalculatorInPlots.tooltip": "Example of containers: chests, ender chests, barrels and similar blocks"
 }

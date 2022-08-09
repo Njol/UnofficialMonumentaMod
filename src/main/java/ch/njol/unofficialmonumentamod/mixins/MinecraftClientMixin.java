@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.misc.managers.CooldownManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -29,8 +30,15 @@ public abstract class MinecraftClientMixin {
     // NB: not needed on MC 1.17
     @Inject(method = "doItemUse()V", at = @At("HEAD"))
     void doItemUse_crossbowFix(CallbackInfo ci) {
-        if (player == null || !UnofficialMonumentaModClient.options.crossbowFix)
+        if (player == null) {
             return;
+        }
+        if (CooldownManager.shouldRender() && CooldownManager.getCooldownFromItem(player.getMainHandStack()) != null) {
+            CooldownManager.addCooldownToItem(player.getMainHandStack(), CooldownManager.Trigger.MAIN_HAND);
+        } else if (!CooldownManager.shouldRender()) {
+            CooldownManager.addCooldownToItem(player.getMainHandStack(), CooldownManager.Trigger.MAIN_HAND);
+        }
+        if (!UnofficialMonumentaModClient.options.crossbowFix) return;
         if (player.getMainHandStack() != null && player.getMainHandStack().getItem() == Items.CROSSBOW
                 || player.getOffHandStack() != null && player.getOffHandStack().getItem() == Items.CROSSBOW) {
             player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookOnly(player.yaw, player.pitch, player.isOnGround()));

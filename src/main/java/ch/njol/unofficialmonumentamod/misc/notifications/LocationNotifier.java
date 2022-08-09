@@ -3,7 +3,7 @@ package ch.njol.unofficialmonumentamod.misc.notifications;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.misc.NotificationToast;
 import ch.njol.unofficialmonumentamod.misc.Locations;
-import ch.njol.unofficialmonumentamod.misc.Notifier;
+import ch.njol.unofficialmonumentamod.misc.managers.Notifier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 

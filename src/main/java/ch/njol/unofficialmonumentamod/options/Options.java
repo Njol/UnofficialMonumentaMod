@@ -64,11 +64,14 @@ public class Options {
 	@Slider(min = 1.5F, max = 60F, step = 0.1F, unit = "second")
 	public float notifierShowTime = 5F;
 
-	// TODO implement item cooldown display
+	@Category("misc")
+	public boolean showCalculatorInPlots = true;
+
+	// TOD implement item cooldown display
 	// requires sever-side adaptions to send the cooldown (on use and on connect)
-	// biggest issue: most tesseracts are apparently done in mcfunctions
-//	@Category("misc")
-//	public boolean renderItemCooldowns = true;
+	// the biggest issue: most tesseracts are apparently done in mcfunctions
+	@Category("misc")
+	public boolean renderItemCooldowns = true;
 
 	/*
 	 * Location related settings

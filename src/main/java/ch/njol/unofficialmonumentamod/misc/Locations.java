@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.misc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
@@ -12,9 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URL;
-import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -34,7 +34,7 @@ public class Locations {
     public ArrayList<String> PLOTS;
     public ArrayList<String> ISLES;
 
-    private static final String CACHE_FILE_PATH = "unofficial-monumenta-mod-locations.json";
+    private static final String CACHE_FILE_PATH = "monumenta/unofficial-monumenta-mod-locations.json";
     private String update_commit;
     private static final String UPDATE_GIST_URL = "https://api.github.com/gists/4b1602b907da62a9cca6f135fd334737";//put new locations in that gist
 
@@ -134,7 +134,7 @@ public class Locations {
             JsonObject json =  jsonParser.parse(content).getAsJsonObject();
 
             JsonObject jsonContent = jsonParser.parse(json.get("files").getAsJsonObject().get("Locations.json").getAsJsonObject().get("content").getAsString()).getAsJsonObject();
-            loadJson(jsonContent.getAsString());
+            loadJson(jsonContent.toString());
 
             this.update_commit = jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
 
@@ -145,23 +145,16 @@ public class Locations {
         writeJsonFile(this, CACHE_FILE_PATH);
     }
 
-    public static String readFile(String filePath) throws IOException {
-        StringBuilder builder = new StringBuilder();
-
-        List<String> list = Files.readAllLines(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile().toPath());
-
-        list.forEach(s -> builder.append(s).append("\n"));
-
-        return builder.toString();
-    }
-
     public void load() {
         try {
-            String cache = readFile(CACHE_FILE_PATH);
+            String cache = Utils.readFile(CACHE_FILE_PATH);
 
             if (UnofficialMonumentaModClient.options.locationUpdate) {
                 JsonParser jsonParser = new JsonParser();
-                if (!Objects.equals(jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString(), jsonParser.parse(cache).getAsJsonObject().get("update_commit").getAsString())) {
+                String remoteVersion = jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
+                String localVersion = jsonParser.parse(cache).getAsJsonObject().get("update_commit").getAsString();
+                if (!Objects.equals(remoteVersion, localVersion)) {
+                    UnofficialMonumentaModClient.LOGGER.info(String.format("Found new update for location file %s -> %s", localVersion, remoteVersion));
                     update();
                     return;
                 }
@@ -169,7 +162,7 @@ public class Locations {
 
             loadJson(cache);
 
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | NoSuchFileException e) {
             // file doesn't exist,
            if (UnofficialMonumentaModClient.options.locationUpdate) update();
            else writeJsonFile(this, CACHE_FILE_PATH);//create with empty values

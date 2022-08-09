@@ -1,13 +1,18 @@
 package ch.njol.unofficialmonumentamod.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import static ch.njol.unofficialmonumentamod.misc.Locations.getShard;
+
 import club.minnced.discord.rpc.*;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Hand;
 
-import java.util.*;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Objects;
+import java.util.Locale;
 
-import static ch.njol.unofficialmonumentamod.misc.Locations.getShard;
 
 public class DiscordRPC {
     club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;
@@ -23,7 +28,7 @@ public class DiscordRPC {
     Timer t = new Timer();
 
     public void Init() {
-        handlers.ready = (user) -> System.out.println("Loaded Discord RPC!");
+        handlers.ready = (user) -> UnofficialMonumentaModClient.LOGGER.info("Loaded Discord RPC!");
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
 
         startPresence();
@@ -33,9 +38,7 @@ public class DiscordRPC {
                 lib.Discord_RunCallbacks();
                 try {
                     Thread.sleep(2000);
-                } catch (InterruptedException ignored) {
-
-                }
+                } catch (InterruptedException ignored) {}
             }
         }, "RPC-Callback-Handler").start();
 
@@ -66,7 +69,7 @@ public class DiscordRPC {
         if (mc.world != null) {
             times++;
             boolean isSinglePlayer = mc.isInSingleplayer();
-            boolean isOnMonumenta = !isSinglePlayer && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com");
+            boolean isOnMonumenta = UnofficialMonumentaModClient.isOnMonumenta();
 
             DiscordRichPresence presence = new DiscordRichPresence();
             presence.startTimestamp = start_time;
@@ -96,14 +99,16 @@ public class DiscordRPC {
 
                     //replace each call
 
-                    if (detail.matches(".*?\\{.*?\\}.*?")) {
+                    if (detail.matches(".*?\\{.*?}.*?") && shortShard != null) {
                         detail = detail.replace("{player}", mc.player.getName().getString() != null ? mc.player.getName().getString() : "player");
-                        detail = detail.replace("{shard}", this.shard);
-                        detail = detail.replace("{server}", mc.getCurrentServerEntry().name);
+                        detail = detail.replace("{shard}", this.shard != null ? this.shard : "Timed out");
                         detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
-                        detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT));
+                        detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
                         detail = detail.replace("{location}", UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shortShard));
-                    }//only runs those if there's at least one detected
+                    } else if (shortShard == null) {
+                        detail = "User timed out :) or I couldn't detect the user's shard";
+                    }
+                    //only runs those if there's at least one detected
                     presence.details = detail;
 
 

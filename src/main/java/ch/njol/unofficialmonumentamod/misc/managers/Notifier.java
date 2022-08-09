@@ -1,6 +1,7 @@
-package ch.njol.unofficialmonumentamod.misc;
+package ch.njol.unofficialmonumentamod.misc.managers;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.misc.NotificationToast;
 import ch.njol.unofficialmonumentamod.misc.notifications.LocationNotifier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.toast.Toast;
