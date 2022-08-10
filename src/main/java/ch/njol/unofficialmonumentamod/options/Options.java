@@ -67,9 +67,7 @@ public class Options {
 	@Category("misc")
 	public boolean showCalculatorInPlots = true;
 
-	// TOD implement item cooldown display
-	// requires sever-side adaptions to send the cooldown (on use and on connect)
-	// the biggest issue: most tesseracts are apparently done in mcfunctions
+	// the biggest issue: most tesseracts are apparently done in mcfunctions -> and one of them for some reason doesn't handle its charges the same way as the others.
 	@Category("misc")
 	public boolean renderItemCooldowns = true;
 

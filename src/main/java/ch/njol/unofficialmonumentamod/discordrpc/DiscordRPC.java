@@ -15,20 +15,18 @@ import java.util.Locale;
 
 
 public class DiscordRPC {
-    club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;
-    String applicationId = "989262014562070619";
-    String steamId = "";
-    DiscordEventHandlers handlers = new DiscordEventHandlers();
-    Long start_time = System.currentTimeMillis() / 1000;
-    String shard = null;
+    private final club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;
+    private final DiscordEventHandlers handlers = new DiscordEventHandlers();
+    private final Long start_time = System.currentTimeMillis() / 1000;
 
-    MinecraftClient mc = MinecraftClient.getInstance();
+    private final MinecraftClient mc = MinecraftClient.getInstance();
 
-    Integer times = 0;
-    Timer t = new Timer();
+    private final Timer t = new Timer();
 
-    public void Init() {
+    public void init() {
         handlers.ready = (user) -> UnofficialMonumentaModClient.LOGGER.info("Loaded Discord RPC!");
+        String applicationId = "989262014562070619";
+        String steamId = "";
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
 
         startPresence();
@@ -67,7 +65,6 @@ public class DiscordRPC {
 
     private void updatePresence() {
         if (mc.world != null) {
-            times++;
             boolean isSinglePlayer = mc.isInSingleplayer();
             boolean isOnMonumenta = UnofficialMonumentaModClient.isOnMonumenta();
 
@@ -81,11 +78,13 @@ public class DiscordRPC {
                 presence.state = "Playing Singleplayer";
             } else {
                 if (!isOnMonumenta) {
-                    presence.state = "Playing Multiplayer - " + mc.getCurrentServerEntry().name.toUpperCase();
+                    if (mc.getCurrentServerEntry() != null) {
+                        presence.state = "Playing Multiplayer - " + mc.getCurrentServerEntry().name.toUpperCase();
+                    } else presence.state = "Playing Multiplayer - Unknown server";
                 } else {
-                    this.shard = getShard();
+                    String shard = getShard();
 
-                    presence.state = this.shard != null ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
+                    presence.state = shard != null ? "Playing Monumenta - " + shard : "Playing Monumenta";
                     //set small image
                     String shortShard = shard;
                     if (shard != null && shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isles / depths number
@@ -93,22 +92,16 @@ public class DiscordRPC {
                     presence.smallImageKey = shortShard != null ? shortShard : "valley";
 
                     //set details
-
                     String detail = UnofficialMonumentaModClient.options.discordDetails;
-
-
-                    //replace each call
-
-                    if (detail.matches(".*?\\{.*?}.*?") && shortShard != null) {
-                        detail = detail.replace("{player}", mc.player.getName().getString() != null ? mc.player.getName().getString() : "player");
-                        detail = detail.replace("{shard}", this.shard != null ? this.shard : "Timed out");
+                    if (detail.matches(".*?\\{.*?}.*?") && shortShard != null && mc.player != null) {
+                        detail = detail.replace("{player}",mc.player.getName().getString());
+                        detail = detail.replace("{shard}", shard);
                         detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
                         detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
                         detail = detail.replace("{location}", UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shortShard));
                     } else if (shortShard == null) {
-                        detail = "User timed out :) or I couldn't detect the user's shard";
+                        detail = "User timed out or the shard couldn't be detected.";
                     }
-                    //only runs those if there's at least one detected
                     presence.details = detail;
 
 

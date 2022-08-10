@@ -33,6 +33,9 @@ public abstract class Utils {
     private Utils() {
     }
 
+    /**
+     *  Gets the content of a file as plain text.
+     */
     public static String readFile(String filePath) throws IOException {
         StringBuilder builder = new StringBuilder();
 

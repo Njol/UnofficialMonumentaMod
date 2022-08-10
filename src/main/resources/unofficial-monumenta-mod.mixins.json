@@ -16,7 +16,7 @@
     "PlayerListHudAccessor",
     "ReloadableResourceManagerImplMixin",
     "ScreenHandlerMixin",
-    "ThreadSilencerMixin"
+    "ThreadExecutorMixin"
   ],
   "client": [
     "HandledScreenAccessor",

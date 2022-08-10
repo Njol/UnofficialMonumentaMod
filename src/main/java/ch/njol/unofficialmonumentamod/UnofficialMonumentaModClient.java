@@ -51,7 +51,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static Options options = new Options();
 
-	public static DiscordRPC discordpresence = new DiscordRPC();
+	public static DiscordRPC discordPresence = new DiscordRPC();
 
 	public static Locations locations = new Locations();
 
@@ -78,7 +78,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
-		if (options.discordEnabled) discordpresence.Init();
+		if (options.discordEnabled) discordPresence.init();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
@@ -110,14 +110,14 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static boolean isOnMonumenta() {
 		if (onMonumenta != null) return onMonumenta;
-		Boolean onMm = null;
+		Boolean onMM = null;
 
 		MinecraftClient mc = MinecraftClient.getInstance();
-		if (Locations.getShard() != null) onMm = true;
-		if (onMm == null) onMm = !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com|monumenta-13.playmonumenta.com");
+		if (Locations.getShard() != null) onMM = true;
+		if (onMM == null) onMM = !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com|monumenta-13.playmonumenta.com");
 
-		onMonumenta = onMm;
-		return onMm;
+		onMonumenta = onMM;
+		return onMM;
 	}
 
 	public static void onDisconnect() {

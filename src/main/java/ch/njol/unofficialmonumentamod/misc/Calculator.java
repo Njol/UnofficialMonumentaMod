@@ -21,7 +21,7 @@ public class Calculator {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
     public static final CalculatorRender renderer = new CalculatorRender();
 
-    private static ArrayList<Integer> values = new ArrayList<>();
+    private static final ArrayList<Integer> values = new ArrayList<>();
 
     private static String output;
     private static String mode = "normal"; //"normal" / "exchange" / "reverse-exchange"

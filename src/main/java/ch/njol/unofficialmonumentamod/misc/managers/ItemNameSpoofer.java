@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import static ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient.writeJsonFile;
 
 public class ItemNameSpoofer {
-    private static ArrayList<Spoof> spoofedNames = new ArrayList<>();
+    private static final ArrayList<Spoof> spoofedNames = new ArrayList<>();
     private static final String CACHE_PATH = "monumenta/spoofed-item-names.json";
 
     /**
@@ -88,14 +88,13 @@ public class ItemNameSpoofer {
     }
 
     /**
-     * gets the locally stored spoofed name from the config (or returns the actual item's name if doesn't exist)
+     * gets the locally stored spoofed name from the config (or returns the actual item's name if it doesn't exist)
      */
     public static MutableText getSpoofedName(ItemStack itemStack) {
         try {
-            if (itemStack.getTag() == null) return new LiteralText("").append(itemStack.getName());
-            if (itemStack.getTag().get("AttributeModifiers") != null && itemStack.getTag().getList("AttributeModifiers", 9) != null) {
-                UUID uuid = ((ListTag) itemStack.getTag().get("AttributeModifiers")).getCompound(0).getUuid("UUID");
-                for (Spoof spoofed: spoofedNames) {
+            UUID uuid = getUuid(itemStack);
+            if (uuid != null) {
+                for (Spoof spoofed : spoofedNames) {
                     if (spoofed.getUuid().equals(uuid)) {
                         return spoofed.getName();
                     }

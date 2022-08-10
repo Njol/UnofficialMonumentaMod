@@ -112,18 +112,20 @@ public class NotificationToast implements Toast {
 
             int i = this.getWidth();
             int o;
-            if (i == 160 && this.lines.size() <= 1) {
-                manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
-            } else {
-                o = this.getHeight() + Math.max(0, this.lines.size() - 1) * 12;
-                int m = Math.min(4, o - 28);
-                this.drawPart(matrices, manager, i, 0, 0, 28);
+            if (this.lines != null) {
+                if (i == 160 && this.lines.size() <= 1) {
+                    manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
+                } else {
+                    o = this.getHeight() + Math.max(0, this.lines.size() - 1) * 12;
+                    int m = Math.min(4, o - 28);
+                    this.drawPart(matrices, manager, i, 0, 0, 28);
 
-                for(int n = 28; n < o - m; n += 10) {
-                    this.drawPart(matrices, manager, i, 16, n, Math.min(16, o - n - m));
+                    for (int n = 28; n < o - m; n += 10) {
+                        this.drawPart(matrices, manager, i, 16, n, Math.min(16, o - n - m));
+                    }
+
+                    this.drawPart(matrices, manager, i, 32 - m, o - m, m);
                 }
-
-                this.drawPart(matrices, manager, i, 32 - m, o - m, m);
             }
 
             if (this.lines.size() == 0) {
@@ -171,13 +173,13 @@ public class NotificationToast implements Toast {
             return renderType.offset + ((toastWidth - fontWidth)/2);
         } else if (((toastWidth - fontWidth)/2) > toastWidth - renderType.offset) {
             //text overlaps with second offset
-            System.out.println("overlapping with second offset");
             return ((toastWidth - fontWidth)/2) - renderType.offset;
         } else return ((toastWidth - fontWidth) / 2);
     }
 
     private int align_right(int fontWidth) {
-        if (fontWidth + this.renderType.offset > 160) {//should in theory stop overflowing text.
+        if (fontWidth + this.renderType.offset > 160) {
+            //should in theory stop overflowing text.
             wrapDescription((160 - renderType.offset) - fontWidth);
         }
         return (fontWidth - this.renderType.offset);

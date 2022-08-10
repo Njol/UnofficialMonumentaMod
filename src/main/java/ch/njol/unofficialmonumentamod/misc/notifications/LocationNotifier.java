@@ -34,7 +34,7 @@ public class LocationNotifier {
         if (lastX != null && lastZ != null) {
             String lastLoc = UnofficialMonumentaModClient.locations.getLocation(lastX, lastZ, shard);
 
-            if (!Objects.equals(loc, shard) && !Objects.equals(loc, lastLoc) && !Objects.equals(loc, "Overworld")) {//TODO There seems to be a bug when you enter in a non-registered area, it won't load notifications.
+            if (!Objects.equals(loc, shard) && !Objects.equals(loc, lastLoc) && !Objects.equals(loc, "Overworld")) {
                 NotificationToast toast = new NotificationToast(Text.of("Entering Area"), Text.of("Entering " + loc), Notifier.getMillisHideTime());
                 Notifier.addCustomToast(toast);
             } else if (Objects.equals(loc, shard) || Objects.equals(loc, "Overworld")) {

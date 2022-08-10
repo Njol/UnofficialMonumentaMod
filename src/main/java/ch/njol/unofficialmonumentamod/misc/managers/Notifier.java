@@ -13,7 +13,7 @@ import java.util.Objects;
 public class Notifier {
     private static NotificationToast lastToast;
 
-    private static ArrayList<NotificationToast> queue = new ArrayList<>();
+    private static final ArrayList<NotificationToast> queue = new ArrayList<>();
 
     public static long getMillisHideTime() {
         return Float.valueOf(UnofficialMonumentaModClient.options.notifierShowTime).longValue() * 1000;

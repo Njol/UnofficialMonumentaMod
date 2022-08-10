@@ -26,8 +26,6 @@ import static ch.njol.unofficialmonumentamod.Utils.getUrl;
 import static java.lang.Integer.parseInt;
 
 public class Locations {
-
-
     //add shards with locations here
     public ArrayList<String> VALLEY;
     public ArrayList<String> PLOTS;
@@ -72,7 +70,7 @@ public class Locations {
                 }
             }
             return shard;
-        }catch (NullPointerException ignored) {};
+        }catch (NullPointerException ignored) {}
 
         return null;
     }
@@ -106,9 +104,9 @@ public class Locations {
                 for (String addition: additions) {
                     if (!addition.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)")) continue;//only adds correctly made locations
                     location.add(addition);
-                };
+                }
                 this.getClass().getField(shard.toUpperCase()).set(this, location);
-            };
+            }
         } catch (Exception ignored) {}
     }
 
