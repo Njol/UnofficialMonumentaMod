@@ -112,10 +112,10 @@ public class MountHealthBar extends HudElement {
 			RenderSystem.enableCull();
 		}
 
-		// TODO text options: no text at all, current as %
-		String fullText = OPTIONAL_SINGLE_DIGIT.format(health);
-		drawOutlinedText(matrices, fullText, width / 2 - client.textRenderer.getWidth(fullText) / 2, HEIGHT / 2 - client.textRenderer.fontHeight / 2 + UnofficialMonumentaModClient.options.hud_mountHealthTextOffset, 0xFFFFFFFF);
-
+		if (UnofficialMonumentaModClient.options.hud_mountHealthText) {
+			String fullText = OPTIONAL_SINGLE_DIGIT.format(health);
+			drawOutlinedText(matrices, fullText, width / 2 - client.textRenderer.getWidth(fullText) / 2, HEIGHT / 2 - client.textRenderer.fontHeight / 2 + UnofficialMonumentaModClient.options.hud_mountHealthTextOffset, 0xFFFFFFFF);
+		}
 	}
 
 	@Override

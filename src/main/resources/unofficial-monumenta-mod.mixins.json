@@ -10,9 +10,11 @@
     "ClientPlayerInteractionManagerMixin",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
+    "InGameHudAccessor",
     "InGameHudMixin",
     "ItemRendererMixin",
     "MinecraftClientMixin",
+    "ReloadableResourceManagerImplMixin",
     "ThrowablePotionItemMixin"
   ],
   "client": [

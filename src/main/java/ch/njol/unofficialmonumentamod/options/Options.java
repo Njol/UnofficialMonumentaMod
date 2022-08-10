@@ -163,11 +163,13 @@ public class Options {
 	@Category("hud")
 	public DescriptionLine hud_info;
 	@Category("hud")
-	public boolean hud_enabled = true;
+	public boolean hud_enabled = false;
 	@Category("hud")
 	public boolean hud_statusBarsEnabled = true;
 	@Category("hud")
 	public float hud_regenerationSpeed = 10;
+	@Category("hud")
+	public boolean hud_healthText = true;
 	@Category("hud")
 	public int hud_healthTextOffset = -5;
 	@Category("hud")
@@ -181,17 +183,29 @@ public class Options {
 	@Category("hud")
 	public boolean hud_mountHealthEnabled = true;
 	@Category("hud")
-	public boolean hud_mountHealthMirror = false;
+	public boolean hud_mountHealthText = true;
 	@Category("hud")
 	public int hud_mountHealthTextOffset = -5;
 	@Category("hud")
-	public Position hud_healthBarPosition = new Position(0.5f, 0, 1.0f, -69, 0.5f, 1.0f);
+	public boolean hud_mountHealthMirror = false;
 	@Category("hud")
-	public Position hud_hungerBarPosition = new Position(0.5f, 60, 1.0f, -23, 0.5f, 1.0f);
+	public boolean hud_moveOverlayMessage = true;
 	@Category("hud")
-	public Position hud_breathBarPosition = new Position(0.5f, -61, 1.0f, -23, 0.5f, 1.0f);
+	public boolean hud_moveHeldItemTooltip = true;
 	@Category("hud")
-	public Position hud_mountHealthBarPosition = new Position(0.5f, 60, 1.0f, -38, 0.5f, 1.0f);
+	public DescriptionLine hud_positionsInfo;
+	@Category("hud")
+	public Position hud_healthBarPosition = new Position(0.5f, 0, 1.0f, -39, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_hungerBarPosition = new Position(0.5f, 60, 1.0f, -22, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_breathBarPosition = new Position(0.5f, -60, 1.0f, -22, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_mountHealthBarPosition = new Position(0.5f, 60, 1.0f, -55, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_overlayMessagePosition = new Position(0.5f, 0, 1.0f, -105, 0.5f, 1.0f);
+	@Category("hud")
+	public Position hud_heldItemTooltipPosition = new Position(0.5f, 0, 1.0f, -36, 0.5f, 1.0f);
 
 	/**
 	 * List of [class]/[ability]. Abilities not present in this list are sorted alphabetically.

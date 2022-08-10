@@ -11,6 +11,8 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.function.Function;
 
 public class HungerBar extends HudElement {
@@ -19,7 +21,8 @@ public class HungerBar extends HudElement {
 	private static final int MARGIN = 16;
 
 	private static Identifier BACKGROUND, BAR_HUNGER, BAR_DECAY, BAR_SATURATION,
-		OVERLAY, OVERLAY_DECAY;
+		OVERLAY, OVERLAY_DECAY, OVERLAY_SATURATION;
+	private static NavigableMap<Integer, Identifier> LEVEL_OVERLAYS, LEVEL_OVERLAYS_DECAY;
 
 	public HungerBar(Hud hud) {
 		super(hud);
@@ -32,6 +35,9 @@ public class HungerBar extends HudElement {
 		BAR_SATURATION = register.apply("hunger/saturation");
 		OVERLAY = register.apply("hunger/overlay");
 		OVERLAY_DECAY = register.apply("hunger/overlay_decay");
+		OVERLAY_SATURATION = register.apply("hunger/overlay_saturation");
+		LEVEL_OVERLAYS = ModSpriteAtlasHolder.findLevelledSprites("hud", "hunger", "overlay_", register);
+		LEVEL_OVERLAYS_DECAY = ModSpriteAtlasHolder.findLevelledSprites("hud", "hunger", "overlay_decay_", register);
 	}
 
 	@Override
@@ -107,8 +113,16 @@ public class HungerBar extends HudElement {
 			MARGIN, 0, barWidth, HEIGHT,
 			0, 0, easedSaturation / 20, 1);
 
-		drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(hasDecay ? OVERLAY_DECAY : OVERLAY),
-			0, 0, width, HEIGHT);
+		drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(hasDecay ? OVERLAY_DECAY : OVERLAY), 0, 0, width, HEIGHT);
+
+		Map.Entry<Integer, Identifier> levelOverlay = (hasDecay ? LEVEL_OVERLAYS_DECAY : LEVEL_OVERLAYS).floorEntry(hunger);
+		if (levelOverlay != null) {
+			drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(levelOverlay.getValue()), 0, 0, width, HEIGHT);
+		}
+
+		if (easedSaturation > 0) {
+			drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(OVERLAY_SATURATION), 0, 0, width, HEIGHT);
+		}
 
 //		// TODO text options: no text at all, with saturation, current as % (with or without saturation)
 //		String fullText = "" + hunger;

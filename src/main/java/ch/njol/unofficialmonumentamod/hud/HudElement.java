@@ -12,11 +12,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,15 +30,6 @@ public abstract class HudElement {
 	public HudElement(Hud hud) {
 		this.hud = hud;
 		client = MinecraftClient.getInstance();
-	}
-
-	public void bindTextureOrDefault(Identifier identifier, Identifier defaultIdentifier) {
-		AbstractTexture texture = this.client.getTextureManager().getTexture(identifier);
-		if (texture == null || texture == MissingSprite.getMissingSpriteTexture()) {
-			RenderSystem.setShaderTexture(0, defaultIdentifier);
-		} else {
-			RenderSystem.setShaderTexture(0, identifier);
-		}
 	}
 
 	public void renderAbsolute(MatrixStack matrices, float tickDelta) {

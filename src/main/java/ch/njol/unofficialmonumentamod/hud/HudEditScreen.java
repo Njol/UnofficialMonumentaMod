@@ -1,8 +1,13 @@
 package ch.njol.unofficialmonumentamod.hud;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.mixins.InGameHudAccessor;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 
 public class HudEditScreen extends Screen {
@@ -37,16 +42,28 @@ public class HudEditScreen extends Screen {
 	}
 
 	@Override
+	public void tick() {
+		assert client != null;
+		client.inGameHud.setOverlayMessage(Text.of(OverlayMessage.EDIT_SAMPLE_MESSAGE), false);
+		((InGameHudAccessor) client.inGameHud).setHeldItemTooltipFade(40);
+		ItemStack fakeHeldItem = new ItemStack(Items.OAK_PLANKS, 1);
+		fakeHeldItem.setCustomName(HeldItemTooltip.EDIT_SAMPLE_MESSAGE);
+		((InGameHudAccessor) client.inGameHud).setCurrentStack(fakeHeldItem);
+	}
+
+	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		assert client != null;
 
-		client.inGameHud.setOverlayMessage(Text.of("Messages appear here!"), false);
+//		hud.renderTooltip(this, matrices, mouseX, mouseY);
 
-		hud.renderTooltip(this, matrices, mouseX, mouseY);
-
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 		matrices.push();
-		matrices.translate(0, 0, 1000);
-		client.textRenderer.drawWithShadow(matrices, "Reorder elements by holding ctrl and then dragging them around. ESC to close.", 5, 5, 0xffffffff);
+		matrices.translate(0, 0, 100);
+		client.textRenderer.drawWithShadow(matrices, "Rearrange elements by holding ctrl and then dragging them around. ESC to close.", 5, 5, 0xffffffff);
 		matrices.pop();
 	}
 
@@ -63,7 +80,9 @@ public class HudEditScreen extends Screen {
 	public void close() {
 		assert client != null;
 		client.setScreen(parent);
-		client.inGameHud.setOverlayMessage(null, false);
+		client.inGameHud.setOverlayMessage(Text.of(""), false);
+		((InGameHudAccessor) client.inGameHud).setHeldItemTooltipFade(0);
+		((InGameHudAccessor) client.inGameHud).setCurrentStack(ItemStack.EMPTY);
 	}
 
 }

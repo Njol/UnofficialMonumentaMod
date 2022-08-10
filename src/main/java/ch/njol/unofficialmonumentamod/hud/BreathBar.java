@@ -12,6 +12,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tag.FluidTags;
 import net.minecraft.util.Identifier;
 
+import java.util.Map;
+import java.util.NavigableMap;
 import java.util.function.Function;
 
 public class BreathBar extends HudElement {
@@ -20,6 +22,7 @@ public class BreathBar extends HudElement {
 	private static final int MARGIN = 16;
 
 	private static Identifier BACKGROUND, BREATH, WATER_BREATHING, OVERLAY;
+	private static NavigableMap<Integer, Identifier> LEVEL_OVERLAYS;
 
 	public BreathBar(Hud hud) {
 		super(hud);
@@ -30,6 +33,7 @@ public class BreathBar extends HudElement {
 		BREATH = register.apply("breath/breath");
 		WATER_BREATHING = register.apply("breath/water_breathing");
 		OVERLAY = register.apply("breath/overlay");
+		LEVEL_OVERLAYS = ModSpriteAtlasHolder.findLevelledSprites("hud", "breath", "overlay_", register);
 	}
 
 	@Override
@@ -100,8 +104,12 @@ public class BreathBar extends HudElement {
 			MARGIN, 0, barWidth, HEIGHT,
 			0, 0, 1f * air / player.getMaxAir(), 1);
 
-		drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(OVERLAY),
-			0, 0, width, HEIGHT);
+		drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(OVERLAY), 0, 0, width, HEIGHT);
+
+		Map.Entry<Integer, Identifier> levelOverlay = LEVEL_OVERLAYS.floorEntry(air);
+		if (levelOverlay != null) {
+			drawSprite(matrices, ModSpriteAtlasHolder.HUD_ATLAS.getSprite(levelOverlay.getValue()), 0, 0, width, HEIGHT);
+		}
 
 		if (UnofficialMonumentaModClient.options.hud_breathMirror) {
 			matrices.pop();

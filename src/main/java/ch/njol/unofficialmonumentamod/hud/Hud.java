@@ -7,24 +7,32 @@ import java.awt.*;
 
 public class Hud {
 
+	public enum ClickResult {
+		NONE, HANDLED, DRAG;
+	}
+
 	public static Hud INSTANCE = new Hud();
 
 	public int scaledWidth;
 	public int scaledHeight;
 
-	public final AbiltiesHud abilties = new AbiltiesHud(this);
+	public final AbiltiesHud abilities = new AbiltiesHud(this);
 	public final HealthBar health = new HealthBar(this);
 	public final HungerBar hunger = new HungerBar(this);
 	public final BreathBar breath = new BreathBar(this);
 	public final MountHealthBar mountHealthBar = new MountHealthBar(this);
 
-	private final HudElement[] allElements = {abilties, health, hunger, breath, mountHealthBar};
+	// moved vanilla elements
+	public final OverlayMessage overlayMessage = new OverlayMessage(this);
+	public final HeldItemTooltip heldItemTooltip = new HeldItemTooltip(this);
 
-	public enum ClickResult {
-		NONE, HANDLED, DRAG;
-	}
+	private final HudElement[] allElements = {abilities, health, hunger, breath, mountHealthBar,
+		overlayMessage, heldItemTooltip};
 
 	private HudElement draggedElement = null;
+
+	private Hud() {
+	}
 
 	public void updateScreenSize(int scaledWidth, int scaledHeight) {
 		this.scaledWidth = scaledWidth;
@@ -88,18 +96,6 @@ public class Hud {
 			}
 			element.renderTooltip(screen, matrices, mouseX, mouseY);
 			return;
-		}
-	}
-
-	/**
-	 * Renders all elements for the edit screen
-	 */
-	void renderAll(MatrixStack matrices, float tickDelta) {
-		for (HudElement element : allElements) {
-			if (!element.isEnabled()) {
-				continue;
-			}
-			element.renderAbsolute(matrices, tickDelta);
 		}
 	}
 

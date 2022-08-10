@@ -160,10 +160,11 @@ public class HealthBar extends HudElement {
 			RenderSystem.enableCull();
 		}
 
-		// TODO text options: no text at all, no max health, absorption added to current health, current as % (with or without absorption), maybe even move max health to the side
-		String fullText = OPTIONAL_SINGLE_DIGIT.format(health) + (absorption <= 0 ? "" : " + " + OPTIONAL_SINGLE_DIGIT.format(absorption));
-		drawOutlinedText(matrices, fullText, width / 2 - client.textRenderer.getWidth(fullText) / 2, HEIGHT / 2 - client.textRenderer.fontHeight / 2 + UnofficialMonumentaModClient.options.hud_healthTextOffset, 0xFFFFFFFF);
-
+		if (UnofficialMonumentaModClient.options.hud_healthText) {
+			// TODO text options: no text at all, no max health, absorption added to current health, current as % (with or without absorption), maybe even move max health to the side
+			String fullText = OPTIONAL_SINGLE_DIGIT.format(health) + (absorption <= 0 ? "" : " + " + OPTIONAL_SINGLE_DIGIT.format(absorption));
+			drawOutlinedText(matrices, fullText, width / 2 - client.textRenderer.getWidth(fullText) / 2, HEIGHT / 2 - client.textRenderer.fontHeight / 2 + UnofficialMonumentaModClient.options.hud_healthTextOffset, 0xFFFFFFFF);
+		}
 	}
 
 	@Override
