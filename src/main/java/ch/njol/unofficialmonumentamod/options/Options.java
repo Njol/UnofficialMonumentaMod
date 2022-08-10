@@ -73,6 +73,9 @@ public class Options {
 	@Category("misc")
 	public boolean renderItemCooldowns = true;
 
+	@Category("misc")
+	public boolean silenceTeamError = true;
+
 	/*
 	 * Location related settings
 	 */

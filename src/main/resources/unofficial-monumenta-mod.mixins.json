@@ -15,11 +15,12 @@
     "MinecraftClientMixin",
     "PlayerListHudAccessor",
     "ReloadableResourceManagerImplMixin",
-    "ScreenHandlerMixin"
+    "ScreenHandlerMixin",
+    "ThreadSilencerMixin"
   ],
   "client": [
-    "ItemStackMixin",
     "HandledScreenAccessor",
+    "ItemStackMixin",
     "ScreenMixin"
   ],
   "injectors": {

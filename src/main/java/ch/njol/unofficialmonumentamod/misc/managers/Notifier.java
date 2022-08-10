@@ -24,6 +24,10 @@ public class Notifier {
         LocationNotifier.tick();
     }
 
+    public static void onDisonnect() {
+        queue.clear();
+    }
+
     public static NotificationToast getLastToast() {
         return lastToast;
     }

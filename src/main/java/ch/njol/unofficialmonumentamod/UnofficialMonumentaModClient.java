@@ -2,11 +2,13 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.misc.Calculator;
+import ch.njol.unofficialmonumentamod.misc.NotificationToast;
 import ch.njol.unofficialmonumentamod.misc.managers.CooldownManager;
 import ch.njol.unofficialmonumentamod.misc.managers.ItemNameSpoofer;
 import ch.njol.unofficialmonumentamod.misc.managers.KeybindingHandler;
 import ch.njol.unofficialmonumentamod.misc.Locations;
 import ch.njol.unofficialmonumentamod.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.misc.screen.ItemCustomizationGui;
 import ch.njol.unofficialmonumentamod.misc.screen.ItemCustomizationScreen;
 import ch.njol.unofficialmonumentamod.options.Options;
@@ -55,6 +57,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
+	private static Boolean onMonumenta;
+
 	// This is a hacky way to pass data around...
 	public static boolean isReorderingAbilities = false;
 
@@ -92,9 +96,9 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			if (!MinecraftClient.getInstance().player.getMainHandStack().isEmpty() && ItemNameSpoofer.getUuid(MinecraftClient.getInstance().player.getMainHandStack()) != null) {
 				MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().openScreen(new ItemCustomizationScreen(new ItemCustomizationGui(MinecraftClient.getInstance().player.getMainHandStack()))));
 			} else if (!MinecraftClient.getInstance().player.getMainHandStack().isEmpty() && ItemNameSpoofer.getUuid(MinecraftClient.getInstance().player.getMainHandStack()) == null) {
-				MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.of("§4The item you have in hand doesn't have a UUID :("));
+				Notifier.addCustomToast(new NotificationToast(Text.of("Item Name Spoofer"), Text.of("§4The item you have in hand doesn't have a UUID :("), Notifier.getMillisHideTime()).setToastRender(NotificationToast.RenderType.SYSTEM));
 			}else {
-				MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.of("Your hand's empty, please switch to a slot containing an item."));
+				Notifier.addCustomToast(new NotificationToast(Text.of("Item Name Spoofer"), Text.of("Your hand's empty, please switch to a slot containing an item."), Notifier.getMillisHideTime()).setToastRender(NotificationToast.RenderType.SYSTEM));
 			}
 			return 0;
 		})));
@@ -105,12 +109,22 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	}
 
 	public static boolean isOnMonumenta() {
+		if (onMonumenta != null) return onMonumenta;
+		Boolean onMm = null;
+
 		MinecraftClient mc = MinecraftClient.getInstance();
-		return !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com|monumenta-13.playmonumenta.com");
+		if (Locations.getShard() != null) onMm = true;
+		if (onMm == null) onMm = !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com|monumenta-13.playmonumenta.com");
+
+		onMonumenta = onMm;
+		return onMm;
 	}
 
 	public static void onDisconnect() {
 		abilityHandler.onDisconnect();
+		Notifier.onDisonnect();
+		LocationNotifier.onDisconnect();
+		onMonumenta = null;
 	}
 
 	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {

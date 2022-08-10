@@ -37,7 +37,7 @@ public class Calculator {
         int CompressedValue = (values.get(1) * values.get(0)) % 64;
         if (!hasShownError && (HyperValue - 2147483647) > 0) {
             hasShownError = true;
-            Notifier.addCustomToast(new NotificationToast(Text.of("Calculator"), Text.of("A value is higher than the 32bit integer limit, Expect glitches."), Notifier.getMillisHideTime()).setToastRender(NotificationToast.RenderType.SYSTEM));
+            Notifier.addCustomToast(new NotificationToast(Text.of("Calculator"), Text.of("A value is higher than the 32bit integer limit, Expect glitches."), Notifier.getMillisHideTime()).setToastRender(NotificationToast.RenderType.SYSTEM).setDescriptionAlignment(NotificationToast.Alignment.LEFT));
         }
 
         return HyperValue + "H* " + CompressedValue + "C*";
@@ -197,6 +197,7 @@ public class Calculator {
         public void onClose() {
             children.clear();
             Calculator.hasShownError = false;
+            Calculator.values.clear();
             Calculator.output = null;
         }
 

@@ -90,5 +90,7 @@
   "unofficial-monumenta-mod.config.option.notifierShowTime": "How long a notification will stay on the screen for.",
   "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "",
   "unofficial-monumenta-mod.config.option.showCalculatorInPlots": "Adds a calculator in the container gui while in the plots shard",
-  "unofficial-monumenta-mod.config.option.showCalculatorInPlots.tooltip": "Example of containers: chests, ender chests, barrels and similar blocks"
+  "unofficial-monumenta-mod.config.option.showCalculatorInPlots.tooltip": "Example of containers: chests, ender chests, barrels and similar blocks",
+  "unofficial-monumenta-mod.config.option.silenceTeamError": "Suppress errors in logs that happen when a player leaves / changes shard.",
+  "unofficial-monumenta-mod.config.option.silenceTeamError.tooltip": "Will stop the error from being added to the log (makes the log less bloated and more readable)."
 }

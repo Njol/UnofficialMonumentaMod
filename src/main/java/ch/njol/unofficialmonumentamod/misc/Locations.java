@@ -5,7 +5,6 @@ import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
@@ -76,6 +75,10 @@ public class Locations {
         }catch (NullPointerException ignored) {};
 
         return null;
+    }
+
+    public String getCommit() {
+        return update_commit;
     }
 
     public static String getShortShard() {
@@ -162,6 +165,10 @@ public class Locations {
 
             loadJson(cache);
 
+            //remove badly made locations
+            Validate("valley");
+            Validate("plots");
+            Validate("isles");
         } catch (FileNotFoundException | NoSuchFileException e) {
             // file doesn't exist,
            if (UnofficialMonumentaModClient.options.locationUpdate) update();
@@ -190,6 +197,16 @@ public class Locations {
         return null;
     }
 
+    public void Validate(String shard) {
+        try {
+            ArrayList<String> locations = getLocations(shard);
+            if (Objects.isNull(locations)) return;
+            locations.removeIf(location -> !location.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)"));
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getLocation(double X, double Z, String shard) {
         try {
             if (shard.matches(".*-[1-3]")) shard = shard.substring(0, shard.length() - 2);
@@ -197,10 +214,9 @@ public class Locations {
             if (Objects.isNull(locations)) return shard;
 
             for (String location : locations) {
-                if (location.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)")) {//skips badly made locations
                     Pattern locationTest = Pattern.compile("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)");
                     Matcher matcher = locationTest.matcher(location);
-                    matcher.matches();//runs the pattern
+                    if (!matcher.matches()) return shard;
 
                     int X1 = parseInt(matcher.group("X1"));
                     int Z1 = parseInt(matcher.group("Z1"));
@@ -219,7 +235,6 @@ public class Locations {
                             return locationName;
                         }
                     }
-                }
             }
 
         } catch (Exception e) {

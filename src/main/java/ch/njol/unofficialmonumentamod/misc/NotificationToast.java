@@ -30,10 +30,12 @@ public class NotificationToast implements Toast {
     private long hideTime;
 
     private RenderType renderType;
+    private Alignment alignment;
 
     public NotificationToast(Text title, @Nullable Text description, long timeBeforeRemove) {
         this.visibility = Visibility.SHOW;
         this.renderType = RenderType.RUSTIC;
+        this.alignment = Alignment.CENTER;
         this.hideTime = System.currentTimeMillis() + timeBeforeRemove;
 
         this.title = title;
@@ -53,14 +55,36 @@ public class NotificationToast implements Toast {
         }
     }
 
+    private static ArrayList<OrderedText> getWrappedText(@Nullable Text text, @Nullable Integer maxSize) {
+        if (text == null) {
+            return new ArrayList<>();
+        } else {
+            ArrayList<OrderedText> list = new ArrayList<>();
+            for (String line: text.getString().split("\n")) {
+                list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), maxSize != null ? maxSize : 160));
+            }
+            return list;
+        }
+    }
+
     public void wrapDescription() {
         if (this.originalDescription == null) return;
         this.lines = getTextAsList(this.originalDescription, this.renderType.offset);
     }
 
+    public void wrapDescription(int maxSize) {
+        if (this.originalDescription == null) return;
+        this.lines = getWrappedText(this.originalDescription, maxSize);
+    }
+
     public NotificationToast setToastRender(RenderType type) {
         this.renderType = type;
         wrapDescription();
+        return this;
+    }
+
+    public NotificationToast setDescriptionAlignment(Alignment alignment) {
+        this.alignment = alignment;
         return this;
     }
 
@@ -107,7 +131,17 @@ public class NotificationToast implements Toast {
             } else {
                 manager.getGame().textRenderer.draw(matrices, this.title, center(manager.getGame().textRenderer.getWidth(this.title)), 7.0F, -11534256);
                 for(o = 0; o < this.lines.size(); ++o) {
-                    manager.getGame().textRenderer.draw(matrices, this.lines.get(o), center(manager.getGame().textRenderer.getWidth(this.lines.get(o))), (float)(18 + o * 12), 0x404040);
+                    int alignement = 0;
+
+                    if (this.alignment == Alignment.CENTER) {
+                        alignement = center(manager.getGame().textRenderer.getWidth(this.lines.get(o)));
+                    } else if (this.alignment == Alignment.LEFT) {
+                        alignement = align_left(manager.getGame().textRenderer.getWidth(this.lines.get(o)));
+                    } else if (this.alignment == Alignment.RIGHT) {
+                        alignement = align_right(manager.getGame().textRenderer.getWidth(this.lines.get(o)));
+                    }
+
+                    manager.getGame().textRenderer.draw(matrices, this.lines.get(o), alignement, (float)(18 + o * 12), 0x404040);
                 }
             }
 
@@ -133,14 +167,19 @@ public class NotificationToast implements Toast {
 
         if (((toastWidth - fontWidth)/2) < renderType.offset) {
             //text overlaps with first offset
-            return ((toastWidth - fontWidth)/2) + renderType.offset;
+            wrapDescription(160 - renderType.offset * 2);
+            return renderType.offset + ((toastWidth - fontWidth)/2);
         } else if (((toastWidth - fontWidth)/2) > toastWidth - renderType.offset) {
             //text overlaps with second offset
+            System.out.println("overlapping with second offset");
             return ((toastWidth - fontWidth)/2) - renderType.offset;
         } else return ((toastWidth - fontWidth) / 2);
     }
 
     private int align_right(int fontWidth) {
+        if (fontWidth + this.renderType.offset > 160) {//should in theory stop overflowing text.
+            wrapDescription((160 - renderType.offset) - fontWidth);
+        }
         return (fontWidth - this.renderType.offset);
     }
 
@@ -166,6 +205,12 @@ public class NotificationToast implements Toast {
             this.type = type;
             this.offset = offset;
         }
+    }
+
+    public enum Alignment {
+        LEFT(),
+        RIGHT(),
+        CENTER()
     }
 }
 
