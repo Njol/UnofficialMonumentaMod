@@ -4,7 +4,6 @@ import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.options.Options;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -26,9 +25,6 @@ import java.util.stream.Collectors;
 
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen {
-	@Unique
-	private final MinecraftClient mc = MinecraftClient.getInstance();
-
 	@Unique
 	private String draggedAbility = null;
 
@@ -151,25 +147,6 @@ public abstract class ChatScreenMixin extends Screen {
 			return true;
 		}
 		return false;
-	}
-
-	@Unique
-	private Point getClosestInBoundPosition(double x, double y, int width, int height) {
-		Point point = new Point();
-
-		if (-1 > x) {
-			point.x = -1;
-		}  else if ((mc.getWindow().getWidth() / 2) <= x + width) {
-			point.x = (mc.getWindow().getWidth() / 2) - width;
-		} else point.x = (int) x;
-
-		if (-1 > y) {
-			point.y = -1;
-		} else if ((mc.getWindow().getHeight() / 2) <= y + height) {
-			point.y = (mc.getWindow().getHeight() / 2) - height;
-		} else point.y = (int) y;
-
-		return point;
 	}
 
 	@Override

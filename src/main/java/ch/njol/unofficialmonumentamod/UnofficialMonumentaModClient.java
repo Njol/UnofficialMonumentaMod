@@ -5,7 +5,6 @@ import ch.njol.unofficialmonumentamod.misc.Calculator;
 import ch.njol.unofficialmonumentamod.misc.NotificationToast;
 import ch.njol.unofficialmonumentamod.misc.managers.CooldownManager;
 import ch.njol.unofficialmonumentamod.misc.managers.ItemNameSpoofer;
-import ch.njol.unofficialmonumentamod.misc.managers.KeybindingHandler;
 import ch.njol.unofficialmonumentamod.misc.Locations;
 import ch.njol.unofficialmonumentamod.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.misc.notifications.LocationNotifier;
@@ -82,7 +81,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
-			KeybindingHandler.tick();
 			Calculator.tick();
 			CooldownManager.update();
 		});
@@ -114,7 +112,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		MinecraftClient mc = MinecraftClient.getInstance();
 		if (Locations.getShard() != null) onMM = true;
-		if (onMM == null) onMM = !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com|monumenta-13.playmonumenta.com");
+		if (onMM == null) onMM = !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().endsWith(".playmonumenta.com");
 
 		onMonumenta = onMM;
 		return onMM;

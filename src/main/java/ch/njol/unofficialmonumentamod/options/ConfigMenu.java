@@ -1,7 +1,6 @@
 package ch.njol.unofficialmonumentamod.options;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.misc.managers.KeybindingHandler;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
@@ -10,7 +9,6 @@ import me.shedaniel.clothconfig2.api.ConfigCategory;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.math.Color;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 
@@ -59,13 +57,6 @@ public class ConfigMenu implements ModMenuApi {
 							e.printStackTrace();
 						}
 					};
-					Consumer<Object> keycodeSaveConsumer = val -> {
-						try {
-							field.set(UnofficialMonumentaModClient.options, new KeybindingHandler.Keybinding(((InputUtil.Key) val).getCode()));
-						} catch (IllegalAccessException e) {
-							e.printStackTrace();
-						}
-					};
 
 					String translateKey = "unofficial-monumenta-mod.config.option." + name;
 					Options.Category categoryAnnotation = field.getAnnotation(Options.Category.class);
@@ -74,7 +65,7 @@ public class ConfigMenu implements ModMenuApi {
 						continue;
 					}
 					ConfigCategory category = config.getOrCreateCategory(new TranslatableText("unofficial-monumenta-mod.config.category." + categoryAnnotation.value()));
-					// this code cannot be simplified because ClothConfig sucks -> it can be slightly simplified, but ClothConfig still sucks.
+					// this code cannot be simplified because ClothConfig sucks.
 					ConfigEntryBuilder builder = config.entryBuilder();
 					AbstractConfigListEntry entry;
 					if (field.getType() == Boolean.TYPE) {
@@ -130,11 +121,6 @@ public class ConfigMenu implements ModMenuApi {
 						entry = builder
 							.startTextDescription(new TranslatableText(translateKey)).build();
 //                                .setTooltip(new TranslatableText(translateKey + ".tooltip"))
-					} else if (field.getType() == KeybindingHandler.Keybinding.class) {
-						entry = builder
-								.startKeyCodeField(new TranslatableText(translateKey), InputUtil.fromKeyCode(((KeybindingHandler.Keybinding) value).getKeycode(), -1))
-								.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-								.setSaveConsumer(keycodeSaveConsumer::accept).build();
 					} else{
 						throw new RuntimeException("Unexpected field in Options: " + field);
 					}

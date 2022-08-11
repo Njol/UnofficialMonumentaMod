@@ -17,16 +17,11 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.Matrix4f;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.nio.file.Files;
 import java.util.List;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 public abstract class Utils {
 
@@ -142,32 +137,6 @@ public abstract class Utils {
 
     public static List<Text> getTooltip(ItemStack stack) {
         return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL);
-    }
-
-    public static String getUrl(@NotNull URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        InputStreamReader streamReader;
-
-        if (connection.getResponseCode() > 299) {
-            streamReader = new InputStreamReader(connection.getErrorStream());
-        } else {
-            streamReader = new InputStreamReader(connection.getInputStream());
-        }
-
-        BufferedReader in = new BufferedReader(
-                streamReader);
-        String inputLine;
-        StringBuilder content = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-        }
-
-        in.close();
-
-        return content.toString();
     }
 
 }

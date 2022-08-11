@@ -1,6 +1,5 @@
 package ch.njol.unofficialmonumentamod.misc;
 
-import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.common.reflect.TypeToken;
@@ -11,18 +10,14 @@ import net.minecraft.text.Text;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.file.NoSuchFileException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.lang.reflect.Field;
 
 import static ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient.writeJsonFile;
-import static ch.njol.unofficialmonumentamod.Utils.getUrl;
 import static java.lang.Integer.parseInt;
 
 public class Locations {
@@ -32,8 +27,6 @@ public class Locations {
     public ArrayList<String> ISLES;
 
     private static final String CACHE_FILE_PATH = "monumenta/unofficial-monumenta-mod-locations.json";
-    private String update_commit;
-    private static final String UPDATE_GIST_URL = "https://api.github.com/gists/4b1602b907da62a9cca6f135fd334737";//put new locations in that gist
 
     public static class locationFile {
         //add the shards here too
@@ -41,7 +34,6 @@ public class Locations {
         public String[] PLOTS;
         public String[] ISLES;
 
-        public String update_commit;
     }
 
     public Locations() {
@@ -57,26 +49,18 @@ public class Locations {
 
     public static String getShard() {
         MinecraftClient mc = MinecraftClient.getInstance();
+        Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
+        if (header == null) return null;
 
-        try {
-            Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListWidget()).getHeader();
+        String shard = null;
 
-            String shard = null;
-
-            for (Text text : header.getSiblings()) {
-                if (text.getString().matches("<.*>")) {
-                    //player shard
-                    shard = text.getString().substring(1, text.getString().length() - 1);
-                }
+        for (Text text : header.getSiblings()) {
+            if (text.getString().matches("<.*>")) {
+                //player shard
+                shard = text.getString().substring(1, text.getString().length() - 1);
             }
-            return shard;
-        }catch (NullPointerException ignored) {}
-
-        return null;
-    }
-
-    public String getCommit() {
-        return update_commit;
+        }
+        return shard;
     }
 
     public static String getShortShard() {
@@ -98,16 +82,16 @@ public class Locations {
     }
 
     private void addToShard(String[] additions, String shard) {
-        try {
             ArrayList<String> location = getLocations(shard.toUpperCase());
             if (location != null) {//shard's list exist
                 for (String addition: additions) {
                     if (!addition.matches("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)")) continue;//only adds correctly made locations
                     location.add(addition);
                 }
-                this.getClass().getField(shard.toUpperCase()).set(this, location);
+                try {
+                    this.getClass().getField(shard.toUpperCase()).set(this, location);
+                } catch (NoSuchFieldException | IllegalAccessException ignored) {}
             }
-        } catch (Exception ignored) {}
     }
 
     private void loadJson(String jsonString) {
@@ -125,23 +109,47 @@ public class Locations {
         }
     }
 
-    private void update() {
-        try {
-            URL url = new URL(UPDATE_GIST_URL);
-            String content = getUrl(url);
+    private void CreateNewLocationFile() {
+        VALLEY.addAll(Arrays.asList(
+                "(701:-32)(777:56)/Kaul Arena",
+                "(-497:-282)(-1069:343)/Sierhaven",
+                "(-78:-166)(-180:29)/Nyr",
+                "(658:100)(538:229)/Farr",
+                "(1319:-271)(1259:180)/Highwatch Monument",
+                "(1319:-271)(1115:-62)/Highwatch",
+                "(765:421)(642:513)/Lowtide",
+                "(642:513)(557:569)/Lowtide",
+                "(-1548:-18)(-1685:165)/Oceangate",
+                "(520:-400)(380:-340)/Ta\u0027eldim",
+                "(1340:-141)(1283:-99)/Azacor Lobby",
+                "(1645:-596)(-1733:569)/Overworld"
+        ));
 
-            JsonParser jsonParser = new JsonParser();
+        PLOTS.add(
+                "(-762:931)(-539:1210)/Player Market"
+        );
 
-            JsonObject json =  jsonParser.parse(content).getAsJsonObject();
-
-            JsonObject jsonContent = jsonParser.parse(json.get("files").getAsJsonObject().get("Locations.json").getAsJsonObject().get("content").getAsString()).getAsJsonObject();
-            loadJson(jsonContent.toString());
-
-            this.update_commit = jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
-
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        ISLES.addAll(Arrays.asList(
+                "(-632:1218)(-871:1487)/Mistport",
+                "(-92:397)(-209:502)/Rahkeri",
+                "(460:640)(289:865)/Alnera",
+                "(130:-107)(-16:48)/Hekawt Arena",
+                "(316:2)(133:191)/Molta",
+                "(-1415:72)(-1523:246)/Eldrask Arena",
+                "(-1332:528)(-1371:551)/Nightroost",
+                "(-1241:444)(-1362:527)/Nightroost",
+                "(-1418:871)(-1640:1086)/Frostgate",
+                "(-1677:-135)(-1855:36)/Wispervale",
+                "(-671:-202)(-755:-139)/Breachpoint",
+                "(-511:-548)(-545:-514)/Steelmeld Monument",
+                "(-493:-563)(-676:-424)/Steelmeld",
+                "(-1155:-569)(-1273:-445)/Headless Horseman",
+                "(-412:1506)(-519:1615)/The Floating Carnival",
+                "(-64:3248)(-223:3375)/The Black Mist",
+                "(292:3367)(225:3447)/Sealed Remorse",
+                "(-1394:-1342)(-1450:-1275)/Darkest Depths",
+                "(862:-654)(-2222:1902)/Overworld"
+        ));
 
         writeJsonFile(this, CACHE_FILE_PATH);
     }
@@ -150,17 +158,6 @@ public class Locations {
         try {
             String cache = Utils.readFile(CACHE_FILE_PATH);
 
-            if (UnofficialMonumentaModClient.options.locationUpdate) {
-                JsonParser jsonParser = new JsonParser();
-                String remoteVersion = jsonParser.parse(getUrl(new URL(UPDATE_GIST_URL + "/commits"))).getAsJsonArray().get(0).getAsJsonObject().get("version").getAsString();
-                String localVersion = jsonParser.parse(cache).getAsJsonObject().get("update_commit").getAsString();
-                if (!Objects.equals(remoteVersion, localVersion)) {
-                    UnofficialMonumentaModClient.LOGGER.info(String.format("Found new update for location file %s -> %s", localVersion, remoteVersion));
-                    update();
-                    return;
-                }
-            }
-
             loadJson(cache);
 
             //remove badly made locations
@@ -168,9 +165,9 @@ public class Locations {
             Validate("plots");
             Validate("isles");
         } catch (FileNotFoundException | NoSuchFileException e) {
-            // file doesn't exist,
-           if (UnofficialMonumentaModClient.options.locationUpdate) update();
-           else writeJsonFile(this, CACHE_FILE_PATH);//create with empty values
+            // file doesn't exist
+            resetLocations();
+            CreateNewLocationFile();
 
         } catch (IOException | JsonParseException e) {
             e.printStackTrace();
@@ -185,11 +182,15 @@ public class Locations {
          */
     }
 
-    private ArrayList<String> getLocations(String shard) throws IllegalAccessException {
-        if (shard.matches(".*-[1-3]")) shard = shard.substring(0, shard.length() - 2);
-        for (Field f: this.getClass().getFields()) {
-            if (f.getName().equals(shard.toUpperCase()) && f.getType().getTypeName().equals(this.VALLEY.getClass().getTypeName()))
+    private ArrayList<String> getLocations(String shard) {
+        try {
+            if (shard.matches(".*-[1-3]")) shard = shard.substring(0, shard.length() - 2);
+            for (Field f : this.getClass().getFields()) {
+                if (f.getName().equals(shard.toUpperCase()) && f.getType().getTypeName().equals(this.VALLEY.getClass().getTypeName()))
                     return (ArrayList<String>) f.get(this);
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
 
         return null;
