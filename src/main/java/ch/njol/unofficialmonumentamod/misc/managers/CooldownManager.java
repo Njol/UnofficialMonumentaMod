@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CooldownManager {
-    //TODO add a use case to get the cooldown logic for tesseract of light, or not -> because WHY does it have to work differently than all the of other tesseracts combined.
+    //TODO add a use case to get the cooldown logic for tesseract of light, or not -> because WHY does it have to work differently than all of the other tesseracts combined.
     private static final MinecraftClient mc = MinecraftClient.getInstance();
     private static final Map<Item, CooldownEntry> entries = Maps.newHashMap();
     private static int tick;
@@ -27,8 +27,10 @@ public class CooldownManager {
     private static final Pattern COOLDOWN_PATTERN = Pattern.compile("^Cooldown : (?<cooldown>[0-9]{0,3})(?<unit>s|m)(?<post>.*)");
     private static final Pattern CHARGES_PATTERN = Pattern.compile("^Charges : (?<charges>[0-9]{0,3})");
 
+    //Trigger patterns
     private static final Pattern MAINHAND_PATTERN = Pattern.compile(".*(while in the mainhand|Right Button to).*", Pattern.MULTILINE | Pattern.DOTALL);
     private static final Pattern INVENTORY_PATTERN = Pattern.compile(".*(while in the mainhand or inventory).*", Pattern.MULTILINE | Pattern.DOTALL);
+    private static final Pattern GRAVE_PATTERN = Pattern.compile(".*(Punch a grave while holding in mainhand).*", Pattern.MULTILINE | Pattern.DOTALL);
 
     public static boolean shouldRender() {
         return UnofficialMonumentaModClient.options.renderItemCooldowns;
@@ -54,6 +56,8 @@ public class CooldownManager {
             if (!MAINHAND_PATTERN.matcher(getFullTooltip(itemStack)).matches()) return;
         } else if (trigger == Trigger.INVENTORY) {
             if (!INVENTORY_PATTERN.matcher(getFullTooltip(itemStack)).matches()) return;
+        } else if (trigger == Trigger.INTERACT_GRAVE) {
+            if (!GRAVE_PATTERN.matcher(getFullTooltip(itemStack)).matches()) return;
         }
 
         if (entry != null) {
@@ -185,6 +189,7 @@ public class CooldownManager {
     public enum Trigger {
         MAIN_HAND(),
         INVENTORY(),
+        INTERACT_GRAVE()
         ;
     }
 }

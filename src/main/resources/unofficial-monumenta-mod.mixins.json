@@ -12,7 +12,6 @@
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
-    "MinecraftClientMixin",
     "PlayerListHudAccessor",
     "ReloadableResourceManagerImplMixin",
     "ScreenHandlerMixin",
@@ -21,7 +20,8 @@
   "client": [
     "HandledScreenAccessor",
     "ItemStackMixin",
-    "ScreenMixin"
+    "ScreenMixin",
+    "MinecraftClientMixin"
   ],
   "injectors": {
     "defaultRequire": 1

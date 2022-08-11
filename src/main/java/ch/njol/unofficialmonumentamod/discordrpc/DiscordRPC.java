@@ -58,7 +58,7 @@ public class DiscordRPC {
         presence.startTimestamp = start_time;
         presence.details = "In the Main menu";
         presence.largeImageKey = "minecraft512";
-        presence.largeImageText = "Njol's Unofficial Monumenta Mod";
+        presence.largeImageText = "Unofficial Monumenta Mod";
         presence.instance = 1;
         lib.Discord_UpdatePresence(presence);
     }
@@ -71,7 +71,7 @@ public class DiscordRPC {
             DiscordRichPresence presence = new DiscordRichPresence();
             presence.startTimestamp = start_time;
             presence.largeImageKey = isOnMonumenta ? "monumenta" : "minecraft512";
-            presence.largeImageText = "Njol's Unofficial Monumenta Mod";
+            presence.largeImageText = "Unofficial Monumenta Mod";
             presence.instance = 1;
 
             if (isSinglePlayer) {
