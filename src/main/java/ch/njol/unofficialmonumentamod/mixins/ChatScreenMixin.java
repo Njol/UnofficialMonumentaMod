@@ -2,7 +2,6 @@ package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.options.Options;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.screen.ChatScreen;
@@ -59,17 +58,16 @@ public abstract class ChatScreenMixin extends Screen {
 				}
 				if (Screen.hasControlDown()) {
 					draggingAbilityDisplay = true;
-					Point origin = Utils.abilitiesDisplay.getAbilitiesOrigin(abilityInfos, this.width, this.height);
+					Point origin = getAbilitiesOrigin(abilityInfos);
 					dragX = mouseX - origin.x;
 					dragY = mouseY - origin.y;
 				} else {
 					draggedAbility = abilityInfos.get(index).getOrderId();
 					UnofficialMonumentaModClient.isReorderingAbilities = true;
 				}
+				cir.setReturnValue(true);
 			}
 		}
-
-		cir.setReturnValue(true);
 	}
 
 	@Override
@@ -162,9 +160,29 @@ public abstract class ChatScreenMixin extends Screen {
 	}
 
 	@Unique
+	private Point getAbilitiesOrigin(List<AbilityHandler.AbilityInfo> abilityInfos) {
+		// code copied from InGameHudMixin
+		// TODO make utility method - also for other code around here...
+		Options options = UnofficialMonumentaModClient.options;
+		int iconSize = options.abilitiesDisplay_iconSize;
+		int iconGap = options.abilitiesDisplay_iconGap;
+		boolean horizontal = options.abilitiesDisplay_horizontal;
+		float align = options.abilitiesDisplay_align;
+		int totalSize = iconSize * abilityInfos.size() + iconGap * (abilityInfos.size() - 1);
+		int x = Math.round(this.width * options.abilitiesDisplay_offsetXRelative) + options.abilitiesDisplay_offsetXAbsolute;
+		int y = Math.round(this.height * options.abilitiesDisplay_offsetYRelative) + options.abilitiesDisplay_offsetYAbsolute;
+		if (horizontal) {
+			x -= align * totalSize;
+		} else {
+			y -= align * totalSize;
+		}
+		return new Point(x, y);
+	}
+
+	@Unique
 	private int getClosestAbilityIndex(List<AbilityHandler.AbilityInfo> abilityInfos, double mouseX, double mouseY, boolean initialClick) {
 
-		Point origin = Utils.abilitiesDisplay.getAbilitiesOrigin(abilityInfos, this.width, this.height);
+		Point origin = getAbilitiesOrigin(abilityInfos);
 		int x = origin.x;
 		int y = origin.y;
 
