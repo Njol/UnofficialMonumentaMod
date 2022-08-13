@@ -57,8 +57,6 @@ public class Options {
 	public boolean crossbowFix = true;
 
 	@Category("misc")
-	public boolean locationUpdate = true;
-	@Category("misc")
 	public boolean notifyLocation = true;
 	@Category("misc")
 	@Slider(min = 1.5F, max = 60F, step = 0.1F, unit = "second")

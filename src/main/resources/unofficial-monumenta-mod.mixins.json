@@ -19,7 +19,6 @@
   ],
   "client": [
     "HandledScreenAccessor",
-    "ItemStackMixin",
     "ScreenMixin",
     "MinecraftClientMixin"
   ],

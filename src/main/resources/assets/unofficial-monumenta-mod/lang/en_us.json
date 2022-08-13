@@ -83,8 +83,6 @@
   "unofficial-monumenta-mod.config.option.discordEnabled.tooltip": "Defines if the rich presence should be active or not",
   "unofficial-monumenta-mod.config.option.discordDetails": "Discord rich presence details",
   "unofficial-monumenta-mod.config.option.discordDetails.tooltip": "{player} returns the player name. \n{shard} returns the shard name. \n{server} returns the server name. \n{holding} returns the name of the item held in main hand. \n{class} returns the name of the class the user is playing as. \n{location} returns the location or if not found the shard name. ",
-  "unofficial-monumenta-mod.config.option.locationUpdate": "Auto update location list when outdated. ",
-  "unofficial-monumenta-mod.config.option.locationUpdate.tooltip": "If you modify the file, it will avoid it being overridden at launch.",
   "unofficial-monumenta-mod.config.option.notifyLocation": "Notifies in the form of an \"achievement\" like ui element when you change location.",
   "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Disabling this will not disable the change of location in the discordRPC",
   "unofficial-monumenta-mod.config.option.notifierShowTime": "How long a notification will stay on the screen for.",

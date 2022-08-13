@@ -2,20 +2,14 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.misc.Calculator;
-import ch.njol.unofficialmonumentamod.misc.NotificationToast;
 import ch.njol.unofficialmonumentamod.misc.managers.CooldownManager;
-import ch.njol.unofficialmonumentamod.misc.managers.ItemNameSpoofer;
 import ch.njol.unofficialmonumentamod.misc.Locations;
 import ch.njol.unofficialmonumentamod.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.misc.notifications.LocationNotifier;
-import ch.njol.unofficialmonumentamod.misc.screen.ItemCustomizationGui;
-import ch.njol.unofficialmonumentamod.misc.screen.ItemCustomizationScreen;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
@@ -23,7 +17,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
-import net.minecraft.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -88,19 +81,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		ClientTickEvents.END_WORLD_TICK.register(world -> {
 			Notifier.tick();
 		});
-
-		ClientCommandManager.DISPATCHER.register((ClientCommandManager.literal("spoof").then(ClientCommandManager.argument("name", StringArgumentType.greedyString()).executes(ItemNameSpoofer::commandNameSpoofer))));
-		ClientCommandManager.DISPATCHER.register((ClientCommandManager.literal("itemCustomize").executes((context) -> {
-			if (!MinecraftClient.getInstance().player.getMainHandStack().isEmpty() && ItemNameSpoofer.getUuid(MinecraftClient.getInstance().player.getMainHandStack()) != null) {
-				MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().openScreen(new ItemCustomizationScreen(new ItemCustomizationGui(MinecraftClient.getInstance().player.getMainHandStack()))));
-			} else if (!MinecraftClient.getInstance().player.getMainHandStack().isEmpty() && ItemNameSpoofer.getUuid(MinecraftClient.getInstance().player.getMainHandStack()) == null) {
-				Notifier.addCustomToast(new NotificationToast(Text.of("Item Name Spoofer"), Text.of("§4The item you have in hand doesn't have a UUID :("), Notifier.getMillisHideTime()).setToastRender(NotificationToast.RenderType.SYSTEM));
-			}else {
-				Notifier.addCustomToast(new NotificationToast(Text.of("Item Name Spoofer"), Text.of("Your hand's empty, please switch to a slot containing an item."), Notifier.getMillisHideTime()).setToastRender(NotificationToast.RenderType.SYSTEM));
-			}
-			return 0;
-		})));
-
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 

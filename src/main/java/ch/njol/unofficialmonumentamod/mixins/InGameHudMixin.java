@@ -3,7 +3,6 @@ package ch.njol.unofficialmonumentamod.mixins;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
-import ch.njol.unofficialmonumentamod.misc.managers.ItemNameSpoofer;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -81,31 +80,6 @@ public class InGameHudMixin extends DrawableHelper {
         if (renderInFrontOfChat()) {
             renderAbilities(matrices, tickDelta, true);
         }
-    }
-
-    /**
-     *  Used for item name spoofing, required for the text to be centered
-     */
-    @ModifyVariable(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;hasCustomName()Z"), ordinal = 0)
-    private MutableText getSpoofedName(MutableText value) {
-        return getSpoofed(value);
-    }
-
-    /**
-     *  Used for item name spoofing, required to have the right text style.
-     */
-    @ModifyVariable(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;getWidth(Lnet/minecraft/text/StringVisitable;)I"), ordinal = 0)
-    private MutableText spoofedName(MutableText value) {//overrides the style changes.
-        return getSpoofed(value);
-    }
-
-    @Unique
-    private MutableText getSpoofed(MutableText text) {
-        MutableText spoofedName = ItemNameSpoofer.getSpoofedName(this.currentStack);
-        if (!Objects.equals(spoofedName.getString(), this.currentStack.getName().getString())) {
-            return (spoofedName);
-        }
-        return text;
     }
 
     @Unique
