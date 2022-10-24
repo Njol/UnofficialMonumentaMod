@@ -59,6 +59,12 @@ public class Options {
 //	@Category("misc")
 //	public boolean renderItemCooldowns = true;
 
+	@Category("misc")
+	public boolean silenceTeamErrors = true;
+
+	@Category("misc")
+	public boolean showCalculator = true;
+
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;
 	@Category("abilities")
@@ -145,13 +151,12 @@ public class Options {
 
 	/**
 	 * discordDetails replace values:
-	 *
 	 * {player} returns the player's name
 	 * {shard} returns the shard name
 	 * {server} returns the server name
 	 * {holding} returns the item held in the main hand
 	 * {class} returns the class the user is playing as
-	 *
+	 * {location} returns the location or if not found the shard name
 	 * everything else is a string literal
 	 */
 

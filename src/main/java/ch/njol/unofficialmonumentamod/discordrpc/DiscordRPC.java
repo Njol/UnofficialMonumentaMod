@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.misc.Locations;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
@@ -81,34 +82,24 @@ public class DiscordRPC {
                 if (!isOnMonumenta) {
                     presence.state = "Playing Multiplayer - " + mc.getCurrentServerEntry().name.toUpperCase();
                 } else {
-                    Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListHud()).getHeader();
+                    String shard = Locations.getShortShard();
 
-                    for (Text text: header.getSiblings()) {
-                        if (text.getString().matches("<.*>")) {
-                            //player shard
-                            this.shard = text.getString().substring(1, text.getString().length()-1);
-                        }
-                    }
-
-                    presence.state = this.shard != null ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
+                    presence.state = !Objects.equals(this.shard, "unknown") ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
                     //set smol image
-                    String shortShard = shard;
-                    if (shard.matches(".*-[1-3]")) shortShard = shard.substring(0, shard.length() - 2); //removes the isle number
 
-                    presence.smallImageKey = shortShard; //this is a test
+                    presence.smallImageKey = !shard.equals("unknown") ? shard : "valley";
 
                     //set details
-
                     String detail = UnofficialMonumentaModClient.options.discordDetails;
-
-
-                    //replace each call
-                    detail = detail.replace("{player}", mc.player.getName().getString());
-                    detail = detail.replace("{shard}", this.shard);
-                    detail = detail.replace("{server}", mc.getCurrentServerEntry().name);
-                    detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
-                    detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT));
-
+                    if (detail.matches(".*?\\{.*?}.*?") && !shard.equals("unknown") && mc.player != null) {
+                        detail = detail.replace("{player}",mc.player.getName().getString());
+                        detail = detail.replace("{shard}", shard);
+                        detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
+                        detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
+                        detail = detail.replace("{location}", UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
+                    } else if (shard.equals("unknown")) {
+                        detail = "User timed out or the shard couldn't be detected.";
+                    }
                     presence.details = detail;
 
 

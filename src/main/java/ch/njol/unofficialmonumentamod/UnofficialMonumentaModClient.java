@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.misc.Locations;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -12,11 +13,14 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
@@ -30,6 +34,10 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
 
 	public static Options options = new Options();
+
+	final static Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
+
+	public static Locations locations = new Locations();
 
 	public static DiscordRPC discordRPC = new DiscordRPC();
 
@@ -66,6 +74,20 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static void onDisconnect() {
 		abilityHandler.onDisconnect();
+	}
+
+	public static boolean isOnMonumenta() {
+		boolean onMM = false;
+		MinecraftClient mc = MinecraftClient.getInstance();
+		String shard = Locations.getShard();
+
+		if (!Objects.equals(shard, "unknown")) onMM = true;
+
+		if (!onMM && mc.getCurrentServerEntry() != null) {
+			onMM = !mc.isInSingleplayer() && mc.getCurrentServerEntry().address.toLowerCase().endsWith(".playmonumenta.com");
+		}
+
+		return onMM;
 	}
 
 	private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {

@@ -8,14 +8,18 @@
     "BlockItemMixin",
     "ChatScreenMixin",
     "ClientPlayerInteractionManagerMixin",
+    "HandledScreenAccessor",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
     "MinecraftClientMixin",
-    "PlayerListHudAccessor"
+    "PlayerListHudAccessor",
+    "ThreadExecutorMixin"
   ],
   "client": [
+    "ScreenAccessor",
+    "ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
