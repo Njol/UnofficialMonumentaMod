@@ -6,9 +6,9 @@
   "mixins": [
     "ArmorFeatureRendererMixin",
     "BlockItemMixin",
-    "ChatScreenMixin",
+    "screen.ChatScreenMixin",
     "ClientPlayerInteractionManagerMixin",
-    "HandledScreenAccessor",
+    "screen.HandledScreenAccessor",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
@@ -18,8 +18,7 @@
     "ThreadExecutorMixin"
   ],
   "client": [
-    "ScreenAccessor",
-    "ScreenMixin"
+    "screen.ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

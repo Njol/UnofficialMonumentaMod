@@ -1,12 +1,11 @@
-package ch.njol.unofficialmonumentamod.misc;
+package ch.njol.unofficialmonumentamod.features.calculator;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.mixins.HandledScreenAccessor;
-import ch.njol.unofficialmonumentamod.mixins.ScreenAccessor;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -163,6 +162,13 @@ public class Calculator extends DrawableHelper {
         initChildren(this.x+20, this.y+75, "H*");
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T extends Element> void addChild(T child) {
+        if (mc.currentScreen == null) return;
+
+        ((List<Element>) mc.currentScreen.children()).add(child);
+    }
+
     public void init() {
         if (!shouldRender()) return;
         resetPosition();
@@ -180,7 +186,7 @@ public class Calculator extends DrawableHelper {
                 buttonWidget.setWidth(mc.textRenderer.getWidth(mode.name) + 10);
 
                 for (TextFieldWidget widget: children) {
-                    ((ScreenAccessor)mc.currentScreen).invokeAddSelectableChild(widget);
+                    addChild(widget);
                 }
             });
         }

@@ -1,11 +1,9 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.misc.MonumentaModResourceReloader;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import ch.njol.unofficialmonumentamod.mc.MonumentaModResourceReloader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
-import net.minecraft.client.WindowSettings;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.resource.ReloadableResourceManagerImpl;
 import org.spongepowered.asm.mixin.Final;
@@ -14,10 +12,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.io.File;
-import java.io.IOException;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {

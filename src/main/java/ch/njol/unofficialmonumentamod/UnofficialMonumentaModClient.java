@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
-import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
-import ch.njol.unofficialmonumentamod.misc.Locations;
+import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -35,7 +35,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static Options options = new Options();
 
-	final static Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
+	public final static Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
 
 	public static Locations locations = new Locations();
 
@@ -74,6 +74,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static void onDisconnect() {
 		abilityHandler.onDisconnect();
+		locations.onDisconnect();
 	}
 
 	public static boolean isOnMonumenta() {

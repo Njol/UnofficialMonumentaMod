@@ -1,42 +1,53 @@
-package ch.njol.unofficialmonumentamod.mixins;
+package ch.njol.unofficialmonumentamod.mixins.screen;
 
-import ch.njol.unofficialmonumentamod.misc.Calculator;
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 @Mixin(Screen.class)
-public abstract class ScreenMixin implements ParentElement {
-    @Shadow abstract protected <T extends Element & Selectable> T addSelectableChild(T child);
+public abstract class ScreenMixin extends AbstractParentElement {
+    @Shadow @Final private List<Selectable> selectables;
+
+    @Shadow @Final private List<Element> children;
 
     @Inject(at=@At("HEAD"), method = "render")
     private void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+        //run injected calculator if exists.
         Calculator.tick();
         Calculator.INSTANCE.render(matrices, mouseX, mouseY, delta);
     }
 
     @Inject(at=@At("HEAD"), method = "close")
     private void onClose(CallbackInfo ci) {
+        //uninject the calculator from the current opened screen
         Calculator.INSTANCE.onClose();
     }
 
     @Inject(at=@At("TAIL"), method = "init(Lnet/minecraft/client/MinecraftClient;II)V")
     private void onInit(MinecraftClient client, int width, int height, CallbackInfo ci) {
+        //"inject" the calculator
         if (Calculator.INSTANCE.shouldRender()) {
             Calculator.INSTANCE.init();
 
-            this.addSelectableChild(Calculator.INSTANCE.changeMode);
+            //as addSelectableChild is broken when trying to shadow or invoke it, replace it by its content.
+            this.selectables.add(Calculator.INSTANCE.changeMode);
+            this.children.add(Calculator.INSTANCE.changeMode);
             for (TextFieldWidget widget: Calculator.INSTANCE.children) {
-                this.addSelectableChild(widget);
+                this.selectables.add(widget);
+                this.children.add(widget);
             }
         }
     }

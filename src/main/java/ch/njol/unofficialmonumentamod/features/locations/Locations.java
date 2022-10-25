@@ -1,4 +1,4 @@
-package ch.njol.unofficialmonumentamod.misc;
+package ch.njol.unofficialmonumentamod.features.locations;
 
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.gson.Gson;
@@ -11,6 +11,8 @@ import net.minecraft.text.Text;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -53,12 +55,11 @@ public class Locations {
     public static HashMap<String, ArrayList<String>> locations = new java.util.HashMap<>();
 
     private void addToShard(String loc, String shard) {
-        if (!Objects.equals(shard, "unknown") || !LocValidator.matcher(loc).matches()) return;
-        if (locations.get(shard) != null) {
-            ArrayList<String> oldLocs = locations.get(shard);
-            oldLocs.add(loc);
-            locations.put(shard, oldLocs);
-        }
+        if (Objects.equals(shard, "unknown") || !LocValidator.matcher(loc).matches()) return;
+        ArrayList<String> oldLocs = locations.get(shard);
+        ArrayList<String> locs = oldLocs == null ? new ArrayList<>() : oldLocs;
+        locs.add(loc);
+        locations.put(shard, locs);
     }
 
     private void resetLocs() {
@@ -83,7 +84,10 @@ public class Locations {
 
     public void load() {
         File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_FILE_PATH).toFile();
-        if (!file.exists()) return;
+        if (!file.exists()) {
+            newLocData();
+            return;
+        };
 
         try (FileReader reader = new FileReader(file)) {
             HashMap<String, ArrayList<String>> loadedLocs = GSON.fromJson(reader, typeToken.getType());
@@ -96,6 +100,30 @@ public class Locations {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void save() {
+        File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_FILE_PATH).toFile();
+
+        if (!file.exists()) {
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try (FileWriter writer = new FileWriter(file)) {
+            System.out.println(locations);
+            writer.write(GSON.toJson(locations));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void onDisconnect() {
+        save();
     }
 
     private void newLocData() {
@@ -157,6 +185,7 @@ public class Locations {
             },
                 "RING"
         );
+        save();
     }
 
     private ArrayList<String> getLocs(String shard) {

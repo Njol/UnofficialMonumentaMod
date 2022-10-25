@@ -1,4 +1,4 @@
-package ch.njol.unofficialmonumentamod.mixins;
+package ch.njol.unofficialmonumentamod.mixins.screen;
 
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import org.spongepowered.asm.mixin.Mixin;

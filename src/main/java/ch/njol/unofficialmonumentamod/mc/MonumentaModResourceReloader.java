@@ -1,4 +1,4 @@
-package ch.njol.unofficialmonumentamod.misc;
+package ch.njol.unofficialmonumentamod.mc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.resource.ResourceManager;
@@ -12,6 +12,8 @@ public class MonumentaModResourceReloader implements SynchronousResourceReloader
 
     @Override
     public void reload(ResourceManager manager) {
+        UnofficialMonumentaModClient.LOGGER.info("Loading " + getName());
         UnofficialMonumentaModClient.locations.load();
+        UnofficialMonumentaModClient.LOGGER.info("Finished loading " + getName());
     }
 }
