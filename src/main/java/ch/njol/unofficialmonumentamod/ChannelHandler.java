@@ -89,20 +89,17 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 		}
 		String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
 		switch (packetType) {
-			case "ClassUpdatePacket": {
+			case "ClassUpdatePacket" -> {
 				ClassUpdatePacket packet = gson.fromJson(json, ClassUpdatePacket.class);
 				abilityHandler.updateAbilities(packet);
-				break;
 			}
-			case "AbilityUpdatePacket": {
+			case "AbilityUpdatePacket" -> {
 				AbilityUpdatePacket packet = gson.fromJson(json, AbilityUpdatePacket.class);
 				abilityHandler.updateAbility(packet);
-				break;
 			}
-			case "PlayerStatusPacket": {
+			case "PlayerStatusPacket" -> {
 				PlayerStatusPacket packet = gson.fromJson(json, PlayerStatusPacket.class);
 				abilityHandler.updateStatus(packet);
-				break;
 			}
 		}
 	}

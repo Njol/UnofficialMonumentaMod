@@ -14,7 +14,6 @@ public class DiscordRPC {
     String steamId = "";
     DiscordEventHandlers handlers = new DiscordEventHandlers();
     Long start_time = System.currentTimeMillis() / 1000;
-    String shard = null;
 
     MinecraftClient mc = MinecraftClient.getInstance();
 
@@ -22,7 +21,7 @@ public class DiscordRPC {
     Timer t = new Timer();
 
     public void Init() {
-        handlers.ready = (user) -> System.out.println("Ready!");
+        handlers.ready = (user) -> System.out.println("Ready! Connected to Discord with " + user.username + "#" + user.discriminator);
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
 
         startPresence();
@@ -65,8 +64,8 @@ public class DiscordRPC {
     private void updatePresence() {
         if (mc.world != null) {
             times++;
-            boolean isSinglePlayer = mc.isInSingleplayer();
-            boolean isOnMonumenta = !isSinglePlayer && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().matches("(?i)server.playmonumenta.com|monumenta-11.playmonumenta.com|monumenta-8.playmonumenta.com");
+            final boolean isSinglePlayer = mc.isInSingleplayer();
+            final boolean isOnMonumenta = UnofficialMonumentaModClient.isOnMonumenta();
 
             DiscordRichPresence presence = new DiscordRichPresence();
             presence.startTimestamp = start_time;
@@ -78,30 +77,31 @@ public class DiscordRPC {
                 presence.state = "Playing Singleplayer";
             } else {
                 if (!isOnMonumenta) {
-                    presence.state = "Playing Multiplayer - " + mc.getCurrentServerEntry().name.toUpperCase();
+                    presence.state = "Playing Multiplayer - " + (mc.getCurrentServerEntry() != null ? mc.getCurrentServerEntry().name.toUpperCase() : "Unknown");
                 } else {
                     String shard = Locations.getShortShard();
 
-                    presence.state = !Objects.equals(this.shard, "unknown") ? "Playing Monumenta - " + this.shard : "Playing Monumenta";
-                    //set smol image
+                    presence.state = !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
-                    presence.smallImageKey = !shard.equals("unknown") ? shard : "valley";
+                    String coolName = Constants.getOffName(shard);
+                    if (!shard.equals("unknown")) {
+                        //set small image
+                        presence.smallImageKey = shard;
+                        presence.smallImageText = coolName != null ? coolName : shard;
+                    }
 
                     //set details
                     String detail = UnofficialMonumentaModClient.options.discordDetails;
                     if (detail.matches(".*?\\{.*?}.*?") && !shard.equals("unknown") && mc.player != null) {
-                        detail = detail.replace("{player}",mc.player.getName().getString());
-                        detail = detail.replace("{shard}", shard);
+                        detail = detail.replace("{player}", mc.player.getName().getString());
+                        detail = detail.replace("{shard}", coolName != null ? coolName : shard);
                         detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
                         detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
                         detail = detail.replace("{location}", UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
                     } else if (shard.equals("unknown")) {
-                        detail = "User timed out or the shard couldn't be detected.";
+                        detail = "User timed out or their shard couldn't be detected.";
                     }
                     presence.details = detail;
-
-
-
                 }
             }
 

@@ -6,16 +6,16 @@
   "mixins": [
     "ArmorFeatureRendererMixin",
     "BlockItemMixin",
-    "screen.ChatScreenMixin",
     "ClientPlayerInteractionManagerMixin",
-    "screen.HandledScreenAccessor",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
     "MinecraftClientMixin",
     "PlayerListHudAccessor",
-    "ThreadExecutorMixin"
+    "ThreadExecutorMixin",
+    "screen.ChatScreenMixin",
+    "screen.HandledScreenAccessor"
   ],
   "client": [
     "screen.ScreenMixin"

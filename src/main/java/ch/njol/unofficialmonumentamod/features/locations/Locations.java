@@ -19,14 +19,23 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.Integer.parseInt;
-
 public class Locations {
     //region utilities
     private static final MinecraftClient mc = MinecraftClient.getInstance();
-    private static final Pattern shardGetterPattern = Pattern.compile(".*<(?<shard>\\w*)>.*");
+    private static final Pattern shardGetterPattern = Pattern.compile(".*<(?<shard>[-\\w\\d]*)>.*");
+
+    //region cache
+    private static long lastUpdateTimeShortShard;
+    private static String cachedShortShard;
+
+    private static long lastUpdateTimeShard;
+    private static String cachedShard;
+    //endregion
 
     public static String getShard() {
+        if (cachedShard != null && lastUpdateTimeShard + 2000 > System.currentTimeMillis()) {
+            return cachedShard;
+        }
         Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListHud()).getHeader();
         String shard = "unknown";
         if (header != null) {
@@ -36,13 +45,27 @@ public class Locations {
                 shard = matcher.group("shard");
             }
         }
+
+        if (cachedShard == null || lastUpdateTimeShard + 2000 < System.currentTimeMillis()) {
+            cachedShard = shard;
+            lastUpdateTimeShard = System.currentTimeMillis();
+        }
         return shard;
     }
 
     public static String getShortShard() {
+        if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
+            return cachedShortShard;
+        }
+
         String shard = getShard();
-        if (shard.matches("\\w-[0-9]")) {
-            shard = shard.substring(0, shard.length()-2);
+        if (shard.matches("\\w*-[0-9]")) {
+            shard = shard.substring(0, shard.length() - 2);
+        }
+
+        if (cachedShortShard == null || lastUpdateTimeShortShard + 2000 < System.currentTimeMillis()) {
+            cachedShortShard = shard;
+            lastUpdateTimeShortShard = System.currentTimeMillis();
         }
 
         return shard;
@@ -50,14 +73,13 @@ public class Locations {
     //endregion
 
     //region locations
-    private static final Pattern LocValidator = Pattern.compile("\\((?<X1>-*[0-9]*):(?<Z1>-?[0-9]*)\\)\\((?<X2>-?[0-9]*):(?<Z2>-?[0-9]*)\\)/(?<name>.*)");
     @Expose
-    public static HashMap<String, ArrayList<String>> locations = new java.util.HashMap<>();
+    public static HashMap<String, ArrayList<Location>> locations = new java.util.HashMap<>();
 
-    private void addToShard(String loc, String shard) {
-        if (Objects.equals(shard, "unknown") || !LocValidator.matcher(loc).matches()) return;
-        ArrayList<String> oldLocs = locations.get(shard);
-        ArrayList<String> locs = oldLocs == null ? new ArrayList<>() : oldLocs;
+    private void addToShard(Location loc, String shard) {
+        if (Objects.equals(shard, "unknown")) return;
+        ArrayList<Location> oldLocs = locations.get(shard);
+        ArrayList<Location> locs = oldLocs == null ? new ArrayList<>() : oldLocs;
         locs.add(loc);
         locations.put(shard, locs);
     }
@@ -66,8 +88,8 @@ public class Locations {
         locations.clear();
     }
 
-    private void addToShard(String[] locs, String shard) {
-        for (String loc: locs) {
+    private void addToShard(Location[] locs, String shard) {
+        for (Location loc : locs) {
             addToShard(loc, shard);
         }
     }
@@ -78,19 +100,21 @@ public class Locations {
             .setPrettyPrinting()
             .excludeFieldsWithoutExposeAnnotation()
             .create();
-    private static final String CACHE_FILE_PATH = "monumenta/unofficial-monumenta-mod-locations.json";
+    private static final String CACHE_FILE_PATH = "monumenta/locations.json";
 
-    private static final TypeToken<HashMap<String, ArrayList<String>>> typeToken = new TypeToken<HashMap<String, ArrayList<String>>>(){};
+    private static final TypeToken<HashMap<String, ArrayList<String>>> typeToken = new TypeToken<HashMap<String, ArrayList<String>>>() {
+    };
 
     public void load() {
         File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_FILE_PATH).toFile();
         if (!file.exists()) {
             newLocData();
             return;
-        };
+        }
+        ;
 
         try (FileReader reader = new FileReader(file)) {
-            HashMap<String, ArrayList<String>> loadedLocs = GSON.fromJson(reader, typeToken.getType());
+            HashMap<String, ArrayList<Location>> loadedLocs = GSON.fromJson(reader, typeToken.getType());
 
             if (loadedLocs == null) {
                 newLocData();
@@ -115,7 +139,6 @@ public class Locations {
         }
 
         try (FileWriter writer = new FileWriter(file)) {
-            System.out.println(locations);
             writer.write(GSON.toJson(locations));
         } catch (Exception e) {
             e.printStackTrace();
@@ -128,67 +151,132 @@ public class Locations {
 
     private void newLocData() {
         locations.clear();
+
         addToShard(
-                new String[]{
-                        "(701:-32)(777:56)/Kaul Arena",
-                        "(-497:-282)(-1069:343)/Sierhaven",
-                        "(-78:-166)(-180:29)/Nyr",
-                        "(658:100)(538:229)/Farr",
-                        "(1319:-271)(1259:180)/Highwatch Monument",
-                        "(1319:-271)(1115:-62)/Highwatch",
-                        "(765:421)(642:513)/Lowtide",
-                        "(642:513)(557:569)/Lowtide",
-                        "(-1548:-18)(-1685:165)/Oceangate",
-                        "(520:-400)(380:-340)/Ta\u0027eldim",
-                        "(1340:-141)(1283:-99)/Azacor Lobby",
-                        "(1645:-596)(-1733:569)/Overworld"
-        },
+                new Location[]{
+                        new Location(
+                                701, -32, 777, 56, "Kaul Arena"
+                        ),
+                        new Location(
+                                -497, -282, -1069, 343, "Sierhaven"
+                        ),
+                        new Location(
+                                -78, -166, -180, 29, "Nyr"
+                        ),
+                        new Location(
+                                658, 100, 538, 229, "Farr"
+                        ),
+                        new Location(
+                                1319, -271, 1259, 180, "Highwatch Monument"
+                        ),
+                        new Location(
+                                1319, -271, 1115, -62, "Highwatch"
+                        ),
+                        new Location(
+                                765, 421, 642, 513, "Lowtide"
+                        ),
+                        new Location(
+                                642, 513, 557, 569, "Lowtide"
+                        ),
+                        new Location(
+                                -1548, -18, -1685, 165, "Oceangate"
+                        ),
+                        new Location(
+                                520, -400, 380, -340, "Ta\u0027eldim"
+                        ),
+                        new Location(
+                                1340, -141, 1283, -99, "Azacor Lobby"
+                        ),
+                        new Location(
+                                1645, -596, -1733, 569, "Overworld"
+                        )
+                },
                 "VALLEY"
         );
 
         addToShard(
-                new String[]{
-                        "(-762:931)(-539:1210)/Player Market"
+                new Location[]{
+                        new Location(
+                                -762, 931, -539, 1210, "Player market"
+                        )
                 },
                 "PLOTS"
         );
 
         addToShard(
-                new String[]{
-                        "(-632:1218)(-871:1487)/Mistport",
-                        "(-92:397)(-209:502)/Rahkeri",
-                        "(460:640)(289:865)/Alnera",
-                        "(130:-107)(-16:48)/Hekawt Arena",
-                        "(316:2)(133:191)/Molta",
-                        "(-1415:72)(-1523:246)/Eldrask Arena",
-                        "(-1332:528)(-1371:551)/Nightroost",
-                        "(-1241:444)(-1362:527)/Nightroost",
-                        "(-1418:871)(-1640:1086)/Frostgate",
-                        "(-1677:-135)(-1855:36)/Wispervale",
-                        "(-671:-202)(-755:-139)/Breachpoint",
-                        "(-511:-548)(-545:-514)/Steelmeld Monument",
-                        "(-493:-563)(-676:-424)/Steelmeld",
-                        "(-1155:-569)(-1273:-445)/Headless Horseman",
-                        "(-412:1506)(-519:1615)/The Floating Carnival",
-                        "(-64:3248)(-223:3375)/The Black Mist",
-                        "(292:3367)(225:3447)/Sealed Remorse",
-                        "(-1394:-1342)(-1450:-1275)/Darkest Depths",
-                        "(862:-654)(-2222:1902)/Overworld"
+                new Location[]{
+                        new Location(
+                                -632, 1218, -871, 1487, "Mistport"
+                        ),
+                        new Location(
+                                -92, 397, -209, 502, "Rahkeri"
+                        ),
+                        new Location(
+                                460, 640, 289, 865, "Alnera"
+                        ),
+                        new Location(
+                                130, -107, -16, 48, "Hekawt Arena"
+                        ),
+                        new Location(
+                                316, 2, 133, 191, "Molta"
+                        ),
+                        new Location(
+                                -1415, 72, -1523, 246, "Eldrask Arena"
+                        ),
+                        new Location(
+                                -1332, 528, -1371, 551, "Nightroost"
+                        ),
+                        new Location(
+                                -1241, 444, -1362, 527, "Nightroost"
+                        ),
+                        new Location(
+                                -1418, 871, -1640, 1086, "Frostgate"
+                        ),
+                        new Location(
+                                -1677, -135, -1855, 36, "Wispervale"
+                        ),
+                        new Location(
+                                -671, -202, -755, -139, "Breachpoint"
+                        ),
+                        new Location(
+                                -511, -548, -545, -514, "Steelmeld Monument"
+                        ),
+                        new Location(
+                                -493, -563, -676, -424, "Steelmeld"
+                        ),
+                        new Location(
+                                -1155, -569, -1273, -445, "Headless Horseman"
+                        ),
+                        new Location(
+                                -412, 1506, -519, 1615, "The Floating Carnival"
+                        ),
+                        new Location(
+                                -64, 3248, -223, 3375, "The Black Mist"
+                        ),
+                        new Location(
+                                292, 3367, 225, 3447, "Sealed Remorse"
+                        ),
+                        new Location(
+                                -1394, -1342, -1450, -1275, "Darkest Depths"
+                        ),
+                        new Location(
+                                862, -654, -2222, 1902, "Overworld"
+                        )
                 },
                 "ISLES"
         );
 
         //Empty for now as I do not know important positions in r3 :)
         addToShard(
-                new String[]{
+                new Location[]{
 
-            },
+                },
                 "RING"
         );
         save();
     }
 
-    private ArrayList<String> getLocs(String shard) {
+    private ArrayList<Location> getLocs(String shard) {
         if (shard.matches("\\w*-[1-3]")) {
             shard = shard.substring(0, shard.length() - 2);
         }
@@ -198,41 +286,45 @@ public class Locations {
     }
 
     public String getLocation(double X, double Z, String shard) {
-        ArrayList<String> locations = getLocs(shard);
+        ArrayList<Location> locations = getLocs(shard);
         if (locations == null) {
             return shard;
         }
 
-        try {
-            for (String location : locations) {
-                Matcher matcher = LocValidator.matcher(location);
-                if (!matcher.matches()) return shard;
-
-                int X1 = parseInt(matcher.group("X1"));
-                int Z1 = parseInt(matcher.group("Z1"));
-
-                int X2 = parseInt(matcher.group("X2"));
-                int Z2 = parseInt(matcher.group("Z2"));
-
-                String locName = matcher.group("name");
-
-                if ((X >= X1 && X <= X2) || (X <= X1 && X >= X2)) {
-                    //X is between X1 and X2
-
-                    if ((Z >= Z1 && Z <= Z2) || (Z <= Z1 && Z >= Z2)) {
-                        //Z is between Z1 and Z2 (coordinates are between the two limits)
-
-                        return locName;
-                    }
-                }
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            return shard;// probably ran into a NumberFormatException
+        for (Location loc : locations) {
+            if (loc.isInBounds(X, Z)) return loc.name;
         }
 
         return shard;
     }
 
+    public static class Location {
+        @Expose
+        int east;
+        @Expose
+        int north;
+        @Expose
+        int west;
+        @Expose
+        int south;
+
+        @Expose
+        String name;
+
+        public Location(int east, int north, int west, int south, String name) {
+            this.east = east;
+            this.north = north;
+            this.west = west;
+            this.south = south;
+            this.name = name;
+        }
+
+        public boolean isInBounds(double playerX, double playerZ) {
+            if ((playerX >= east && playerX <= west) || (playerX <= east && playerX >= west)) {
+                return (playerZ >= north && playerZ <= south) || (playerZ <= north && playerZ >= south);
+            }
+            return false;
+        }
+    }
 
 }
