@@ -68,6 +68,7 @@ public class InGameHudMixin extends DrawableHelper {
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;renderStatusEffectOverlay(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.BEFORE))
 	void renderSkills_beforeStatusEffects(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (!renderInFrontOfChat()) {
+			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
 			renderAbilities(matrices, tickDelta, false);
 		}
 	}
@@ -77,6 +78,7 @@ public class InGameHudMixin extends DrawableHelper {
 		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V")))
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (renderInFrontOfChat()) {
+			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
 			renderAbilities(matrices, tickDelta, true);
 		}
 	}

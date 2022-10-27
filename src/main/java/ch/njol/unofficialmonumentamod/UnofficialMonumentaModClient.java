@@ -1,11 +1,14 @@
 package ch.njol.unofficialmonumentamod;
 
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
+import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
@@ -41,6 +44,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static DiscordRPC discordRPC = new DiscordRPC();
 
+	public static EffectOverlay eOverlay = new EffectOverlay();
+
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
 	// This is a hacky way to pass data around...
@@ -66,10 +71,16 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
+			eOverlay.tick();
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
-
+		ClientCommandManager.DISPATCHER.register(
+				ClientCommandManager.literal("UMM").then(ClientCommandManager.literal("moveScreen").executes((context) -> {
+					MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
+					return 1;
+				}))
+		);
 	}
 
 	public static void onDisconnect() {

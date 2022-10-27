@@ -160,6 +160,18 @@ public class Options {
 	 * everything else is a string literal
 	 */
 
+	//0, 0.5f, 0, 0
+	@Category("effectOverlay")
+	public transient DescriptionLine effectOverlay_info;
+	@Category("effectOverlay")
+	public float effect_offsetXRelative = 0.5f;
+	@Category("effectOverlay")
+	public float effect_offsetYRelative = 0.0f;
+	@Category("effectOverlay")
+	public float effect_offsetXAbsolute = 0;
+	@Category("effectOverlay")
+	public float effect_offsetYAbsolute = 0;
+
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {
 			abilitiesDisplay_horizontal = abilitiesDisplay_preset.horizontal;

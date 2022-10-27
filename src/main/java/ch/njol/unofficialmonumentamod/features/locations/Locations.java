@@ -111,14 +111,13 @@ public class Locations {
             newLocData();
             return;
         }
-        ;
 
         try (FileReader reader = new FileReader(file)) {
             HashMap<String, ArrayList<Location>> loadedLocs = GSON.fromJson(reader, typeToken.getType());
-
+            //error up there (com.google.gson.JsonSyntaxException: java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT at line 3 column 6 path $.[0])
             if (loadedLocs == null) {
                 newLocData();
-            } else {
+            } else {//could be an issue with loading locs here
                 locations = loadedLocs;
             }
         } catch (Exception e) {
@@ -150,7 +149,7 @@ public class Locations {
     }
 
     private void newLocData() {
-        locations.clear();
+        resetLocs();
 
         addToShard(
                 new Location[]{
