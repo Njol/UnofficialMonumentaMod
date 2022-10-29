@@ -168,9 +168,14 @@ public class Options {
 	@Category("effectOverlay")
 	public float effect_offsetYRelative = 0.0f;
 	@Category("effectOverlay")
-	public float effect_offsetXAbsolute = 0;
+	public int effect_offsetXAbsolute = 0;
 	@Category("effectOverlay")
-	public float effect_offsetYAbsolute = 0;
+	public int effect_offsetYAbsolute = 0;
+
+	@Category("effectOverlay")
+	public transient DescriptionLine effect_format;
+	@Category("effectOverlay")
+	public boolean effect_compress = true;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {
