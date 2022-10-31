@@ -30,6 +30,12 @@ public class Locations {
 
     private static long lastUpdateTimeShard;
     private static String cachedShard;
+
+    public static void resetCache() {
+        cachedShard = null;
+        cachedShortShard = null;
+        getShortShard();
+    }
     //endregion
 
     public static String getShard() {
@@ -53,14 +59,27 @@ public class Locations {
         return shard;
     }
 
+    public static String getShardFrom(Text text) {
+        if (text == null) return null;
+        String message = text.getString();
+        Matcher matcher = shardGetterPattern.matcher(message);
+
+        String shard = null;
+        if (matcher.matches()) {
+            shard = matcher.group("shard");
+        }
+
+        return shard;
+    }
+
     public static String getShortShard() {
         if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
             return cachedShortShard;
         }
 
         String shard = getShard();
-        if (shard.matches("\\w*-[0-9]")) {
-            shard = shard.substring(0, shard.length() - 2);
+        if (shard.matches("\\w*-[0-9]{1,3}")) {
+            shard = shard.split("-")[0];
         }
 
         if (cachedShortShard == null || lastUpdateTimeShortShard + 2000 < System.currentTimeMillis()) {
@@ -102,8 +121,7 @@ public class Locations {
             .create();
     private static final String CACHE_FILE_PATH = "monumenta/locations.json";
 
-    private static final TypeToken<HashMap<String, ArrayList<String>>> typeToken = new TypeToken<HashMap<String, ArrayList<String>>>() {
-    };
+    private static final TypeToken<HashMap<String, ArrayList<Location>>> typeToken = new TypeToken<HashMap<String, ArrayList<Location>>>() {};
 
     public void load() {
         File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_FILE_PATH).toFile();
@@ -114,10 +132,9 @@ public class Locations {
 
         try (FileReader reader = new FileReader(file)) {
             HashMap<String, ArrayList<Location>> loadedLocs = GSON.fromJson(reader, typeToken.getType());
-            //error up there (com.google.gson.JsonSyntaxException: java.lang.IllegalStateException: Expected a string but was BEGIN_OBJECT at line 3 column 6 path $.[0])
             if (loadedLocs == null) {
                 newLocData();
-            } else {//could be an issue with loading locs here
+            } else {
                 locations = loadedLocs;
             }
         } catch (Exception e) {

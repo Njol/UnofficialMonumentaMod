@@ -1,14 +1,14 @@
 package ch.njol.unofficialmonumentamod.features.effect;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.core.MoveScreen;
 import ch.njol.unofficialmonumentamod.options.Options;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
+import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 
-public class EffectMoveScreen extends Screen {
+public class EffectMoveScreen extends MoveScreen {
     public EffectMoveScreen() {
         super(new TranslatableText("unofficial-monumenta-mod.move.effect"));
     }
@@ -21,7 +21,14 @@ public class EffectMoveScreen extends Screen {
     @Override
     public void removed() {
         super.removed();
+        UnofficialMonumentaModClient.eOverlay.shouldRender = true;
         draggingOverlay = false;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        UnofficialMonumentaModClient.eOverlay.shouldRender = false;
     }
 
     @Override
@@ -113,7 +120,18 @@ public class EffectMoveScreen extends Screen {
     }
 
     @Override
-    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        Options def = UnofficialMonumentaModClient.def;
+        if (keyCode == GLFW.GLFW_KEY_R) {
+            //pressed Reset key
+            UnofficialMonumentaModClient.options.effect_offsetXRelative = def.effect_offsetXRelative;
+            UnofficialMonumentaModClient.options.effect_offsetYRelative = def.effect_offsetYRelative;
+            UnofficialMonumentaModClient.options.effect_offsetXAbsolute = def.effect_offsetXAbsolute;
+            UnofficialMonumentaModClient.options.effect_offsetYAbsolute = def.effect_offsetYAbsolute;
+
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     public Point getOverlayOrigin() {

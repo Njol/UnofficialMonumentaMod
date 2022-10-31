@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.Constants;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
@@ -83,7 +84,7 @@ public class DiscordRPC {
 
                     presence.state = !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
-                    String coolName = Constants.getOffName(shard);
+                    String coolName = Constants.getOfficialName(shard);
                     if (!shard.equals("unknown")) {
                         //set small image
                         presence.smallImageKey = shard;

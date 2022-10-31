@@ -82,8 +82,44 @@ public class EffectOverlay extends DrawableHelper {
     private final static char colorCode = '\u00A7';
 
     public void render(MatrixStack matrices, int scaledWidth, int scaledHeight) {
+        render(matrices, scaledWidth, scaledHeight, shouldRenderDummy());
+    }
+
+    protected boolean shouldRender = true;
+
+    public boolean shouldRenderDummy() {
+        return !shouldRender;
+    }
+
+    private static final ArrayList<Effect> dummyEffects = new ArrayList<>();
+
+    static {
+        dummyEffects.add(new Effect(
+                "Dummy Effect 1",
+                0,
+                360000
+        ));
+        dummyEffects.add(
+                new Effect(
+                        "Dummy Effect 2",
+                        20,
+                        360000
+                )
+        );
+        dummyEffects.add(
+                new Effect(
+                        "Dummy Effect 3",
+                        -20,
+                        360000
+                )
+        );
+    }
+
+    protected void render(MatrixStack matrices, int scaledWidth, int scaledHeight, boolean bypass) {
+        if ((effects.isEmpty() || !UnofficialMonumentaModClient.options.effect_active || !shouldRender) && !bypass) return;//don't render if empty except if bypass is true
         Options options = UnofficialMonumentaModClient.options;
-        ArrayList<Effect> cumulativeEffects = UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : effects;
+        //if bypass isn't true, will check settings for whether it should collapse same typed effects or not, if it's using a bypass then it will render the dummy effects.
+        ArrayList<Effect> cumulativeEffects = bypass ? dummyEffects : UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : effects;
         TextRenderer tr = client.textRenderer;
 
         int x = (Math.round(scaledWidth * options.effect_offsetXRelative) + options.effect_offsetXAbsolute);
@@ -111,7 +147,7 @@ public class EffectOverlay extends DrawableHelper {
 
     protected int getHeight() {
         TextRenderer tr = client.textRenderer;
-        ArrayList<Effect> effects = UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : this.effects;
+        ArrayList<Effect> effects = shouldRenderDummy() ? dummyEffects : UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : this.effects;
 
         return effects.size() * (tr.fontHeight + 2) + (2 * PADDING_VERTICAL);
     }

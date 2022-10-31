@@ -3,6 +3,7 @@ package ch.njol.unofficialmonumentamod.mixins;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -64,11 +65,17 @@ public class InGameHudMixin extends DrawableHelper {
 	@Shadow
 	private int scaledHeight;
 
+	@Inject(method = "setOverlayMessage", at = @At("TAIL"))
+	public void onActionbar(Text message, boolean tinted, CallbackInfo ci) {
+		ChestCountOverlay.onActionbarReceived(message);
+	}
+
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;renderStatusEffectOverlay(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.BEFORE))
 	void renderSkills_beforeStatusEffects(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (!renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
+			ChestCountOverlay.render(matrices, scaledWidth, scaledHeight);
 			renderAbilities(matrices, tickDelta, false);
 		}
 	}
@@ -79,6 +86,7 @@ public class InGameHudMixin extends DrawableHelper {
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
+			ChestCountOverlay.render(matrices, scaledWidth, scaledHeight);
 			renderAbilities(matrices, tickDelta, true);
 		}
 	}

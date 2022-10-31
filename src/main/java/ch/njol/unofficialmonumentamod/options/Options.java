@@ -160,7 +160,6 @@ public class Options {
 	 * everything else is a string literal
 	 */
 
-	//0, 0.5f, 0, 0
 	@Category("effectOverlay")
 	public transient DescriptionLine effectOverlay_info;
 	@Category("effectOverlay")
@@ -176,6 +175,22 @@ public class Options {
 	public transient DescriptionLine effect_format;
 	@Category("effectOverlay")
 	public boolean effect_compress = true;
+	@Category("effectOverlay")
+	public boolean effect_active = true;
+
+	@Category("chestCountOverlay")
+	public transient DescriptionLine chestCountOverlay_pos;
+	@Category("chestCountOverlay")
+	public float chestCount_offsetXRelative = 1f;
+	@Category("chestCountOverlay")
+	public float chestCount_offsetYRelative = 0.0f;
+	@Category("chestCountOverlay")
+	public int chestCount_offsetXAbsolute = -80;
+	@Category("chestCountOverlay")
+	public int chestCount_offsetYAbsolute = 0;
+
+	@Category("chestCountOverlay")
+	public boolean chestCount_active = true;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {

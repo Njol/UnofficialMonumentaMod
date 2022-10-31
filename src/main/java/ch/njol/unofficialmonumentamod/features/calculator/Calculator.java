@@ -24,13 +24,14 @@ public class Calculator extends DrawableHelper {
     private static final MinecraftClient mc = MinecraftClient.getInstance();
 
     private static CalculatorMode mode = CalculatorMode.NORMAL;
+    private static CalculatorState state = CalculatorState.OPEN;
 
     private static final ArrayList<Integer> values = new ArrayList<>();
 
     public static String output;
 
     private static void switchMode() {
-        mode = mode == CalculatorMode.NORMAL ? CalculatorMode.EXCHANGE : mode == CalculatorMode.EXCHANGE ? CalculatorMode.REVERSE_EXCHANGE : CalculatorMode.NORMAL;
+        mode = (mode == CalculatorMode.NORMAL ? CalculatorMode.EXCHANGE : mode == CalculatorMode.EXCHANGE ? CalculatorMode.REVERSE_EXCHANGE : CalculatorMode.NORMAL);
     }
 
     public synchronized static String logic() {
@@ -115,7 +116,7 @@ public class Calculator extends DrawableHelper {
     public ButtonWidget changeMode;
 
     public boolean shouldRender() {
-        return UnofficialMonumentaModClient.options.showCalculator && (Objects.equals(Locations.getShortShard(), "plots") && mc.currentScreen instanceof GenericContainerScreen);
+        return UnofficialMonumentaModClient.options.showCalculator && state == CalculatorState.OPEN && (Objects.equals(Locations.getShortShard(), "plots") && mc.currentScreen instanceof GenericContainerScreen);
     }
 
     public synchronized void resetPosition() {

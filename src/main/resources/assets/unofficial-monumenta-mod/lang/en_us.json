@@ -99,5 +99,20 @@
   "unofficial-monumenta-mod.config.option.silenceTeamErrors": "Silences Team related errors",
   "unofficial-monumenta-mod.config.option.silenceTeamErrors.tooltip": "Silences errors that happen when a player leaves the server or changes shard",
   "unofficial-monumenta-mod.config.option.showCalculator": "Enable Calculator in plots",
-  "unofficial-monumenta-mod.config.option.showCalculator.tooltip": "Allows the injection of the calculator when in a chest container in the plots."
+  "unofficial-monumenta-mod.config.option.showCalculator.tooltip": "Allows the injection of the calculator when in a chest container in the plots.",
+  "unofficial-monumenta-mod.config.category.chestCountOverlay": "Chest count overlay",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetXRelative": "Relative X position",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetXRelative.tooltip": "Horizontal position of the abilities display relative to your screen (0 = left, 1 = right)\nAny value works, e.g. 0.1 = 10% of the screen width from the left edge.",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetYRelative": "Relative Y position",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetYRelative.tooltip": "vertical position of the abilities display relative to your screen (0 = top, 1 = bottom)\nAny value works, e.g. 0.1 = 10% of the screen height from the top edge.",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetXAbsolute": "Absolute X offset",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetXAbsolute.tooltip": "Absolute horizontal offset of the effect overlay.\nThis is added after the relative position has been calculated.\nNegative values shift to the left, positive values shift to the right.",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetYAbsolute": "Absolute Y offset",
+  "unofficial-monumenta-mod.config.option.chestCount_offsetYAbsolute.tooltip": "Absolute vertical offset of the effect overlay.\nThis is added after the relative position has been calculated.\nNegative values shift to upwards, positive values shift downwards.",
+  "unofficial-monumenta-mod.config.option.chestCount_active": "Enable overlay",
+  "unofficial-monumenta-mod.config.option.chestCount_active.tooltip": "Whether the overlay should render or not.",
+  "unofficial-monumenta-mod.config.option.effect_active": "Enable overlay",
+  "unofficial-monumenta-mod.config.option.effect_active.tooltip": "Whether the overlay should render or not.",
+  "unofficial-monumenta-mod.config.option.chestCountOverlay_pos": "Position of the overlay",
+  "unofficial-monumenta-mod.config.option.chestCountOverlay_pos.tooltip": ""
 }

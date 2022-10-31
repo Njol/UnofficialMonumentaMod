@@ -18,6 +18,7 @@
     "screen.HandledScreenAccessor"
   ],
   "client": [
+    "PlayerListHudMixin",
     "screen.ScreenMixin"
   ],
   "injectors": {

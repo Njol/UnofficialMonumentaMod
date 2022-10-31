@@ -4,12 +4,15 @@ import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.features.strike.OverlayMoveScreen;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -37,6 +40,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
 
 	public static Options options = new Options();
+
+	public static final Options def = new Options();
 
 	public final static Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
 
@@ -74,12 +79,30 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			eOverlay.tick();
 		});
 
+		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
+			ChestCountOverlay.onWorldLoad();
+		}));
+
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
+
 		ClientCommandManager.DISPATCHER.register(
-				ClientCommandManager.literal("UMM").then(ClientCommandManager.literal("moveScreen").executes((context) -> {
-					MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
-					return 1;
-				}))
+				ClientCommandManager.literal("UMM")
+						.then(ClientCommandManager.literal("moveScreen")
+								.then(ClientCommandManager.literal("effectOverlay")
+										.executes((context) -> {
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
+											return 1;
+										}))
+								.then(ClientCommandManager.literal("chestCountOverlay")
+										.executes(context -> {
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new OverlayMoveScreen()));
+											return 1;
+										})))
+						.then(ClientCommandManager.literal("addCount")
+								.executes((context) -> {
+									ChestCountOverlay.testAddToCurrent();
+									return 1;
+								}))
 		);
 	}
 
