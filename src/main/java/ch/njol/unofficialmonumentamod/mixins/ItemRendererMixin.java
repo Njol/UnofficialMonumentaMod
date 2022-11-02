@@ -1,6 +1,9 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.misc.managers.CooldownManager;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemModels;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -19,8 +22,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
@@ -36,6 +42,7 @@ public abstract class ItemRendererMixin {
 
     @Unique
     private BakedModel originalModel;
+    @Shadow public float zOffset;
 
     /**
      * Prevent trident-specific code from being executed
@@ -72,6 +79,44 @@ public abstract class ItemRendererMixin {
                 && (!(originalModel instanceof BuiltinBakedModel)))
             return originalModel;
         return model;
+    }
+
+    @Unique
+    private static ItemStack contextStack;
+    @Unique
+    private static MatrixStack contextMatrices;
+
+    /**
+     * See setK for use
+     */
+    @Inject(method = "renderGuiItemOverlay(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getCount()I", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void getContextForRenderGuiItemOverlay(TextRenderer renderer, ItemStack stack, int x, int y, String countLabel, CallbackInfo ci, MatrixStack matrixStack) {
+        contextStack = stack;
+        contextMatrices = matrixStack;
+
+    }
+
+    /**
+     *  Will trigger the vanilla cooldown render with item cooldown :)
+     */
+    @SuppressWarnings("InvalidInjectorMethodSignature")//I have no idea why it's screaming saying it doesn't exist, works for me though.
+    @ModifyVariable(method = "renderGuiItemOverlay(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At(value = "STORE", ordinal = 0), index = 8)
+    private float setK(float value) {
+        if (CooldownManager.getCooldownProgress(contextStack.getItem(), MinecraftClient.getInstance().getTickDelta()) > 0.0F) {
+            return CooldownManager.getCooldownProgress(contextStack.getItem(), MinecraftClient.getInstance().getTickDelta());
+        } else return value;
+    }
+
+    /**
+     *  Renders the charges for items under cooldown
+     */
+    @Inject(method = "renderGuiItemOverlay(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;enableDepthTest()V", ordinal = 1))
+    private void renderItemCharges(TextRenderer renderer, ItemStack stack, int x, int y, String countLabel, CallbackInfo ci) {//doesn't update if in cooldown
+        if (CooldownManager.getCooldownProgress(stack.getItem(), MinecraftClient.getInstance().getTickDelta()) > 0.0F) {
+            String s = String.valueOf(CooldownManager.getMaxItemCharges(stack.getItem()) - CooldownManager.getItemCharges(stack.getItem()));
+            contextMatrices.translate(0.0D, 0.0D, (this.zOffset + 200.0F));
+            renderer.draw(contextMatrices, s, (float) (x + 19 - 2 - renderer.getWidth(s)), (float) (y), 16777215);
+        }
     }
 
     /**

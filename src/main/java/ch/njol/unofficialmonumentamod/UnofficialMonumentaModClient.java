@@ -1,11 +1,15 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.features.strike.OverlayMoveScreen;
+import ch.njol.unofficialmonumentamod.features.misc.managers.CooldownManager;
+import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
@@ -26,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.util.Objects;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
@@ -34,16 +39,18 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	// TODO:
 	// sage's insight has no ClassAbility, but has stacks
 	// spellshock however has a ClassAbility, but doesn't really need to be displayed...
+	// build calculator with a custom gui ?
 
 	public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
 
 	public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
 
+	public static final Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
+
 	public static Options options = new Options();
 
 	public static final Options def = new Options();
 
-	public final static Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
 
 	public static Locations locations = new Locations();
 
@@ -77,6 +84,12 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 			eOverlay.tick();
+			Calculator.tick();
+			CooldownManager.update();
+		});
+
+		ClientTickEvents.END_WORLD_TICK.register(world -> {
+			Notifier.tick();
 		});
 
 		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
@@ -107,7 +120,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	}
 
 	public static void onDisconnect() {
-		abilityHandler.onDisconnect();
+		Notifier.onDisconnect();
+		LocationNotifier.onDisconnect();
 		locations.onDisconnect();
 	}
 
@@ -125,15 +139,19 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		return onMM;
 	}
 
-	private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
+	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
 		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
 			return new GsonBuilder().create().fromJson(reader, c);
 		}
 	}
 
-	private static void writeJsonFile(Object o, String filePath) {
+	public static void writeJsonFile(Object o, String filePath) {
 		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
 			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
+		} catch (NoSuchFileException | FileNotFoundException e) {
+			if ((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()).getParentFile().mkdirs()) {
+				writeJsonFile(o, filePath);
+			}
 		} catch (IOException e) {
 			// Silently ignore save errors
 			e.printStackTrace();

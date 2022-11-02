@@ -19,7 +19,10 @@
   ],
   "client": [
     "PlayerListHudMixin",
-    "screen.ScreenMixin"
+    "screen.ScreenMixin",
+    "PlayerListHudAccessor",
+    "ScreenHandlerMixin",
+    "ThreadExecutorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

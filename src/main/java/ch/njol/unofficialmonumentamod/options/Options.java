@@ -53,11 +53,28 @@ public class Options {
 	@Category("misc")
 	public boolean chestsortDisabledEverywhereElse = false;
 
-	// TODO implement item cooldown display
-	// requires sever-side adaptions to send the cooldown (on use and on connect)
-	// biggest issue: most tesseracts are apparently done in mcfunctions
-//	@Category("misc")
-//	public boolean renderItemCooldowns = true;
+	@Category("misc")
+	public boolean crossbowFix = true;
+
+	@Category("misc")
+	public boolean notifyLocation = true;
+	@Category("misc")
+	@Slider(min = 1.5F, max = 60F, step = 0.1F, unit = "second")
+	public float notifierShowTime = 5F;
+
+	@Category("misc")
+	public boolean showCalculatorInPlots = true;
+
+	// the biggest issue: most tesseracts are apparently done in mcfunctions -> and one of them for some reason doesn't handle its charges the same way as the others.
+	@Category("misc")
+	public boolean renderItemCooldowns = true;
+
+	@Category("misc")
+	public boolean silenceTeamError = true;
+
+	/*
+	 * Location related settings
+	 */
 
 	@Category("misc")
 	public boolean silenceTeamErrors = true;
