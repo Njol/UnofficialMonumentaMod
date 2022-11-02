@@ -83,9 +83,9 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 	@Override
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 		String message = buf.readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
-		JsonElement json = new JsonParser().parse(message);
+		JsonElement json = JsonParser.parseString(message);
 		if (UnofficialMonumentaModClient.options.logPackets) {
-			System.out.println("[UMM] read packet: " + json);
+			UnofficialMonumentaModClient.LOGGER.info("[UMM] read packet: " + json);
 		}
 		String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
 		switch (packetType) {

@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.features.Constants;
+import ch.njol.unofficialmonumentamod.core.Constants;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
@@ -22,7 +22,7 @@ public class DiscordRPC {
     Timer t = new Timer();
 
     public void Init() {
-        handlers.ready = (user) -> System.out.println("Ready! Connected to Discord with " + user.username + "#" + user.discriminator);
+        handlers.ready = (user) -> UnofficialMonumentaModClient.LOGGER.info("Ready! Connected to Discord with " + user.username + "#" + user.discriminator);
         lib.Discord_Initialize(applicationId, handlers, true, steamId);
 
         startPresence();

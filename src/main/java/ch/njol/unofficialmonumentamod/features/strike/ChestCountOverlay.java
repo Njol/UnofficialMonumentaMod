@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.strike;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.features.Constants;
+import ch.njol.unofficialmonumentamod.core.Constants;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.options.Options;
 import net.minecraft.client.MinecraftClient;

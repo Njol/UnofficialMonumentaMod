@@ -1,4 +1,4 @@
-package ch.njol.unofficialmonumentamod.features;
+package ch.njol.unofficialmonumentamod.core;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
