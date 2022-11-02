@@ -140,11 +140,11 @@ public class Constants {
     }
 
     public static class Shard {
-        final String name;
-        final String offName;
-        final ShardType shardType;
+        public final String name;
+        public final String offName;
+        public final ShardType shardType;
         @Nullable
-        final Integer maxChests;
+        public final Integer maxChests;
 
         Shard(String name, String offName, ShardType shardType, @Nullable Integer maxChests) {
             this.name = name;

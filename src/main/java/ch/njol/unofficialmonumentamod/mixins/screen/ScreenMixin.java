@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 
@@ -34,6 +35,13 @@ public abstract class ScreenMixin extends AbstractParentElement {
     private void onClose(CallbackInfo ci) {
         //uninject the calculator from the current opened screen
         Calculator.INSTANCE.onClose();
+    }
+
+    @Inject(at=@At("HEAD"), method = "keyPressed", cancellable = true)
+    private void onKeyTyped(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
+        if (Calculator.INSTANCE.keyTyped(keyCode, scanCode, modifiers)) {
+            cir.setReturnValue(true);
+        }
     }
 
     @Inject(at=@At("TAIL"), method = "init(Lnet/minecraft/client/MinecraftClient;II)V")

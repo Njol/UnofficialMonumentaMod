@@ -11,6 +11,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Calculator extends DrawableHelper {
     }
 
     public synchronized static String logic() {
-        int HyperValue = (int) Math.floor((values.get(1) * values.get(0)) / 64);
+        int HyperValue = (int) Math.floor((values.get(1) * values.get(0)) / 64.0);
         int CompressedValue = (values.get(1) * values.get(0)) % 64;
 
         return HyperValue + "H* " + CompressedValue + "C*";
@@ -204,6 +205,15 @@ public class Calculator extends DrawableHelper {
         children.clear();
         output = null;
         values.clear();
+    }
+
+    public boolean keyTyped(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == GLFW.GLFW_KEY_K) {
+            //invert current state;
+            state = state == CalculatorState.OPEN ? CalculatorState.CLOSED : CalculatorState.OPEN;
+            return true;
+        }
+        return false;
     }
 
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {

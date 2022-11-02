@@ -92,7 +92,7 @@ public class ChestCountOverlay extends DrawableHelper {
         if (!searchingForShard || Locations.getShardFrom(text) == null) return;
         String shard = Locations.getShortShard();
         if (Objects.equals(shard, "unknown")) return;
-        if (!Objects.equals(shard, lastShard)) {//reset
+        if (!Objects.equals(shard, lastShard) &&(Constants.shards.get(shard).shardType == Constants.ShardType.strike)) {//reset
             totalChests = Constants.getMaxChests(shard);//if null then non strike, if 0 then strike but max is unknown, > 0 means it's known so then render the max
             currentCount = 0;
             lastShard = shard;
