@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.features.misc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 
 public class NotificationToast implements Toast {
 
-    Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "/textures/gui/notifications.png");
+    Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "textures/gui/notifications.png");
 
     private final Text title;
 
@@ -103,10 +104,14 @@ public class NotificationToast implements Toast {
         this.hideTime = System.currentTimeMillis() + newValue;
     }
 
+    private void bindTexture() {
+        RenderSystem.setShaderTexture(0, TEXTURE);
+    }
+
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
         if (System.currentTimeMillis() < this.hideTime) {
-            manager.getClient().getTextureManager().bindTexture(TEXTURE);
+            bindTexture();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
 
@@ -154,6 +159,7 @@ public class NotificationToast implements Toast {
     private void drawPart(MatrixStack matrices, ToastManager manager, int width, int textureV, int y, int height) {
         int i = textureV == 0 ? 20 : 5;
         int j = Math.min(60, width - i);
+        bindTexture();
         manager.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
 
         for(int k = i; k < width - j; k += 64) {

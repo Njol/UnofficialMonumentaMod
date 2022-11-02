@@ -2,7 +2,6 @@ package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.mc.MonumentaModResourceReloader;
-import ch.njol.unofficialmonumentamod.features.misc.managers.CooldownManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import net.minecraft.client.gui.screen.Screen;
@@ -48,12 +47,6 @@ public abstract class MinecraftClientMixin {
     void doItemUse_crossbowFix(CallbackInfo ci) {
         if (player == null) {
             return;
-        }
-        if (CooldownManager.shouldRender() &&
-                CooldownManager.getCooldownFromItem(player.getMainHandStack()) != null) {
-            CooldownManager.addCooldownToItem(player.getMainHandStack(), CooldownManager.Trigger.MAIN_HAND);
-        } else if (!CooldownManager.shouldRender()) {
-            CooldownManager.removeCooldownFromItem(player.getMainHandStack(), CooldownManager.Trigger.MAIN_HAND);
         }
 
         if (!UnofficialMonumentaModClient.options.crossbowFix) return;

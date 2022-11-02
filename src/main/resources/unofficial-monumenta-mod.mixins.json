@@ -21,7 +21,6 @@
     "PlayerListHudMixin",
     "screen.ScreenMixin",
     "PlayerListHudAccessor",
-    "ScreenHandlerMixin",
     "ThreadExecutorMixin"
   ],
   "injectors": {

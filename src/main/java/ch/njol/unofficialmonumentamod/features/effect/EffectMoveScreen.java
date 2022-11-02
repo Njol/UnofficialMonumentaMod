@@ -58,15 +58,15 @@ public class EffectMoveScreen extends MoveScreen {
         if (options.effect_offsetXRelative == 0.0f && options.effect_offsetXAbsolute < 0) {
             options.effect_offsetXAbsolute = 0;
         }
-        if (options.effect_offsetXRelative == 1.0f && options.effect_offsetXAbsolute > width / 2.0) {
-            options.effect_offsetXAbsolute = width / 2;
+        if (options.effect_offsetXRelative == 1.0f && options.effect_offsetXAbsolute > 0) {
+            options.effect_offsetXAbsolute = -UnofficialMonumentaModClient.eOverlay.getWidth();
         }
 
         if (options.effect_offsetYRelative == 0.0f && options.effect_offsetYAbsolute < 0) {
             options.effect_offsetYAbsolute = 0;
         }
-        if (options.effect_offsetYRelative == 1.0f && options.effect_offsetYAbsolute > height / 2.0) {
-            options.effect_offsetYAbsolute = height / 2;
+        if (options.effect_offsetYRelative == 1.0f && options.effect_offsetYAbsolute > 0) {
+            options.effect_offsetYAbsolute = -UnofficialMonumentaModClient.eOverlay.getHeight();
         }
     }
 

@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
@@ -211,6 +212,22 @@ public class Calculator extends DrawableHelper {
         if (keyCode == GLFW.GLFW_KEY_K) {
             //invert current state;
             state = state == CalculatorState.OPEN ? CalculatorState.CLOSED : CalculatorState.OPEN;
+            if (mc.currentScreen == null) return false;
+            if (state == CalculatorState.OPEN) {
+                for (TextFieldWidget widget: children) {
+                    mc.currentScreen.children().remove(widget);
+                }
+                init();
+                for (TextFieldWidget widget: children) {
+                    addChild(widget);
+                }
+                addChild(changeMode);
+            } else {
+                for (TextFieldWidget widget: children) {
+                    mc.currentScreen.children().remove(widget);
+                }
+                mc.currentScreen.children().remove(changeMode);
+            }
             return true;
         }
         return false;

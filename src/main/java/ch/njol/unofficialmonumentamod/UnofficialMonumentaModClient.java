@@ -7,7 +7,6 @@ import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.features.strike.OverlayMoveScreen;
-import ch.njol.unofficialmonumentamod.features.misc.managers.CooldownManager;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.options.Options;
@@ -85,7 +84,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			abilityHandler.tick();
 			eOverlay.tick();
 			Calculator.tick();
-			CooldownManager.update();
 		});
 
 		ClientTickEvents.END_WORLD_TICK.register(world -> {

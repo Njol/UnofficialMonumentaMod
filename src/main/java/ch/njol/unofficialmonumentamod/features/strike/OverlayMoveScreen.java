@@ -58,15 +58,15 @@ public class OverlayMoveScreen extends MoveScreen {
         if (options.chestCount_offsetXRelative == 0.0f && options.chestCount_offsetXAbsolute < 0) {
             options.chestCount_offsetXAbsolute = 0;
         }
-        if (options.chestCount_offsetXRelative == 1.0f && options.chestCount_offsetXAbsolute > width / 2.0) {
-            options.chestCount_offsetXAbsolute = width / 2;
+        if (options.chestCount_offsetXRelative == 1.0f && options.chestCount_offsetXAbsolute > 0) {
+            options.chestCount_offsetXAbsolute = -ChestCountOverlay.width;
         }
 
         if (options.chestCount_offsetYRelative == 0.0f && options.chestCount_offsetYAbsolute < 0) {
             options.chestCount_offsetYAbsolute = 0;
         }
-        if (options.chestCount_offsetYRelative == 1.0f && options.chestCount_offsetYAbsolute > height / 2.0) {
-            options.chestCount_offsetYAbsolute = height / 2;
+        if (options.chestCount_offsetYRelative == 1.0f && options.chestCount_offsetYAbsolute > 0) {
+            options.chestCount_offsetYAbsolute = -ChestCountOverlay.height;
         }
     }
 
@@ -93,11 +93,11 @@ public class OverlayMoveScreen extends MoveScreen {
                 setToInBoundPos();
 
                 //snap to original pos
-                if (options.chestCount_offsetXRelative == 1.0f && Math.abs(options.chestCount_offsetXAbsolute) < -90) {
-                    options.chestCount_offsetXAbsolute = -80;
+                if (options.chestCount_offsetXRelative == 1.0f && options.chestCount_offsetXAbsolute > -64) {
+                    options.chestCount_offsetXAbsolute = -64;
                 }
                 if (options.chestCount_offsetYRelative == 0.0f && Math.abs(options.chestCount_offsetYAbsolute) < 10) {
-                    options.chestCount_offsetXAbsolute = 0;
+                    options.chestCount_offsetYAbsolute = 0;
                 }
 
                 UnofficialMonumentaModClient.saveConfig();

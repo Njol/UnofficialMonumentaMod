@@ -62,15 +62,7 @@ public class Options {
 	@Slider(min = 1.5F, max = 60F, step = 0.1F, unit = "second")
 	public float notifierShowTime = 5F;
 
-	@Category("misc")
-	public boolean showCalculatorInPlots = true;
-
 	// the biggest issue: most tesseracts are apparently done in mcfunctions -> and one of them for some reason doesn't handle its charges the same way as the others.
-	@Category("misc")
-	public boolean renderItemCooldowns = true;
-
-	@Category("misc")
-	public boolean silenceTeamError = true;
 
 	/*
 	 * Location related settings
@@ -170,7 +162,6 @@ public class Options {
 	 * discordDetails replace values:
 	 * {player} returns the player's name
 	 * {shard} returns the shard name
-	 * {server} returns the server name
 	 * {holding} returns the item held in the main hand
 	 * {class} returns the class the user is playing as
 	 * {location} returns the location or if not found the shard name
@@ -202,7 +193,7 @@ public class Options {
 	@Category("chestCountOverlay")
 	public float chestCount_offsetYRelative = 0.0f;
 	@Category("chestCountOverlay")
-	public int chestCount_offsetXAbsolute = -80;
+	public int chestCount_offsetXAbsolute = -64;
 	@Category("chestCountOverlay")
 	public int chestCount_offsetYAbsolute = 0;
 
