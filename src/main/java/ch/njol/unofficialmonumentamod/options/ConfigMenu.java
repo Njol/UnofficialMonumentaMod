@@ -135,14 +135,14 @@ public class ConfigMenu implements ModMenuApi {
 				UnofficialMonumentaModClient.saveConfig();
 			});
 			if (client != null) {
-				client.openScreen(config.build());
+				client.setScreen(config.build());
 			}
 		}
 
 		@Override
-		public void onClose() {
+		public void close() {
 			if (client != null) {
-				client.openScreen(parent);
+				client.setScreen(parent);
 			}
 		}
 	}

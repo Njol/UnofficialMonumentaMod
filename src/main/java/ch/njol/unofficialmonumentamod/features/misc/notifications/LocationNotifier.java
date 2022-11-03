@@ -1,9 +1,9 @@
-package ch.njol.unofficialmonumentamod.misc.notifications;
+package ch.njol.unofficialmonumentamod.features.misc.notifications;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.misc.NotificationToast;
-import ch.njol.unofficialmonumentamod.misc.Locations;
-import ch.njol.unofficialmonumentamod.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.misc.NotificationToast;
+import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 

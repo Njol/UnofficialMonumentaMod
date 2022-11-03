@@ -1,7 +1,8 @@
-package ch.njol.unofficialmonumentamod.misc;
+package ch.njol.unofficialmonumentamod.features.misc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 
 public class NotificationToast implements Toast {
 
-    Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "/textures/gui/notifications.png");
+    Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "textures/gui/notifications.png");
 
     private final Text title;
 
@@ -103,11 +104,15 @@ public class NotificationToast implements Toast {
         this.hideTime = System.currentTimeMillis() + newValue;
     }
 
+    private void bindTexture() {
+        RenderSystem.setShaderTexture(0, TEXTURE);
+    }
+
     @Override
     public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
         if (System.currentTimeMillis() < this.hideTime) {
-            manager.getGame().getTextureManager().bindTexture(TEXTURE);
-            RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            bindTexture();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
 
             int i = this.getWidth();
@@ -129,21 +134,21 @@ public class NotificationToast implements Toast {
             }
 
             if (this.lines.size() == 0) {
-                manager.getGame().textRenderer.draw(matrices, this.title, center(manager.getGame().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+                manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
             } else {
-                manager.getGame().textRenderer.draw(matrices, this.title, center(manager.getGame().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+                manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
                 for(o = 0; o < this.lines.size(); ++o) {
-                    int alignement = 0;
+                    int alignment = 0;
 
                     if (this.alignment == Alignment.CENTER) {
-                        alignement = center(manager.getGame().textRenderer.getWidth(this.lines.get(o)));
+                        alignment = center(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
                     } else if (this.alignment == Alignment.LEFT) {
-                        alignement = align_left(manager.getGame().textRenderer.getWidth(this.lines.get(o)));
+                        alignment = align_left(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
                     } else if (this.alignment == Alignment.RIGHT) {
-                        alignement = align_right(manager.getGame().textRenderer.getWidth(this.lines.get(o)));
+                        alignment = align_right(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
                     }
 
-                    manager.getGame().textRenderer.draw(matrices, this.lines.get(o), alignement, (float)(18 + o * 12), 0x404040);
+                    manager.getClient().textRenderer.draw(matrices, this.lines.get(o), alignment, (float)(18 + o * 12), 0x404040);
                 }
             }
 
@@ -154,6 +159,7 @@ public class NotificationToast implements Toast {
     private void drawPart(MatrixStack matrices, ToastManager manager, int width, int textureV, int y, int height) {
         int i = textureV == 0 ? 20 : 5;
         int j = Math.min(60, width - i);
+        bindTexture();
         manager.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
 
         for(int k = i; k < width - j; k += 64) {

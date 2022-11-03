@@ -8,7 +8,7 @@
     "Njol"
   ],
   "contributors": [
-    "Ascynx"
+    "Ascynx (376647579653636096)"
   ],
   "contact": {
     "homepage": "https://www.curseforge.com/minecraft/mc-mods/unofficial-monumenta-mod",
@@ -33,12 +33,15 @@
     "unofficial-monumenta-mod.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.11.3",
+    "fabricloader": ">=0.13.3",
     "fabric": "*",
-    "minecraft": "~1.16.4"
+    "minecraft": "~1.18.2"
   },
   "recommends": {
-    "modmenu": ">=1.16.0",
-    "cloth-config-fabric": ">=4.10.11"
+    "modmenu": ">=2.0.0",
+    "cloth-config-fabric": ">=5.0.0"
+  },
+  "suggests": {
+    "citresewn": "*"
   }
 }

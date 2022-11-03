@@ -1,6 +1,5 @@
 package ch.njol.unofficialmonumentamod;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.item.TooltipContext;
@@ -10,25 +9,11 @@ import net.minecraft.screen.ScreenHandler;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-import java.nio.file.Files;
 import java.util.List;
-import java.io.IOException;
 
 public abstract class Utils {
 
     private Utils() {
-    }
-
-    /**
-     *  Gets the content of a file as plain text.
-     */
-    public static String readFile(String filePath) throws IOException {
-        StringBuilder builder = new StringBuilder();
-
-        List<String> list = Files.readAllLines(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile().toPath());
-
-        list.forEach(s -> builder.append(s).append("\n"));
-        return builder.toString();
     }
 
     /**
@@ -38,7 +23,7 @@ public abstract class Utils {
      * @return The plain display name of the item, i.e. the value of NBT node plain.display.Name.
      */
     public static String getPlainDisplayName(ItemStack itemStack) {
-        return itemStack.getTag() == null ? null : itemStack.getTag().getCompound("plain").getCompound("display").getString("Name");
+        return itemStack.getNbt() == null ? null : itemStack.getNbt().getCompound("plain").getCompound("display").getString("Name");
     }
 
     public static boolean isChestSortDisabledForInventory(ScreenHandler screenHandler, int slotId) {

@@ -62,19 +62,17 @@ public class Options {
 	@Slider(min = 1.5F, max = 60F, step = 0.1F, unit = "second")
 	public float notifierShowTime = 5F;
 
-	@Category("misc")
-	public boolean showCalculatorInPlots = true;
-
 	// the biggest issue: most tesseracts are apparently done in mcfunctions -> and one of them for some reason doesn't handle its charges the same way as the others.
-	@Category("misc")
-	public boolean renderItemCooldowns = true;
-
-	@Category("misc")
-	public boolean silenceTeamError = true;
 
 	/*
 	 * Location related settings
 	 */
+
+	@Category("misc")
+	public boolean silenceTeamErrors = true;
+
+	@Category("misc")
+	public boolean showCalculator = true;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;
@@ -152,24 +150,55 @@ public class Options {
 	@Category("debug")
 	public boolean logPackets = false;
 
-	/*
+	/**
 	 * Discord RPC Configuration
 	 */
 	@Category("discord")
 	public boolean discordEnabled = true;
 	@Category("discord")
 	public String discordDetails = "{player} is on {shard}";
-	/*
+
+	/**
 	 * discordDetails replace values:
-	 *
 	 * {player} returns the player's name
 	 * {shard} returns the shard name
-	 * {server} returns the server name
 	 * {holding} returns the item held in the main hand
 	 * {class} returns the class the user is playing as
 	 * {location} returns the location or if not found the shard name
 	 * everything else is a string literal
 	 */
+
+	@Category("effectOverlay")
+	public transient DescriptionLine effectOverlay_info;
+	@Category("effectOverlay")
+	public float effect_offsetXRelative = 0.5f;
+	@Category("effectOverlay")
+	public float effect_offsetYRelative = 0.0f;
+	@Category("effectOverlay")
+	public int effect_offsetXAbsolute = 0;
+	@Category("effectOverlay")
+	public int effect_offsetYAbsolute = 0;
+
+	@Category("effectOverlay")
+	public transient DescriptionLine effect_format;
+	@Category("effectOverlay")
+	public boolean effect_compress = true;
+	@Category("effectOverlay")
+	public boolean effect_active = true;
+
+	@Category("chestCountOverlay")
+	public transient DescriptionLine chestCountOverlay_pos;
+	@Category("chestCountOverlay")
+	public float chestCount_offsetXRelative = 1f;
+	@Category("chestCountOverlay")
+	public float chestCount_offsetYRelative = 0.0f;
+	@Category("chestCountOverlay")
+	public int chestCount_offsetXAbsolute = -64;
+	@Category("chestCountOverlay")
+	public int chestCount_offsetYAbsolute = 0;
+
+	@Category("chestCountOverlay")
+	public boolean chestCount_active = true;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {

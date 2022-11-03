@@ -1,8 +1,8 @@
-package ch.njol.unofficialmonumentamod.misc.managers;
+package ch.njol.unofficialmonumentamod.features.misc.managers;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.misc.NotificationToast;
-import ch.njol.unofficialmonumentamod.misc.notifications.LocationNotifier;
+import ch.njol.unofficialmonumentamod.features.misc.NotificationToast;
+import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.toast.Toast;
 
@@ -24,7 +24,7 @@ public class Notifier {
         LocationNotifier.tick();
     }
 
-    public static void onDisonnect() {
+    public static void onDisconnect() {
         queue.clear();
     }
 
@@ -36,6 +36,7 @@ public class Notifier {
         boolean alreadyExists = false;
         for (NotificationToast queueToast: queue) {
             try {
+                if (queueToast.getDescription() == null || toast.getDescription() == null) continue;
                 if (Objects.equals(queueToast.getTitle().getString(), toast.getTitle().getString()) && new HashSet<>(queueToast.getDescription()).containsAll(toast.getDescription())) {
                     alreadyExists = true;
                     break;

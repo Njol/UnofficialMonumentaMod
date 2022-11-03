@@ -1,16 +1,21 @@
 package ch.njol.unofficialmonumentamod;
 
-import ch.njol.unofficialmonumentamod.discordrpc.DiscordRPC;
-import ch.njol.unofficialmonumentamod.misc.Calculator;
-import ch.njol.unofficialmonumentamod.misc.managers.CooldownManager;
-import ch.njol.unofficialmonumentamod.misc.Locations;
-import ch.njol.unofficialmonumentamod.misc.managers.Notifier;
-import ch.njol.unofficialmonumentamod.misc.notifications.LocationNotifier;
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
+import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
+import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.features.strike.OverlayMoveScreen;
+import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
@@ -43,13 +48,16 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static Options options = new Options();
 
-	public static DiscordRPC discordPresence = new DiscordRPC();
+	public static final Options def = new Options();
+
 
 	public static Locations locations = new Locations();
 
-	public static final AbilityHandler abilityHandler = new AbilityHandler();
+	public static DiscordRPC discordRPC = new DiscordRPC();
 
-	private static Boolean onMonumenta;
+	public static EffectOverlay eOverlay = new EffectOverlay();
+
+	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
 	// This is a hacky way to pass data around...
 	public static boolean isReorderingAbilities = false;
@@ -58,7 +66,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public void onInitializeClient() {
 
 		FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
-			(itemStack, clientWorld, livingEntity) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
+			(itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
 		try {
 			options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
@@ -70,39 +78,63 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
-		if (options.discordEnabled) discordPresence.init();
+		if (options.discordEnabled) discordRPC.Init();
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
+			eOverlay.tick();
 			Calculator.tick();
-			CooldownManager.update();
 		});
 
 		ClientTickEvents.END_WORLD_TICK.register(world -> {
 			Notifier.tick();
 		});
 
+		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
+			ChestCountOverlay.onWorldLoad();
+		}));
+
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
-	}
-
-	public static boolean isOnMonumenta() {
-		if (onMonumenta != null) return onMonumenta;
-		Boolean onMM = null;
-
-		MinecraftClient mc = MinecraftClient.getInstance();
-		if (Locations.getShard() != null) onMM = true;
-		if (onMM == null) onMM = !mc.isInSingleplayer() && Objects.requireNonNull(mc.getCurrentServerEntry()).address.toLowerCase().endsWith(".playmonumenta.com");
-
-		onMonumenta = onMM;
-		return onMM;
+		ClientCommandManager.DISPATCHER.register(
+				ClientCommandManager.literal("UMM")
+						.then(ClientCommandManager.literal("moveScreen")
+								.then(ClientCommandManager.literal("effectOverlay")
+										.executes((context) -> {
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
+											return 1;
+										}))
+								.then(ClientCommandManager.literal("chestCountOverlay")
+										.executes(context -> {
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new OverlayMoveScreen()));
+											return 1;
+										})))
+						.then(ClientCommandManager.literal("addCount")
+								.executes((context) -> {
+									ChestCountOverlay.testAddToCurrent();
+									return 1;
+								}))
+		);
 	}
 
 	public static void onDisconnect() {
-		abilityHandler.onDisconnect();
-		Notifier.onDisonnect();
+		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
-		onMonumenta = null;
+		locations.onDisconnect();
+	}
+
+	public static boolean isOnMonumenta() {
+		boolean onMM = false;
+		MinecraftClient mc = MinecraftClient.getInstance();
+		String shard = Locations.getShard();
+
+		if (!Objects.equals(shard, "unknown")) onMM = true;
+
+		if (!onMM && mc.getCurrentServerEntry() != null) {
+			onMM = !mc.isInSingleplayer() && mc.getCurrentServerEntry().address.toLowerCase().endsWith(".playmonumenta.com");
+		}
+
+		return onMM;
 	}
 
 	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
