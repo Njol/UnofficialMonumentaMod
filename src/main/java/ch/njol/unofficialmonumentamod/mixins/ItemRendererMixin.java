@@ -41,7 +41,6 @@ public abstract class ItemRendererMixin {
 
     @Unique
     private BakedModel originalModel;
-    @Shadow public float zOffset;
 
     /**
      * Prevent trident-specific code from being executed
@@ -79,7 +78,6 @@ public abstract class ItemRendererMixin {
             return originalModel;
         return model;
     }
-
 
     /**
      * Always use the hardcoded transforms here where the trident model was otherwise used (except HEAD which really should not be used...)

@@ -26,19 +26,6 @@ public abstract class Utils {
         return itemStack.getNbt() == null ? null : itemStack.getNbt().getCompound("plain").getCompound("display").getString("Name");
     }
 
-    public static boolean isChestSortDisabledForInventory(ScreenHandler screenHandler, int slotId) {
-        if (screenHandler.getSlot(slotId).inventory instanceof PlayerInventory)
-            return UnofficialMonumentaModClient.options.chestsortDisabledForInventory;
-        if (MinecraftClient.getInstance().currentScreen instanceof GenericContainerScreen
-                && !(screenHandler.getSlot(slotId).inventory instanceof PlayerInventory)
-                && ("Ender Chest".equals(MinecraftClient.getInstance().currentScreen.getTitle().getString()) // fake Ender Chest inventory (opened via Remnant)
-                || MinecraftClient.getInstance().currentScreen.getTitle() instanceof TranslatableText
-                && "container.enderchest".equals(((TranslatableText) MinecraftClient.getInstance().currentScreen.getTitle()).getKey()))) {
-            return UnofficialMonumentaModClient.options.chestsortDisabledForEnderchest;
-        }
-        return UnofficialMonumentaModClient.options.chestsortDisabledEverywhereElse;
-    }
-
     public static float smoothStep(float f) {
         if (f <= 0) return 0;
         if (f >= 1) return 1;
