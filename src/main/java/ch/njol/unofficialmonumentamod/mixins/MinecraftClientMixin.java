@@ -14,6 +14,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.concurrent.CompletableFuture;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
@@ -32,8 +35,14 @@ public abstract class MinecraftClientMixin {
 	}
 
 
-	@Inject(method="<init>", at = @At(value= "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;addResourcePackProfilesToManager(Lnet/minecraft/resource/ResourcePackManager;)V"))
+	@Inject(method="<init>", at = @At("TAIL"))
 	void init(RunArgs args, CallbackInfo ci) {
 		resourceManager.registerReloader(new MonumentaModResourceReloader());
+	}
+
+	@Inject(method = "reloadResources(Z)Ljava/util/concurrent/CompletableFuture;", at = @At("TAIL"))
+	void postReloadedResources(boolean force, CallbackInfoReturnable<CompletableFuture<Void>> cir) {
+		//will trigger on F3 + T, resource pack menu close, /reload command, etc...
+		MonumentaModResourceReloader.onPostReload();
 	}
 }

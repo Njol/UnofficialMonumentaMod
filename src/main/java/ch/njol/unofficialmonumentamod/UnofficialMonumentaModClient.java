@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.core.Constants;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
@@ -92,6 +93,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
 			ChestCountOverlay.onWorldLoad();
+			//not sure where the actual reload is called when joining a server, so I opted for this.
+			Constants.onReload();
 		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
@@ -109,11 +112,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new OverlayMoveScreen()));
 											return 1;
 										})))
-						.then(ClientCommandManager.literal("addCount")
-								.executes((context) -> {
-									ChestCountOverlay.testAddToCurrent();
-									return 1;
-								}))
 		);
 	}
 

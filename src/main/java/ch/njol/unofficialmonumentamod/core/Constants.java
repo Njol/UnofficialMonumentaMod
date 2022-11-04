@@ -1,10 +1,52 @@
 package ch.njol.unofficialmonumentamod.core;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
+
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Constants {
+    private static final Gson gson = new GsonBuilder()
+            .create();
+    private static final TypeToken<HashMap<String, Shard>> token = new TypeToken<>(){};
+
     public static final HashMap<String, Shard> shards = new HashMap<>();
+
+    private static final Identifier OverrideResource = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "override/shards.json");
+
+    private static final boolean debugMode = FabricLoader.getInstance().isDevelopmentEnvironment();
+
+    public static void onReload() {
+        try {
+            InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(OverrideResource).getInputStream();
+            HashMap<String, Shard> hash = gson.fromJson(new InputStreamReader(stream, "UTF-8"), token.getType());
+            if (hash != null && !hash.isEmpty()) {
+                for (Map.Entry<String, Shard> newEntry: hash.entrySet()) {
+                    if (shards.containsKey(newEntry.getKey())) {
+                        if (debugMode) UnofficialMonumentaModClient.LOGGER.info("Replaced key: " + newEntry.getKey() + " to " + newEntry.getValue());
+                        shards.replace(newEntry.getKey(), newEntry.getValue());
+                    } else {
+                        if (debugMode) UnofficialMonumentaModClient.LOGGER.info("Added key: " + newEntry.getKey() + " with value " + newEntry.getValue());
+                        shards.put(newEntry.getKey(), newEntry.getValue());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static String getOfficialName(String shard) {
         if (shards.containsKey(shard)) {
@@ -151,6 +193,11 @@ public class Constants {
             this.offName = offName;
             this.shardType = shardType;
             this.maxChests = maxChests;
+        }
+
+        @Override
+        public String toString() {
+            return "{ name: " + name + ", officialName: " + offName + ", shardType: " + shardType.toString() + ", maxChests: " + (maxChests != null ? maxChests : "null") + " }";
         }
     }
 
