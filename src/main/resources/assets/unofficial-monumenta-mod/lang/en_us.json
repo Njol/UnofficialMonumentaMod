@@ -114,5 +114,9 @@
   "unofficial-monumenta-mod.config.option.effect_active": "Enable overlay",
   "unofficial-monumenta-mod.config.option.effect_active.tooltip": "Whether the overlay should render or not.",
   "unofficial-monumenta-mod.config.option.chestCountOverlay_pos": "Position of the overlay",
-  "unofficial-monumenta-mod.config.option.chestCountOverlay_pos.tooltip": ""
+  "unofficial-monumenta-mod.config.option.chestCountOverlay_pos.tooltip": "",
+  "unofficial-monumenta-mod.config.option.notifyLocation": "Shows a notification when leaving / joining a known area",
+  "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Whether or not it will render it.",
+  "unofficial-monumenta-mod.config.option.notifierShowTime": "How long the notification stays on the screen",
+  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": ""
 }
