@@ -118,5 +118,7 @@
   "unofficial-monumenta-mod.config.option.notifyLocation": "Shows a notification when leaving / joining a known area",
   "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Whether or not it will render it.",
   "unofficial-monumenta-mod.config.option.notifierShowTime": "How long the notification stays on the screen",
-  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": ""
+  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "",
+  "unofficial-monumenta-mod.config.option.enableTextureSpoofing": "Enable texture spoofing",
+  "unofficial-monumenta-mod.config.option.enableTextureSpoofing.tooltip": "Allows the ability to change the rendered texture of an item by tricking minecraft / optifine into believing that the item is another item."
 }

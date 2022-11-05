@@ -2,17 +2,19 @@ package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
+import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
+import net.minecraft.util.ActionResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Arrays;
 
@@ -37,6 +39,13 @@ public abstract class BlockItemMixin {
 			return;
 		}
 		itemStack.decrement(amount);
+	}
+
+	@Inject(method = "useOnBlock", at= @At("HEAD"), cancellable = true)
+	public void stopEditedItemPlacing(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
+		if (TextureSpoofer.hasBeenEdited(context.getStack())) {
+			cir.setReturnValue(ActionResult.PASS);
+		}
 	}
 
 	/**

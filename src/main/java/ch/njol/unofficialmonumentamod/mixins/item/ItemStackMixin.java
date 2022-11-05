@@ -1,0 +1,28 @@
+package ch.njol.unofficialmonumentamod.mixins.item;
+
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import javax.annotation.Nullable;
+import java.util.List;
+
+@Mixin(ItemStack.class)
+public class ItemStackMixin {
+    @Inject(method = "getTooltip", at = @At(value = "INVOKE_ASSIGN", target = "Ljava/util/List;add(Ljava/lang/Object;)Z", ordinal = 0), locals = LocalCapture.CAPTURE_FAILSOFT)
+    private void onTooltip(@Nullable PlayerEntity player, TooltipContext context, CallbackInfoReturnable<List<Text>> cir, List<Text> list) {
+        if (TextureSpoofer.hasBeenEdited((ItemStack)(Object) this)) {
+            list.add(new LiteralText("Spoofed: " + TextureSpoofer.getPlainDisplayName(((ItemStack)(Object)this).getNbt())).formatted(Formatting.DARK_GRAY));
+        }
+    }
+}
