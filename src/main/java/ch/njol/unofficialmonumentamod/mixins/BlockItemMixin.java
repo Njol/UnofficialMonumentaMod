@@ -43,7 +43,7 @@ public abstract class BlockItemMixin {
 
 	@Inject(method = "useOnBlock", at= @At("HEAD"), cancellable = true)
 	public void stopEditedItemPlacing(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
-		if (TextureSpoofer.hasBeenEdited(context.getStack())) {
+		if (TextureSpoofer.wouldveBeenEdited(context.getStack())) {
 			cir.setReturnValue(ActionResult.PASS);
 		}
 	}

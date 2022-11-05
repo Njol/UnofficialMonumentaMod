@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 public class TextureSpoofer {
     private static final String CACHE_PATH = "monumenta/texture-spoof.json";
-    private final HashMap<String, SpoofItem> spoofedItems = new HashMap<>();
+    public final HashMap<String, SpoofItem> spoofedItems = new HashMap<>();
     //need to change nbt / item
 
     private static final Gson GSON = new GsonBuilder()
@@ -107,6 +107,11 @@ public class TextureSpoofer {
             }
         }
         return false;
+    }
+
+    public static boolean wouldveBeenEdited(ItemStack stack) {
+        String key = stack.getName().getString().toLowerCase();
+        return UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(key);
     }
 
     public void load() {
