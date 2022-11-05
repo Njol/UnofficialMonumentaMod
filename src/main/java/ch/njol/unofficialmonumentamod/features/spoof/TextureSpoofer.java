@@ -40,25 +40,29 @@ public class TextureSpoofer {
         //probably, just probably should make it, so it's just the render and not the actual item that's edited, because it being able to be placed, does do stupid things.
         if (spoofedItems.containsKey(key)) {
             SpoofItem item = spoofedItems.get(key);
-            if (stack.hasNbt() && stack.getSubNbt("monumenta-mod.edited") != null) {
+            if (stack.hasNbt() && hasBeenEdited(stack)) {
                 return stack;
             }
             if (item == null) {
-                //if I do dumb shit again, this should stop it from doing dumb shit
+                //if I do dumb shit again, this should stop it from crashing
                 return stack;
             }
-            ((ItemStackAccessor) (Object) stack).setItem(Registry.ITEM.get(item.getItemIdentifier()));
+            ItemStack newItemStack = stack.copy();
 
-            if (stack.hasNbt()) {
-                assert stack.getNbt() != null;
+            ((ItemStackAccessor) (Object) newItemStack).setItem(Registry.ITEM.get(item.getItemIdentifier()));
+
+            if (newItemStack.hasNbt()) {
+                assert newItemStack.getNbt() != null;
                 if (item.displayName != null) {
-                    stack.getNbt().put("plain", setPlain(stack.getNbt(), item.displayName));
+                    newItemStack.getNbt().put("plain", setPlain(newItemStack.getNbt(), item.displayName));
                 }
                 //to be able to detect already edited stacks
                 NbtCompound monumentamodCompound = new NbtCompound();
                 monumentamodCompound.put("edited", NbtInt.of(1));
-                stack.getNbt().put("monumenta-mod", monumentamodCompound);
+                newItemStack.getNbt().put("monumenta-mod", monumentamodCompound);
             }
+
+            return newItemStack;
         }
         return stack;
     }

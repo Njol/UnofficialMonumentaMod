@@ -104,8 +104,18 @@ public abstract class ItemRendererMixin {
         return modelTransformation.getTransformation(renderMode);
     }
 
-    @ModifyVariable(method = "getModel", at = @At("HEAD"), argsOnly = true)
-    private ItemStack editStack(ItemStack value) {
+    @ModifyVariable(method = "renderGuiItemIcon", at = @At("HEAD"), argsOnly = true)
+    private ItemStack editStackrGII(ItemStack value) {
+        return UnofficialMonumentaModClient.spoofer.apply(value);
+    }
+
+    @ModifyVariable(method = "innerRenderInGui(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;IIII)V", at = @At("HEAD"), argsOnly = true)
+    private ItemStack editStackiRIG(ItemStack value) {
+        return UnofficialMonumentaModClient.spoofer.apply(value);
+    }
+
+    @ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), argsOnly = true)
+    private ItemStack editStackrIE(ItemStack value) {
         return UnofficialMonumentaModClient.spoofer.apply(value);
     }
 }
