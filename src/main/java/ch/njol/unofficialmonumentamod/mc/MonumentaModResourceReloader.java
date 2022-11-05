@@ -15,6 +15,7 @@ public class MonumentaModResourceReloader implements SynchronousResourceReloader
     public void reload(ResourceManager manager) {
         UnofficialMonumentaModClient.LOGGER.info("Loading " + getName());
         UnofficialMonumentaModClient.locations.load();
+        UnofficialMonumentaModClient.spoofer.load();
         UnofficialMonumentaModClient.LOGGER.info("Finished loading " + getName());
     }
 

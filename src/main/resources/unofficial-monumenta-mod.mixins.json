@@ -14,14 +14,16 @@
     "MinecraftClientMixin",
     "PlayerListHudAccessor",
     "ThreadExecutorMixin",
+    "item.ItemStackAccessor",
+    "item.ItemStackMixin",
     "screen.ChatScreenMixin",
     "screen.HandledScreenAccessor"
   ],
   "client": [
-    "PlayerListHudMixin",
-    "screen.ScreenMixin",
     "PlayerListHudAccessor",
-    "ThreadExecutorMixin"
+    "PlayerListHudMixin",
+    "ThreadExecutorMixin",
+    "screen.ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

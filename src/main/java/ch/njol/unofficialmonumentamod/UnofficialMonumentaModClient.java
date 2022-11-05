@@ -6,6 +6,7 @@ import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.features.strike.OverlayMoveScreen;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
@@ -53,6 +54,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 
 	public static Locations locations = new Locations();
+	public static TextureSpoofer spoofer = new TextureSpoofer();
 
 	public static DiscordRPC discordRPC = new DiscordRPC();
 
@@ -119,6 +121,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
 		locations.onDisconnect();
+		spoofer.onDisconnect();
 	}
 
 	public static boolean isOnMonumenta() {

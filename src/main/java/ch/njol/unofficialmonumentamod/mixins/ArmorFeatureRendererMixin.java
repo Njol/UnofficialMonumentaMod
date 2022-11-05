@@ -23,6 +23,7 @@ import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ArmorFeatureRenderer.class)
@@ -74,6 +75,11 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.HEAD,
 			false, matrices, vertexConsumers, i, OverlayTexture.DEFAULT_UV, headModel);
 		matrices.pop();
+	}
+
+	@ModifyVariable(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
+	private ItemStack editStack(ItemStack value) {
+		return UnofficialMonumentaModClient.spoofer.apply(value);
 	}
 
 }
