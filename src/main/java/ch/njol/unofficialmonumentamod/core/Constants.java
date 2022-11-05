@@ -3,8 +3,7 @@ package ch.njol.unofficialmonumentamod.core;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +25,9 @@ public class Constants {
 
     private static final Identifier OverrideResource = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "override/shards.json");
 
-    private static final boolean debugMode = FabricLoader.getInstance().isDevelopmentEnvironment();
+    private static boolean isDevMode() {
+        return FabricLoader.getInstance().isDevelopmentEnvironment() || UnofficialMonumentaModClient.options.showShardOverridingChanges;
+    }
 
     public static void onReload() {
         try {
@@ -35,15 +36,16 @@ public class Constants {
             if (hash != null && !hash.isEmpty()) {
                 for (Map.Entry<String, Shard> newEntry: hash.entrySet()) {
                     if (shards.containsKey(newEntry.getKey())) {
-                        if (debugMode) UnofficialMonumentaModClient.LOGGER.info("Replaced key: " + newEntry.getKey() + " to " + newEntry.getValue());
+                        if (isDevMode()) UnofficialMonumentaModClient.LOGGER.info("Replaced key: " + newEntry.getKey() + " to " + newEntry.getValue());
                         shards.replace(newEntry.getKey(), newEntry.getValue());
                     } else {
-                        if (debugMode) UnofficialMonumentaModClient.LOGGER.info("Added key: " + newEntry.getKey() + " with value " + newEntry.getValue());
+                        if (isDevMode()) UnofficialMonumentaModClient.LOGGER.info("Added key: " + newEntry.getKey() + " with value " + newEntry.getValue());
                         shards.put(newEntry.getKey(), newEntry.getValue());
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | JsonParseException e) {
+            UnofficialMonumentaModClient.LOGGER.error("Caught error while trying to override loaded shards");
             e.printStackTrace();
         }
     }
@@ -63,6 +65,8 @@ public class Constants {
     }
 
     static {
+        //the maxChests values were "borrowed" from Vladomeme's Lootcounter mod, I would wholeheartedly recommend using it https://github.com/Vladomeme/lootcounter/releases.
+
         //main zones
         shards.put(
                 "valley", new Shard("valley", "King's Valley", ShardType.overworld, null)
@@ -168,13 +172,13 @@ public class Constants {
                 "blue", new Shard("blue", "Coven's Gambit", ShardType.dungeon, null)
         );
         shards.put(
-                "portal", new Shard("portal", "P.O.R.T.A.L", ShardType.strike, 0)
+                "portal", new Shard("portal", "P.O.R.T.A.L", ShardType.strike, 41)
         );
         shards.put(
-                "skt", new Shard("skt", "Silver Knight's Tomb", ShardType.strike, 0)
+                "skt", new Shard("skt", "Silver Knight's Tomb", ShardType.strike, 90)
         );
         shards.put(
-                "ruin", new Shard("ruin", "Masquerader's Ruin", ShardType.strike, 0)
+                "ruin", new Shard("ruin", "Masquerader's Ruin", ShardType.strike, 98)
         );
         shards.put(
                 "gallery", new Shard("gallery", "The Gallery of Fear", ShardType.minigame, null)

@@ -35,7 +35,7 @@ public abstract class MinecraftClientMixin {
 	}
 
 
-	@Inject(method="<init>", at = @At("TAIL"))
+	@Inject(method="<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/option/GameOptions;addResourcePackProfilesToManager(Lnet/minecraft/resource/ResourcePackManager;)V"))
 	void init(RunArgs args, CallbackInfo ci) {
 		resourceManager.registerReloader(new MonumentaModResourceReloader());
 	}
