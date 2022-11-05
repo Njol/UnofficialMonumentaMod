@@ -75,6 +75,9 @@ public class Options {
 	@Category("misc")
 	public boolean showCalculator = true;
 
+	@Category("misc")
+	public boolean enableTextureSpoofing = true;
+
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;
 	@Category("abilities")

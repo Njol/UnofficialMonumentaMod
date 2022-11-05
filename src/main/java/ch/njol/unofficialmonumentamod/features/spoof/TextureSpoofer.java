@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.features.spoof;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.mixins.item.ItemStackAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtInt;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -35,6 +35,7 @@ public class TextureSpoofer {
     }
 
     public ItemStack apply(ItemStack stack) {
+        if (!UnofficialMonumentaModClient.options.enableTextureSpoofing) return stack;
         String key = stack.getName().getString().toLowerCase();
         //probably, just probably should make it, so it's just the render and not the actual item that's edited, because it being able to be placed, does do stupid things.
         if (spoofedItems.containsKey(key)) {
