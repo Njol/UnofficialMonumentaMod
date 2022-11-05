@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EffectOverlay extends DrawableHelper {
-    private static final Pattern effectPattern = Pattern.compile("(?:(?<effectPower>[+-]*\\d*)%* )?(?<effectName>.*) (?<timeRemaining>\\d*:\\d*)");
+    private static final Pattern effectPattern = Pattern.compile("(?:(?<effectPower>[+-]*\\d*)(?<percentage>%?) )?(?<effectName>.*) (?<timeRemaining>\\d*:\\d*)");
 
     private final ArrayList<Effect> effects = new ArrayList<>();
     private long lastUpdate = 0;
@@ -132,7 +132,7 @@ public class EffectOverlay extends DrawableHelper {
         fill(matrices, x, y, x+width, y+height, client.options.getTextBackgroundColor(0.3f));
 
         for (Effect effect: cumulativeEffects) {
-            Text text = Text.of(colorCode + (effect.effectPower >= 0 ? "a" : "c") + (effect.effectPower != 0 ? effect.effectPower + "% " : "") + effect.name + colorCode + "r " + effect.getTimeRemainingAsString());
+            Text text = Text.of(colorCode + (effect.effectPower >= 0 ? "a" : "c") + (effect.effectPower != 0 ? effect.effectPower + (effect.isPercentage ? "%" : "") + " " : "") + effect.name + colorCode + "r " + effect.getTimeRemainingAsString());
             List<OrderedText> ot = tr.wrapLines(text, 200);
             for (OrderedText t: ot) {
                 tr.draw(matrices, t, x + PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
@@ -157,6 +157,7 @@ public class EffectOverlay extends DrawableHelper {
         int effectTime;
         int effectPower;
         long parsedAt;
+        boolean isPercentage = false;
 
         public Effect(String name, int effectPower, int effectTime) {
             this.name = name;
@@ -165,21 +166,22 @@ public class EffectOverlay extends DrawableHelper {
             parsedAt = System.currentTimeMillis();
         }
 
-        private Effect(String name, int effectTime, int effectPower, long parsedAt) {
+        private Effect(String name, int effectTime, int effectPower, long parsedAt, boolean isPercentage) {
             this.name = name;
             this.effectPower = effectPower;
             this.effectTime = effectTime;
             this.parsedAt = parsedAt;
+            this.isPercentage = isPercentage;
         }
 
         @Override
         protected Effect clone() {
-            return new Effect(name, effectTime, effectPower, parsedAt);
+            return new Effect(name, effectTime, effectPower, parsedAt, isPercentage);
         }
 
         @Override
         public String toString() {
-            return colorCode + (effectPower >= 0 ? "a" : "c") + (effectPower != 0 ? effectPower + "% " : "") + name + colorCode + "r " + getTimeRemainingAsString();
+            return colorCode + (effectPower >= 0 ? "a" : "c") + (effectPower != 0 ? effectPower + (isPercentage ? "%" : "") + " " : "") + name + colorCode + "r " + getTimeRemainingAsString();
         }
 
         public void update() {//new time - old time + effect time
@@ -207,7 +209,9 @@ public class EffectOverlay extends DrawableHelper {
             timeRemaining += minutes * 60000;
             timeRemaining += seconds * 1000;
 
-            return new Effect(matcher.group("effectName"), effectPower, timeRemaining);
+            Effect effect = new Effect(matcher.group("effectName"), effectPower, timeRemaining);
+            effect.isPercentage = matcher.group("percentage") != null;
+            return effect;
         }
 
         public String getTimeRemainingAsString() {
