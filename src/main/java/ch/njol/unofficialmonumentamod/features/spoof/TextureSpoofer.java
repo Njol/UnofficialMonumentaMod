@@ -155,6 +155,8 @@ public class TextureSpoofer {
         public String item;
         @Expose
         public String displayName;
+        @Expose
+        public boolean override;
 
         public SpoofItem(Item item, String displayName) {
             this.item = Registry.ITEM.getId(item).toString();
