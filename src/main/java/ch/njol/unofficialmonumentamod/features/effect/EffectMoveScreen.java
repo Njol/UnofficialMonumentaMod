@@ -121,7 +121,7 @@ public class EffectMoveScreen extends MoveScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        Options def = UnofficialMonumentaModClient.def;
+        Options def = UnofficialMonumentaModClient.dummyConfig;
         if (keyCode == GLFW.GLFW_KEY_R) {
             //pressed Reset key
             UnofficialMonumentaModClient.options.effect_offsetXRelative = def.effect_offsetXRelative;

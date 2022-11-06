@@ -8,9 +8,9 @@ import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 
-public class OverlayMoveScreen extends MoveScreen {
+public class ChestCountOverlayMoveScreen extends MoveScreen {
 
-    public OverlayMoveScreen() {
+    public ChestCountOverlayMoveScreen() {
         super(new TranslatableText("unofficial-monumenta-mod.move.chestcount"));
     }
 
@@ -119,7 +119,7 @@ public class OverlayMoveScreen extends MoveScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        Options def = UnofficialMonumentaModClient.def;
+        Options def = UnofficialMonumentaModClient.dummyConfig;
         if (keyCode == GLFW.GLFW_KEY_R) {
             //pressed Reset key
             UnofficialMonumentaModClient.options.chestCount_offsetXRelative = def.chestCount_offsetXRelative;

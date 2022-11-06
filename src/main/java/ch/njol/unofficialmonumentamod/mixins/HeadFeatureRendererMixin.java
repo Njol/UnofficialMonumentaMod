@@ -20,10 +20,9 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -44,7 +43,8 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V",
 		at = @At("HEAD"), cancellable = true)
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
+		ItemStack itemStack = UnofficialMonumentaModClient.spoofer.apply(livingEntity.getEquippedStack(EquipmentSlot.HEAD));
+
 		Item item = itemStack.getItem();
 		if (!(item instanceof BlockItem) || !(((BlockItem) item).getBlock() instanceof AbstractSkullBlock)) {
 			return;
@@ -93,6 +93,11 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 	@ModifyVariable(method = "translate(Lnet/minecraft/client/util/math/MatrixStack;Z)V", at = @At("HEAD"), argsOnly = true)
 	private static boolean render_MatrixStack_translate(boolean villager) {
 		return !UnofficialMonumentaModClient.options.lowerVillagerHelmets && villager;
+	}
+
+	@ModifyVariable(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
+	private ItemStack editStack(ItemStack value) {
+		return UnofficialMonumentaModClient.spoofer.apply(value);
 	}
 
 }

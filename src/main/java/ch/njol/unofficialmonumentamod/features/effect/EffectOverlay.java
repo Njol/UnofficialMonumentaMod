@@ -113,6 +113,15 @@ public class EffectOverlay extends DrawableHelper {
                         360000
                 )
         );
+        Effect dummyEffect4 = new Effect(
+                "Dummy Effect 4",
+                -10,
+                360000
+        );
+        dummyEffect4.isPercentage = true;
+        dummyEffects.add(
+                dummyEffect4
+        );
     }
 
     protected void render(MatrixStack matrices, int scaledWidth, int scaledHeight, boolean bypass) {

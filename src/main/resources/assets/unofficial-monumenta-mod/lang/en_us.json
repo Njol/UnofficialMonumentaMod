@@ -80,7 +80,7 @@
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence (Requires restart)",
   "unofficial-monumenta-mod.config.option.discordEnabled.tooltip": "Defines if the rich presence should be active or not",
   "unofficial-monumenta-mod.config.option.discordDetails": "Discord rich presence details",
-  "unofficial-monumenta-mod.config.option.discordDetails.tooltip": "{player} returns the player name. \n{shard} returns the shard name. \n{server} returns the server name. \n{holding} returns the name of the item held in main hand. \n{class} returns the name of the class the user is playing as.",
+  "unofficial-monumenta-mod.config.option.discordDetails.tooltip": "{player} returns the player name. \n{shard} returns the shard name. \n{holding} returns the name of the item held in main hand. \n{class} returns the name of the class the user is playing as.",
   "unofficial-monumenta-mod.config.category.effectOverlay": "Effect Overlay",
   "unofficial-monumenta-mod.config.option.effectOverlay_info": "Position of the Effect overlay",
   "unofficial-monumenta-mod.config.option.effectOverlay_info.tooltip": "",

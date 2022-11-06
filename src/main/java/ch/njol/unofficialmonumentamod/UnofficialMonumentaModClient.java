@@ -8,7 +8,7 @@ import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.features.strike.OverlayMoveScreen;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlayMoveScreen;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.options.Options;
@@ -40,7 +40,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	// TODO:
 	// sage's insight has no ClassAbility, but has stacks
 	// spellshock however has a ClassAbility, but doesn't really need to be displayed...
-	// build calculator with a custom gui ?
 
 	public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
 
@@ -50,7 +49,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static Options options = new Options();
 
-	public static final Options def = new Options();
+	public static final Options dummyConfig = new Options();
 
 
 	public static Locations locations = new Locations();
@@ -111,7 +110,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 										}))
 								.then(ClientCommandManager.literal("chestCountOverlay")
 										.executes(context -> {
-											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new OverlayMoveScreen()));
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new ChestCountOverlayMoveScreen()));
 											return 1;
 										})))
 		);

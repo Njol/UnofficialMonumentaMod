@@ -19,8 +19,11 @@ import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Wearable;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.registry.Registry;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -33,6 +36,9 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		super(context);
 	}
 
+	@Unique
+	private static EquipmentSlot contextSlot;
+
 	/**
 	 * If a helmet has a model, do not render it as usual and instead render its model
 	 */
@@ -40,6 +46,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		at = @At("HEAD"), cancellable = true)
 	public void renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T livingEntity, EquipmentSlot equipmentSlot,
 	                        int i, M bipedEntityModel, CallbackInfo ci) {
+		contextSlot = equipmentSlot;
 		if (equipmentSlot != EquipmentSlot.HEAD) {
 			return;
 		}
@@ -77,8 +84,13 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		matrices.pop();
 	}
 
-	@ModifyVariable(method = "renderArmor", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
+	@ModifyVariable(method = "renderArmor", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
 	private ItemStack editStack(ItemStack value) {
+		if (UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(value.getName().getString().toLowerCase()) &&
+				!(Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof ArmorItem)) {
+			if ((Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof Wearable) || (contextSlot == EquipmentSlot.HEAD)) return ItemStack.EMPTY;
+			return value;
+		}
 		return UnofficialMonumentaModClient.spoofer.apply(value);
 	}
 
