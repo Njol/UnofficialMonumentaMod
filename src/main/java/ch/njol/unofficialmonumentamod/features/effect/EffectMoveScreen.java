@@ -6,7 +6,7 @@ import ch.njol.unofficialmonumentamod.options.Options;
 import net.minecraft.text.TranslatableText;
 import org.lwjgl.glfw.GLFW;
 
-import java.awt.*;
+import java.awt.Point;
 
 public class EffectMoveScreen extends MoveScreen {
     public EffectMoveScreen() {

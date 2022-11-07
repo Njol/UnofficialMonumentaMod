@@ -118,7 +118,11 @@ public class Calculator extends DrawableHelper {
     public ButtonWidget changeMode;
 
     public boolean shouldRender() {
-        return UnofficialMonumentaModClient.options.showCalculator && state == CalculatorState.OPEN && (Objects.equals(Locations.getShortShard(), "plots") && mc.currentScreen instanceof GenericContainerScreen);
+        return UnofficialMonumentaModClient.options.showCalculator &&
+                state == CalculatorState.OPEN &&
+                (Objects.equals(Locations.getShortShard(), "plots") &&
+                        (mc.currentScreen instanceof GenericContainerScreen) ||
+                        mc.currentScreen instanceof ShulkerBoxScreen);
     }
 
     public synchronized void resetPosition() {

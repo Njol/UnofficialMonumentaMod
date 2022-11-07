@@ -7,7 +7,11 @@ import club.minnced.discord.rpc.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Hand;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 public class DiscordRPC {
     club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;

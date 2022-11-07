@@ -117,6 +117,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	}
 
 	public static void onDisconnect() {
+		abilityHandler.onDisconnect();
 		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
 		locations.onDisconnect();

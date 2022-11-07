@@ -2,7 +2,6 @@ package ch.njol.unofficialmonumentamod.features.misc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
