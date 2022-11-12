@@ -1,223 +1,231 @@
 package ch.njol.unofficialmonumentamod.features.misc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.ArrayList;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
-
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-
 public class NotificationToast implements Toast {
 
-    Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "textures/gui/notifications.png");
+	Identifier TEXTURE = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "textures/gui/notifications.png");
 
-    private final Text title;
+	private final Text title;
 
-    @Nullable
-    private ArrayList<OrderedText> lines;
-    @Nullable
-    private final Text originalDescription;
+	@Nullable
+	private ArrayList<OrderedText> lines;
+	@Nullable
+	private final Text originalDescription;
 
-    private Toast.Visibility visibility;
-    private long hideTime;
+	private Toast.Visibility visibility;
+	private long hideTime;
 
-    private RenderType renderType;
-    private Alignment alignment;
+	private RenderType renderType;
+	private Alignment alignment;
 
-    public NotificationToast(Text title, @Nullable Text description, long timeBeforeRemove) {
-        this.visibility = Visibility.SHOW;
-        this.renderType = RenderType.RUSTIC;
-        this.alignment = Alignment.CENTER;
-        this.hideTime = System.currentTimeMillis() + timeBeforeRemove;
+	public NotificationToast(Text title, @Nullable Text description, long timeBeforeRemove) {
+		this.visibility = Visibility.SHOW;
+		this.renderType = RenderType.RUSTIC;
+		this.alignment = Alignment.CENTER;
+		this.hideTime = System.currentTimeMillis() + timeBeforeRemove;
 
-        this.title = title;
-        this.originalDescription = description;
-        this.lines = getTextAsList(originalDescription, this.renderType.offset);
-    }
+		this.title = title;
+		this.originalDescription = description;
+		this.lines = getTextAsList(originalDescription, this.renderType.offset);
+	}
 
-    private static ArrayList<OrderedText> getTextAsList(@Nullable Text text, @Nullable Integer offset) {
-        if (text == null) {
-            return new ArrayList<>();
-        } else {
-            ArrayList<OrderedText> list = new ArrayList<>();
-            for (String line: text.getString().split("\n")) {
-                list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), 160 - (offset != null ? offset : 0)));
-            }
-            return list;
-        }
-    }
+	private static ArrayList<OrderedText> getTextAsList(@Nullable Text text, @Nullable Integer offset) {
+		if (text == null) {
+			return new ArrayList<>();
+		} else {
+			ArrayList<OrderedText> list = new ArrayList<>();
+			for (String line : text.getString().split("\n")) {
+				list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), 160 - (offset != null ? offset : 0)));
+			}
+			return list;
+		}
+	}
 
-    private static ArrayList<OrderedText> getWrappedText(@Nullable Text text, @Nullable Integer maxSize) {
-        if (text == null) {
-            return new ArrayList<>();
-        } else {
-            ArrayList<OrderedText> list = new ArrayList<>();
-            for (String line: text.getString().split("\n")) {
-                list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), maxSize != null ? maxSize : 160));
-            }
-            return list;
-        }
-    }
+	private static ArrayList<OrderedText> getWrappedText(@Nullable Text text, @Nullable Integer maxSize) {
+		if (text == null) {
+			return new ArrayList<>();
+		} else {
+			ArrayList<OrderedText> list = new ArrayList<>();
+			for (String line : text.getString().split("\n")) {
+				list.addAll(MinecraftClient.getInstance().textRenderer.wrapLines(StringVisitable.plain(line), maxSize != null ? maxSize : 160));
+			}
+			return list;
+		}
+	}
 
-    public void wrapDescription() {
-        if (this.originalDescription == null) return;
-        this.lines = getTextAsList(this.originalDescription, this.renderType.offset);
-    }
+	public void wrapDescription() {
+		if (this.originalDescription == null) {
+			return;
+		}
+		this.lines = getTextAsList(this.originalDescription, this.renderType.offset);
+	}
 
-    public void wrapDescription(int maxSize) {
-        if (this.originalDescription == null) return;
-        this.lines = getWrappedText(this.originalDescription, maxSize);
-    }
+	public void wrapDescription(int maxSize) {
+		if (this.originalDescription == null) {
+			return;
+		}
+		this.lines = getWrappedText(this.originalDescription, maxSize);
+	}
 
-    public NotificationToast setToastRender(RenderType type) {
-        this.renderType = type;
-        wrapDescription();
-        return this;
-    }
+	public NotificationToast setToastRender(RenderType type) {
+		this.renderType = type;
+		wrapDescription();
+		return this;
+	}
 
-    public NotificationToast setDescriptionAlignment(Alignment alignment) {
-        this.alignment = alignment;
-        return this;
-    }
+	public NotificationToast setDescriptionAlignment(Alignment alignment) {
+		this.alignment = alignment;
+		return this;
+	}
 
-    public Visibility getVisibility() {
-        return this.visibility;
-    }
-    public Text getTitle() {
-        return this.title;
-    }
-    @Nullable
-    public ArrayList<OrderedText> getDescription() {
-        return this.lines;
-    }
+	public Visibility getVisibility() {
+		return this.visibility;
+	}
 
-    public void setHideTime(long newValue) {
-        this.hideTime = System.currentTimeMillis() + newValue;
-    }
+	public Text getTitle() {
+		return this.title;
+	}
 
-    private void bindTexture() {
-        RenderSystem.setShaderTexture(0, TEXTURE);
-    }
+	@Nullable
+	public ArrayList<OrderedText> getDescription() {
+		return this.lines;
+	}
 
-    @Override
-    public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
-        if (System.currentTimeMillis() < this.hideTime) {
-            bindTexture();
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
+	public void setHideTime(long newValue) {
+		this.hideTime = System.currentTimeMillis() + newValue;
+	}
 
-            int i = this.getWidth();
-            int o;
-            if (this.lines != null) {
-                if (i == 160 && this.lines.size() <= 1) {
-                    manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
-                } else {
-                    o = this.getHeight() + Math.max(0, this.lines.size() - 1) * 12;
-                    int m = Math.min(4, o - 28);
-                    this.drawPart(matrices, manager, i, 0, 0, 28);
+	private void bindTexture() {
+		RenderSystem.setShaderTexture(0, TEXTURE);
+	}
 
-                    for (int n = 28; n < o - m; n += 10) {
-                        this.drawPart(matrices, manager, i, 16, n, Math.min(16, o - n - m));
-                    }
+	@Override
+	public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
+		if (System.currentTimeMillis() < this.hideTime) {
+			bindTexture();
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
 
-                    this.drawPart(matrices, manager, i, 32 - m, o - m, m);
-                }
-            }
+			int i = this.getWidth();
+			int o;
+			if (this.lines != null) {
+				if (i == 160 && this.lines.size() <= 1) {
+					manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
+				} else {
+					o = this.getHeight() + Math.max(0, this.lines.size() - 1) * 12;
+					int m = Math.min(4, o - 28);
+					this.drawPart(matrices, manager, i, 0, 0, 28);
 
-            if (this.lines.size() == 0) {
-                manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
-            } else {
-                manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
-                for(o = 0; o < this.lines.size(); ++o) {
-                    int alignment = 0;
+					for (int n = 28; n < o - m; n += 10) {
+						this.drawPart(matrices, manager, i, 16, n, Math.min(16, o - n - m));
+					}
 
-                    if (this.alignment == Alignment.CENTER) {
-                        alignment = center(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
-                    } else if (this.alignment == Alignment.LEFT) {
-                        alignment = align_left(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
-                    } else if (this.alignment == Alignment.RIGHT) {
-                        alignment = align_right(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
-                    }
+					this.drawPart(matrices, manager, i, 32 - m, o - m, m);
+				}
+			}
 
-                    manager.getClient().textRenderer.draw(matrices, this.lines.get(o), alignment, (float)(18 + o * 12), 0x404040);
-                }
-            }
+			if (this.lines.size() == 0) {
+				manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+			} else {
+				manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+				for (o = 0; o < this.lines.size(); ++o) {
+					int alignment = 0;
 
-            return this.visibility;
-        } else return this.visibility = Visibility.HIDE;
-    }
+					if (this.alignment == Alignment.CENTER) {
+						alignment = center(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
+					} else if (this.alignment == Alignment.LEFT) {
+						alignment = align_left(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
+					} else if (this.alignment == Alignment.RIGHT) {
+						alignment = align_right(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
+					}
 
-    private void drawPart(MatrixStack matrices, ToastManager manager, int width, int textureV, int y, int height) {
-        int i = textureV == 0 ? 20 : 5;
-        int j = Math.min(60, width - i);
-        bindTexture();
-        manager.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
+					manager.getClient().textRenderer.draw(matrices, this.lines.get(o), alignment, (float) (18 + o * 12), 0x404040);
+				}
+			}
 
-        for(int k = i; k < width - j; k += 64) {
-            manager.drawTexture(matrices, k, y, 32, (this.renderType.type - 1) * 32 + textureV, Math.min(64, width - k - j), height);
-        }
+			return this.visibility;
+		} else {
+			return this.visibility = Visibility.HIDE;
+		}
+	}
 
-        manager.drawTexture(matrices, width - j, y, 160 - j, (this.renderType.type - 1) * 32 + textureV, j, height);
-    }
+	private void drawPart(MatrixStack matrices, ToastManager manager, int width, int textureV, int y, int height) {
+		int i = textureV == 0 ? 20 : 5;
+		int j = Math.min(60, width - i);
+		bindTexture();
+		manager.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
 
-    private int center(int fontWidth) {
-        //toasts are 160x32
-        int toastWidth = 160;
+		for (int k = i; k < width - j; k += 64) {
+			manager.drawTexture(matrices, k, y, 32, (this.renderType.type - 1) * 32 + textureV, Math.min(64, width - k - j), height);
+		}
 
-        if (((toastWidth - fontWidth)/2) < renderType.offset) {
-            //text overlaps with first offset
-            wrapDescription(160 - renderType.offset * 2);
-            return renderType.offset + ((toastWidth - fontWidth)/2);
-        } else if (((toastWidth - fontWidth)/2) > toastWidth - renderType.offset) {
-            //text overlaps with second offset
-            return ((toastWidth - fontWidth)/2) - renderType.offset;
-        } else return ((toastWidth - fontWidth) / 2);
-    }
+		manager.drawTexture(matrices, width - j, y, 160 - j, (this.renderType.type - 1) * 32 + textureV, j, height);
+	}
 
-    private int align_right(int fontWidth) {
-        if (fontWidth + this.renderType.offset > 160) {
-            //should in theory stop overflowing text.
-            wrapDescription((160 - renderType.offset) - fontWidth);
-        }
-        return (fontWidth - this.renderType.offset);
-    }
+	private int center(int fontWidth) {
+		//toasts are 160x32
+		int toastWidth = 160;
 
-    private int align_left(int fontWidth) {
-        return this.renderType.offset;
-    }
+		if (((toastWidth - fontWidth) / 2) < renderType.offset) {
+			//text overlaps with first offset
+			wrapDescription(160 - renderType.offset * 2);
+			return renderType.offset + ((toastWidth - fontWidth) / 2);
+		} else if (((toastWidth - fontWidth) / 2) > toastWidth - renderType.offset) {
+			//text overlaps with second offset
+			return ((toastWidth - fontWidth) / 2) - renderType.offset;
+		} else {
+			return ((toastWidth - fontWidth) / 2);
+		}
+	}
 
-    public void hide() {
-        this.visibility = Visibility.HIDE;
-    }
+	private int align_right(int fontWidth) {
+		if (fontWidth + this.renderType.offset > 160) {
+			//should in theory stop overflowing text.
+			wrapDescription((160 - renderType.offset) - fontWidth);
+		}
+		return (fontWidth - this.renderType.offset);
+	}
 
-    public enum RenderType {
-        ACHIEVEMENT(1, 10),
-        RUSTIC(2, 10),
-        SYSTEM(3, 20),
-        TUTORIAL(4, 10);
+	private int align_left(int fontWidth) {
+		return this.renderType.offset;
+	}
+
+	public void hide() {
+		this.visibility = Visibility.HIDE;
+	}
+
+	public enum RenderType {
+		ACHIEVEMENT(1, 10),
+		RUSTIC(2, 10),
+		SYSTEM(3, 20),
+		TUTORIAL(4, 10);
 
 
-        final int type;
-        final int offset;
+		final int type;
+		final int offset;
 
-        RenderType(int type, int offset) {
-            this.type = type;
-            this.offset = offset;
-        }
-    }
+		RenderType(int type, int offset) {
+			this.type = type;
+			this.offset = offset;
+		}
+	}
 
-    public enum Alignment {
-        LEFT(),
-        RIGHT(),
-        CENTER()
-    }
+	public enum Alignment {
+		LEFT(),
+		RIGHT(),
+		CENTER()
+	}
 }
 

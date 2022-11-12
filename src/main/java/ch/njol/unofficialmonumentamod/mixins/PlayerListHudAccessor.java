@@ -7,9 +7,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PlayerListHud.class)
 public interface PlayerListHudAccessor {
-    @Accessor("header")
-    Text getHeader();
+	@Accessor("header")
+	Text getHeader();
 
-    @Accessor("footer")
-    Text getFooter();
+	@Accessor("footer")
+	Text getFooter();
 }

@@ -1,47 +1,21 @@
 package ch.njol.unofficialmonumentamod.options;
 
+import ch.njol.minecraft.config.annotations.Category;
+import ch.njol.minecraft.config.annotations.Color;
+import ch.njol.minecraft.config.annotations.DescriptionLine;
+import ch.njol.minecraft.config.annotations.FloatSlider;
+import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.unofficialmonumentamod.AbilityOptionPreset;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Options {
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface Category {
-		String value();
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface Color {
-	}
-
-	// apparently there's no slider for floats....
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface Slider {
-		float min();
-
-		float max();
-
-		float step();
-
-		String unit();
-	}
-
-	public interface DescriptionLine {
-	}
+public class Options implements ch.njol.minecraft.config.Options {
 
 	@Category("misc")
 	public boolean overrideTridentRendering = true;
 	@Category("misc")
-	public boolean lowerVillagerHelmets = true;
+	public boolean lowerVillagerHelmets = false;
 
 	@Category("misc")
 	public boolean firmamentPingFix = true;
@@ -98,32 +72,26 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_horizontal = AbilityOptionPreset.ABOVE_HOTBAR.horizontal;
 	@Category("abilities")
-	public float abilitiesDisplay_align = AbilityOptionPreset.ABOVE_HOTBAR.align;
-	@Category("abilities")
-	public float abilitiesDisplay_offsetXRelative = AbilityOptionPreset.ABOVE_HOTBAR.offsetXRelative;
-	@Category("abilities")
-	public float abilitiesDisplay_offsetYRelative = AbilityOptionPreset.ABOVE_HOTBAR.offsetYRelative;
-	@Category("abilities")
-	public int abilitiesDisplay_offsetXAbsolute = AbilityOptionPreset.ABOVE_HOTBAR.offsetXAbsolute;
-	@Category("abilities")
-	public int abilitiesDisplay_offsetYAbsolute = AbilityOptionPreset.ABOVE_HOTBAR.offsetYAbsolute;
+	public ElementPosition abilitiesDisplay_position = AbilityOptionPreset.ABOVE_HOTBAR.position.clone();
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_miscInfo;
 	@Category("abilities")
 	public boolean abilitiesDisplay_offCooldownResize = true;
 	@Category("abilities")
-	@Slider(min = 0, max = 1, step = 0.01f, unit = "%")
+	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%", unitStep = 100)
 	public float abilitiesDisplay_offCooldownFlashIntensity = 1;
 	@Category("abilities")
-	@Slider(min = 0, max = 1, step = 0.01f, unit = "%")
+	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%", unitStep = 100)
 	public float abilitiesDisplay_offCooldownSoundVolume = 0f;
 	@Category("abilities")
-	@Slider(min = 0, max = 2, step = 0.05f, unit = "")
+	@FloatSlider(min = 0, max = 2, step = 0.05f)
 	public float abilitiesDisplay_offCooldownSoundPitchMin = 1f;
 	@Category("abilities")
-	@Slider(min = 0, max = 2, step = 0.05f, unit = "")
+	@FloatSlider(min = 0, max = 2, step = 0.05f)
 	public float abilitiesDisplay_offCooldownSoundPitchMax = 1f;
+	@Category("abilities")
+	public boolean abilitiesDisplay_offCooldownSoundUseAlt = false;
 	@Category("abilities")
 	public int abilitiesDisplay_iconSize = 32;
 	@Category("abilities")
@@ -145,7 +113,7 @@ public class Options {
 	public boolean abilitiesDisplay_showPassiveAbilities = false;
 
 	/**
-	 * List of [class]/[ability]. Abilities not present in this list are sorted alphabetically.
+	 * List of [class]/[ability]
 	 */
 	public List<String> abilitiesDisplay_order = new ArrayList<>();
 
@@ -209,13 +177,14 @@ public class Options {
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {
 			abilitiesDisplay_horizontal = abilitiesDisplay_preset.horizontal;
-			abilitiesDisplay_align = abilitiesDisplay_preset.align;
-			abilitiesDisplay_offsetXRelative = abilitiesDisplay_preset.offsetXRelative;
-			abilitiesDisplay_offsetYRelative = abilitiesDisplay_preset.offsetYRelative;
-			abilitiesDisplay_offsetXAbsolute = abilitiesDisplay_preset.offsetXAbsolute;
-			abilitiesDisplay_offsetYAbsolute = abilitiesDisplay_preset.offsetYAbsolute;
+			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
+		UnofficialMonumentaModClient.saveConfig();
+	}
+
+	public boolean categoryVisible(String category) {
+		return debugOptionsEnabled || !category.equals("debug");
 	}
 
 }

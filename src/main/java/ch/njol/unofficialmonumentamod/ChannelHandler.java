@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import java.nio.charset.StandardCharsets;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.MinecraftClient;
@@ -11,8 +12,6 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-
-import java.nio.charset.StandardCharsets;
 
 public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 
@@ -87,21 +86,23 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 		if (UnofficialMonumentaModClient.options.logPackets) {
 			UnofficialMonumentaModClient.LOGGER.info("[UMM] read packet: " + json);
 		}
-		String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
-		switch (packetType) {
-			case "ClassUpdatePacket" -> {
-				ClassUpdatePacket packet = gson.fromJson(json, ClassUpdatePacket.class);
-				abilityHandler.updateAbilities(packet);
+		client.execute(() -> {
+			String packetType = json.getAsJsonObject().getAsJsonPrimitive("_type").getAsString();
+			switch (packetType) {
+				case "ClassUpdatePacket" -> {
+					ClassUpdatePacket packet = gson.fromJson(json, ClassUpdatePacket.class);
+					abilityHandler.updateAbilities(packet);
+				}
+				case "AbilityUpdatePacket" -> {
+					AbilityUpdatePacket packet = gson.fromJson(json, AbilityUpdatePacket.class);
+					abilityHandler.updateAbility(packet);
+				}
+				case "PlayerStatusPacket" -> {
+					PlayerStatusPacket packet = gson.fromJson(json, PlayerStatusPacket.class);
+					abilityHandler.updateStatus(packet);
+				}
 			}
-			case "AbilityUpdatePacket" -> {
-				AbilityUpdatePacket packet = gson.fromJson(json, AbilityUpdatePacket.class);
-				abilityHandler.updateAbility(packet);
-			}
-			case "PlayerStatusPacket" -> {
-				PlayerStatusPacket packet = gson.fromJson(json, PlayerStatusPacket.class);
-				abilityHandler.updateStatus(packet);
-			}
-		}
+		});
 	}
 
 }

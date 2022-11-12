@@ -31,40 +31,40 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ArmorFeatureRenderer.class)
 public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extends BipedEntityModel<T>, A extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
-	
+
 	public ArmorFeatureRendererMixin(FeatureRendererContext<T, M> context) {
 		super(context);
 	}
-	
+
 	@Unique
 	private static EquipmentSlot contextSlot;
-	
+
 	/**
 	 * If a helmet has a model, do not render it as usual and instead render its model
 	 */
 	@Inject(method = "renderArmor(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/entity/EquipmentSlot;ILnet/minecraft/client/render/entity/model/BipedEntityModel;)V",
-			at = @At("HEAD"), cancellable = true)
+		at = @At("HEAD"), cancellable = true)
 	public void renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T livingEntity, EquipmentSlot equipmentSlot,
 	                        int i, M bipedEntityModel, CallbackInfo ci) {
 		contextSlot = equipmentSlot;
 		if (equipmentSlot != EquipmentSlot.HEAD) {
 			return;
 		}
-		
+
 		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
 		if (!(itemStack.getItem() instanceof ArmorItem)) {
 			return;
 		}
-		
+
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
 		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.world, livingEntity, 0);
 		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);
 		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth()) {
 			return;
 		}
-		
+
 		ci.cancel();
-		
+
 		// this code is mostly copied from HeadFeatureRenderer
 		matrices.push();
 		if (livingEntity.isBaby() && !(livingEntity instanceof VillagerEntity)) {
@@ -80,21 +80,23 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 			matrices.translate(0.0D, 0.1875D, 0.0D);
 		}
 		MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.HEAD,
-				false, matrices, vertexConsumers, i, OverlayTexture.DEFAULT_UV, headModel);
+			false, matrices, vertexConsumers, i, OverlayTexture.DEFAULT_UV, headModel);
 		matrices.pop();
 	}
-	
+
 	@ModifyVariable(method = "renderArmor", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
 	private ItemStack editStack(ItemStack value) {
 		if (UnofficialMonumentaModClient.options.enableTextureSpoofing &&
-				UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(value.getName().getString().toLowerCase()) &&
-				!(Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof ArmorItem)) {
+			    UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(value.getName().getString().toLowerCase()) &&
+			    !(Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof ArmorItem)) {
 			if (UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).override &&
-					(Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof Wearable) ||
-					(contextSlot == EquipmentSlot.HEAD)) return ItemStack.EMPTY;
+				    (Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof Wearable) ||
+				    (contextSlot == EquipmentSlot.HEAD)) {
+				return ItemStack.EMPTY;
+			}
 			return value;
 		}
 		return UnofficialMonumentaModClient.spoofer.apply(value);
 	}
-	
+
 }

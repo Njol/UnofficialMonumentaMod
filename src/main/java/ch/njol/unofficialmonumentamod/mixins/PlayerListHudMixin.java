@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerListHud.class)
 public class PlayerListHudMixin {
-    @Inject(method = "setHeader", at = @At("TAIL"))
-    public void onPlayerListHeader(Text header, CallbackInfo ci) {
-        Locations.resetCache();
-        ChestCountOverlay.onPlayerListHeader(header);
-    }
+	@Inject(method = "setHeader", at = @At("TAIL"))
+	public void onPlayerListHeader(Text header, CallbackInfo ci) {
+		Locations.resetCache();
+		ChestCountOverlay.onPlayerListHeader(header);
+	}
 }

@@ -17,12 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(CapeFeatureRenderer.class)
 public class CapeFeatureRendererMixin {
 
-    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/network/AbstractClientPlayerEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isOf(Lnet/minecraft/item/Item;)Z"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
-    private void onCapeRender(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci, ItemStack itemStack) {
-        if (UnofficialMonumentaModClient.options.enableTextureSpoofing && TextureSpoofer.wouldveBeenEdited(itemStack)) {
-            if (UnofficialMonumentaModClient.spoofer.apply(itemStack).getItem() == Items.ELYTRA) {
-                ci.cancel();
-            }
-        }
-    }
+	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/network/AbstractClientPlayerEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isOf(Lnet/minecraft/item/Item;)Z"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
+	private void onCapeRender(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, AbstractClientPlayerEntity abstractClientPlayerEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci, ItemStack itemStack) {
+		if (UnofficialMonumentaModClient.options.enableTextureSpoofing && TextureSpoofer.wouldveBeenEdited(itemStack)) {
+			if (UnofficialMonumentaModClient.spoofer.apply(itemStack).getItem() == Items.ELYTRA) {
+				ci.cancel();
+			}
+		}
+	}
 }

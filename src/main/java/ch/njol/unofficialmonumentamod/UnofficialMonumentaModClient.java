@@ -1,45 +1,41 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.minecraft.config.Config;
+import ch.njol.minecraft.uiframework.hud.Hud;
 import ch.njol.unofficialmonumentamod.core.Constants;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlayMoveScreen;
-import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
-import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
+import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
+import ch.njol.unofficialmonumentamod.options.ConfigMenu;
 import ch.njol.unofficialmonumentamod.options.Options;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Objects;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.NoSuchFileException;
-import java.util.Objects;
-
-@net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
+@Environment(EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
-
-	// TODO:
-	// sage's insight has no ClassAbility, but has stacks
-	// spellshock however has a ClassAbility, but doesn't really need to be displayed...
 
 	public static final String MOD_IDENTIFIER = "unofficial-monumenta-mod";
 
@@ -48,9 +44,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
 
 	public static Options options = new Options();
-
-	public static final Options dummyConfig = new Options();
-
 
 	public static Locations locations = new Locations();
 	public static TextureSpoofer spoofer = new TextureSpoofer();
@@ -61,9 +54,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
-	// This is a hacky way to pass data around...
-	public static boolean isReorderingAbilities = false;
-
 	@Override
 	public void onInitializeClient() {
 
@@ -71,16 +61,22 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			(itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
 		try {
-			options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
+			options = Config.readJsonFile(Options.class, OPTIONS_FILE_NAME);
 		} catch (FileNotFoundException e) {
 			// Config file doesn't exist, so use default config (and write config file).
-			writeJsonFile(options, OPTIONS_FILE_NAME);
+			try {
+				Config.writeJsonFile(options, OPTIONS_FILE_NAME);
+			} catch (IOException ex) {
+				// ignore
+			}
 		} catch (IOException | JsonParseException e) {
 			// Any issue with the config file silently reverts to the default config
 			e.printStackTrace();
 		}
 
-		if (options.discordEnabled) discordRPC.Init();
+		if (options.discordEnabled) {
+			discordRPC.Init();
+		}
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
@@ -100,19 +96,22 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
+		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
+		ConfigMenu.registerTypes();
+
 		ClientCommandManager.DISPATCHER.register(
-				ClientCommandManager.literal("UMM")
-						.then(ClientCommandManager.literal("moveScreen")
-								.then(ClientCommandManager.literal("effectOverlay")
-										.executes((context) -> {
-											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
-											return 1;
-										}))
-								.then(ClientCommandManager.literal("chestCountOverlay")
-										.executes(context -> {
-											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new ChestCountOverlayMoveScreen()));
-											return 1;
-										})))
+			ClientCommandManager.literal("UMM")
+				.then(ClientCommandManager.literal("moveScreen")
+					      .then(ClientCommandManager.literal("effectOverlay")
+						            .executes((context) -> {
+							            MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
+							            return 1;
+						            }))
+					      .then(ClientCommandManager.literal("chestCountOverlay")
+						            .executes(context -> {
+							            MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new ChestCountOverlayMoveScreen()));
+							            return 1;
+						            })))
 		);
 	}
 
@@ -129,56 +128,24 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		MinecraftClient mc = MinecraftClient.getInstance();
 		String shard = Locations.getShard();
 
-		if (!Objects.equals(shard, "unknown")) onMM = true;
+		if (!Objects.equals(shard, "unknown")) {
+			onMM = true;
+		}
 
 		if (!onMM && mc.getCurrentServerEntry() != null) {
 			onMM = !mc.isInSingleplayer() && mc.getCurrentServerEntry().address.toLowerCase().endsWith(".playmonumenta.com");
 		}
-
 		return onMM;
-	}
-
-	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
-		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
-			return new GsonBuilder().create().fromJson(reader, c);
-		}
-	}
-
-	public static void writeJsonFile(Object o, String filePath) {
-		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
-			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
-		} catch (NoSuchFileException | FileNotFoundException e) {
-			if ((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()).getParentFile().mkdirs()) {
-				writeJsonFile(o, filePath);
-			}
-		} catch (IOException e) {
-			// Silently ignore save errors
-			e.printStackTrace();
-		}
 	}
 
 	public static void saveConfig() {
 		MinecraftClient.getInstance().execute(() -> {
-			writeJsonFile(options, OPTIONS_FILE_NAME);
+			try {
+				Config.writeJsonFile(options, OPTIONS_FILE_NAME);
+			} catch (IOException ex) {
+				// ignore
+			}
 		});
-	}
-
-	public static boolean isAbilityVisible(AbilityHandler.AbilityInfo abilityInfo, boolean forSpaceCalculation) {
-		// Passive abilities are visible iff passives are enabled in the options
-		if (abilityInfo.initialCooldown == 0 && abilityInfo.maxCharges == 0) {
-			return options.abilitiesDisplay_showPassiveAbilities;
-		}
-
-		// Active abilities take up space even if hidden unless condenseOnlyOnCooldown is enabled
-		if (forSpaceCalculation && !UnofficialMonumentaModClient.options.abilitiesDisplay_condenseOnlyOnCooldown) {
-			return true;
-		}
-
-		// Active abilities are visible with showOnlyOnCooldown iff they are on cooldown or don't have a cooldown (and should have stacks instead)
-		return !options.abilitiesDisplay_showOnlyOnCooldown
-			       || isReorderingAbilities
-			       || abilityInfo.remainingCooldown > 0
-			       || abilityInfo.maxCharges > 0 && (abilityInfo.initialCooldown <= 0 || options.abilitiesDisplay_alwaysShowAbilitiesWithCharges);
 	}
 
 }

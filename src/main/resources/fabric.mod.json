@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "unofficial-monumenta-mod",
-  "version": "${version}",
+  "version": "${mod_version}",
   "name": "Unofficial Monumenta Mod",
   "description": "An unofficial client-side mod to complement the Monumenta MMO server.",
   "authors": [
@@ -23,7 +23,6 @@
       "ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient"
     ],
     "main": [
-      "ch.njol.unofficialmonumentamod.UnofficialMonumentaMod"
     ],
     "modmenu": [
       "ch.njol.unofficialmonumentamod.options.ConfigMenu"
@@ -33,13 +32,13 @@
     "unofficial-monumenta-mod.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.13.3",
-    "fabric": "*",
-    "minecraft": "~1.18.2"
+    "fabricloader": ">=${loader_version}",
+    "fabric": ">=${fabric_version}",
+    "minecraft": "~${minecraft_version}"
   },
   "recommends": {
-    "modmenu": ">=2.0.0",
-    "cloth-config-fabric": ">=5.0.0"
+    "modmenu": ">=3.2.3",
+    "cloth-config-fabric": ">=6.2.62"
   },
   "suggests": {
     "citresewn": "*"

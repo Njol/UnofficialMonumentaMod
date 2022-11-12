@@ -31,12 +31,12 @@ public abstract class HeldItemFeatureRendererMixin<T extends LivingEntity, M ext
 	 * Rotate third-person tridents while in their throwing animation
 	 */
 	@Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;Lnet/minecraft/util/Arm;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", shift = At.Shift.BEFORE))
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", shift = At.Shift.BEFORE))
 	public void renderItem_tridentFix(LivingEntity entity, ItemStack stack, ModelTransformation.Mode transformationMode, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
 		if (UnofficialMonumentaModClient.options.overrideTridentRendering
-				&& stack.getItem() == Items.TRIDENT
-				&& entity.isUsingItem()
-				&& (entity.getActiveHand() == Hand.MAIN_HAND) == (entity.getMainArm() == arm)) {
+			    && stack.getItem() == Items.TRIDENT
+			    && entity.isUsingItem()
+			    && (entity.getActiveHand() == Hand.MAIN_HAND) == (entity.getMainArm() == arm)) {
 			matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(180));
 		}
 	}
