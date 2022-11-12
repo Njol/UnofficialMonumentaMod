@@ -25,8 +25,13 @@ dependencies {
     modApi("me.shedaniel.cloth:cloth-config-fabric:6.2.62") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+    modApi "ch.njol.minecraft:ui-framework:1.0.1-mc1.18"
+    include "ch.njol.minecraft:ui-framework:1.0.1-mc1.18"
+    modApi "ch.njol.minecraft:config-framework:1.0.0-mc1.18"
+    include "ch.njol.minecraft:config-framework:1.0.0-mc1.18"
 }
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url = "https://maven.terraformersmc.com" }
     maven { url = "https://maven.shedaniel.me/" }

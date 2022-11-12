@@ -1,12 +1,21 @@
 package ch.njol.unofficialmonumentamod.hud;
 
+import ch.njol.minecraft.uiframework.ElementPosition;
+import ch.njol.minecraft.uiframework.ModSpriteAtlasHolder;
+import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
-import ch.njol.unofficialmonumentamod.ModSpriteAtlasHolder;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.options.Options;
-import ch.njol.unofficialmonumentamod.options.Options.Position;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -17,16 +26,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
 public class AbiltiesHud extends HudElement {
+
+	private static ModSpriteAtlasHolder atlas;
 
 	private static Identifier COOLDOWN_OVERLAY;
 	private static Identifier COOLDOWN_FLASH;
@@ -35,22 +37,28 @@ public class AbiltiesHud extends HudElement {
 
 	private String draggedAbility = null;
 
-	public AbiltiesHud(Hud hud) {
-		super(hud);
+	public static AbiltiesHud INSTANCE = new AbiltiesHud();
+
+	private AbiltiesHud() {
 	}
 
-	public static void registerSprites(Function<String, Identifier> register) {
-		COOLDOWN_OVERLAY = register.apply("cooldown_overlay");
-		COOLDOWN_FLASH = register.apply("off_cooldown");
-		UNKNOWN_ABILITY_ICON = register.apply("unknown_ability");
-		UNKNOWN_CLASS_BORDER = register.apply("unknown_border");
+	public static void registerSprites() {
+		if (atlas == null) {
+			atlas = ModSpriteAtlasHolder.createAtlas(UnofficialMonumentaModClient.MOD_IDENTIFIER, "abilities");
+		} else {
+			atlas.clearSprites();
+		}
+		COOLDOWN_OVERLAY = atlas.registerSprite("cooldown_overlay");
+		COOLDOWN_FLASH = atlas.registerSprite("off_cooldown");
+		UNKNOWN_ABILITY_ICON = atlas.registerSprite("unknown_ability");
+		UNKNOWN_CLASS_BORDER = atlas.registerSprite("unknown_border");
 		List<Identifier> foundIcons = MinecraftClient.getInstance().getResourceManager().findResources("textures/abilities", path -> true)
-			.stream().filter(id -> id.getNamespace().equals(UnofficialMonumentaModClient.MOD_IDENTIFIER)).toList();
+			                              .stream().filter(id -> id.getNamespace().equals(UnofficialMonumentaModClient.MOD_IDENTIFIER)).toList();
 		for (Identifier foundIcon : foundIcons) {
 			if (foundIcon == COOLDOWN_OVERLAY || foundIcon == COOLDOWN_FLASH || foundIcon == UNKNOWN_ABILITY_ICON || foundIcon == UNKNOWN_CLASS_BORDER) {
 				continue;
 			}
-			register.apply(foundIcon.getPath().substring("textures/abilities/".length(), foundIcon.getPath().length() - ".png".length()));
+			atlas.registerSprite(foundIcon.getPath().substring("textures/abilities/".length(), foundIcon.getPath().length() - ".png".length()));
 		}
 	}
 
@@ -69,7 +77,7 @@ public class AbiltiesHud extends HudElement {
 	}
 
 	private int getTotalSize() {
-		int numAbilities = UnofficialMonumentaModClient.abilityHandler.abilityData.size();
+		int numAbilities = (int) UnofficialMonumentaModClient.abilityHandler.abilityData.stream().filter(a -> isAbilityVisible(a, true)).count();
 		return UnofficialMonumentaModClient.options.abilitiesDisplay_iconSize * numAbilities + UnofficialMonumentaModClient.options.abilitiesDisplay_iconGap * (numAbilities - 1);
 	}
 
@@ -89,7 +97,7 @@ public class AbiltiesHud extends HudElement {
 	}
 
 	@Override
-	protected Position getPosition() {
+	protected ElementPosition getPosition() {
 		return UnofficialMonumentaModClient.options.abilitiesDisplay_position;
 	}
 
@@ -105,9 +113,6 @@ public class AbiltiesHud extends HudElement {
 		if (abilityInfos.isEmpty()) {
 			return;
 		}
-
-		// NB: this code is partially duplicated in ChatScreenMixin!
-		// TODO fix this code duplication
 
 		abilityInfos = abilityInfos.stream().filter(a -> isAbilityVisible(a, true)).collect(Collectors.toList());
 
@@ -161,13 +166,13 @@ public class AbiltiesHud extends HudElement {
 						// silenceCooldownFraction is >= 0 so this is also >= 0
 						float cooldownFraction = abilityInfo.initialCooldown <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingCooldown - tickDelta) / abilityInfo.initialCooldown, silenceCooldownFraction), 1);
 						if (cooldownFraction > 0) {
-							Sprite cooldownOverlay = ModSpriteAtlasHolder.ABILITIES_ATLAS.getSprite(COOLDOWN_OVERLAY);
+							Sprite cooldownOverlay = atlas.getSprite(COOLDOWN_OVERLAY);
 							float yOffset = (cooldownOverlay.getWidth() - cooldownOverlay.getHeight()) / 2f;
 							drawPartialSprite(matrices, cooldownOverlay, scaledX, scaledY + yOffset, scaledIconSize, scaledIconSize - 2 * yOffset, 0, 1 - cooldownFraction, 1, 1);
 						}
 						if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
 							RenderSystem.setShaderColor(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
-							drawSprite(matrices, ModSpriteAtlasHolder.ABILITIES_ATLAS.getSprite(COOLDOWN_FLASH), scaledX, scaledY, scaledIconSize, scaledIconSize);
+							drawSprite(matrices, atlas.getSprite(COOLDOWN_FLASH), scaledX, scaledY, scaledIconSize, scaledIconSize);
 							RenderSystem.setShaderColor(1, 1, 1, 1);
 						}
 
@@ -222,9 +227,9 @@ public class AbiltiesHud extends HudElement {
 	}
 
 	private Sprite getSpriteOrDefault(Identifier identifier, Identifier defaultIdentifier) {
-		Sprite sprite = ModSpriteAtlasHolder.ABILITIES_ATLAS.getSprite(identifier);
+		Sprite sprite = atlas.getSprite(identifier);
 		if (sprite instanceof MissingSprite) {
-			return ModSpriteAtlasHolder.ABILITIES_ATLAS.getSprite(defaultIdentifier);
+			return atlas.getSprite(defaultIdentifier);
 		}
 		return sprite;
 	}
@@ -249,30 +254,32 @@ public class AbiltiesHud extends HudElement {
 	}
 
 	@Override
-	Hud.ClickResult mouseClicked(double mouseX, double mouseY, int button) {
-		AbilityHandler abilityHandler = UnofficialMonumentaModClient.abilityHandler;
-		List<AbilityHandler.AbilityInfo> abilityInfos = abilityHandler.abilityData;
-		if (abilityInfos.isEmpty()) {
-			return Hud.ClickResult.NONE;
-		}
-		abilityInfos = abilityInfos.stream().filter(a -> isAbilityVisible(a, true)).collect(Collectors.toList());
-
-		int index = getClosestAbilityIndex(abilityInfos, mouseX, mouseY);
-		if (index < 0) {
+	public Hud.ClickResult mouseClicked(double mouseX, double mouseY, int button) {
+		if (button != 0) {
 			return Hud.ClickResult.NONE;
 		}
 		if (Screen.hasControlDown()) {
-			return super.mouseClicked(mouseX, mouseY, button);
+			startDragging(mouseX, mouseY);
 		} else {
+			AbilityHandler abilityHandler = UnofficialMonumentaModClient.abilityHandler;
+			List<AbilityHandler.AbilityInfo> abilityInfos = abilityHandler.abilityData;
+			if (abilityInfos.isEmpty()) {
+				return Hud.ClickResult.NONE;
+			}
+			abilityInfos = abilityInfos.stream().filter(a -> isAbilityVisible(a, true)).collect(Collectors.toList());
+			int index = getClosestAbilityIndex(abilityInfos, mouseX, mouseY);
+			if (index < 0) {
+				return Hud.ClickResult.NONE;
+			}
 			draggedAbility = abilityInfos.get(index).getOrderId();
 		}
 		return Hud.ClickResult.DRAG;
 	}
 
 	private int getClosestAbilityIndex(List<AbilityHandler.AbilityInfo> abilityInfos, double mouseX, double mouseY) {
-
-		int x = 0;
-		int y = 0;
+		if (abilityInfos.isEmpty()) {
+			return -1;
+		}
 
 		Options options = UnofficialMonumentaModClient.options;
 		int iconSize = options.abilitiesDisplay_iconSize;
@@ -281,11 +288,11 @@ public class AbiltiesHud extends HudElement {
 
 		int closestAbilityIndex;
 		if (horizontal) {
-			closestAbilityIndex = (int) Math.floor((mouseX - x + iconGap / 2.0) / (iconSize + iconGap));
+			closestAbilityIndex = (int) Math.floor((mouseX + iconGap / 2.0) / (iconSize + iconGap));
 		} else {
-			closestAbilityIndex = (int) Math.floor((mouseY - y + iconGap / 2.0) / (iconSize + iconGap));
+			closestAbilityIndex = (int) Math.floor((mouseY + iconGap / 2.0) / (iconSize + iconGap));
 		}
-		closestAbilityIndex = Math.max(0, Math.min(closestAbilityIndex, abilityInfos.size() - 1));
+		closestAbilityIndex = Utils.clamp(0, closestAbilityIndex, abilityInfos.size() - 1);
 
 		return closestAbilityIndex;
 	}
@@ -349,6 +356,7 @@ public class AbiltiesHud extends HudElement {
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		if (dragging) {
 			super.mouseReleased(mouseX, mouseY, button);
+			UnofficialMonumentaModClient.saveConfig();
 		} else if (draggedAbility != null) {
 			draggedAbility = null;
 			UnofficialMonumentaModClient.saveConfig();
@@ -376,8 +384,19 @@ public class AbiltiesHud extends HudElement {
 			return false;
 		}
 		AbilityHandler.AbilityInfo abilityInfo = abilityInfos.get(index);
-		return !isPixelTransparent(getSpriteOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name, abilityInfo.mode), UNKNOWN_ABILITY_ICON), mouseX, mouseY)
-			       || !isPixelTransparent(getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), mouseX, mouseY);
+		if (!isAbilityVisible(abilityInfo, false)) {
+			return false;
+		}
+		Options options = UnofficialMonumentaModClient.options;
+		int iconSize = options.abilitiesDisplay_iconSize;
+		int iconOffset = iconSize + options.abilitiesDisplay_iconGap;
+		if (options.abilitiesDisplay_horizontal) {
+			mouseX -= index * iconOffset;
+		} else {
+			mouseY -= index * iconOffset;
+		}
+		return !isPixelTransparent(getSpriteOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name, abilityInfo.mode), UNKNOWN_ABILITY_ICON), mouseX / iconSize, mouseY / iconSize)
+			       || !isPixelTransparent(getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), mouseX / iconSize, mouseY / iconSize);
 	}
 
 }

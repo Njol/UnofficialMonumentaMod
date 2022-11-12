@@ -1,85 +1,16 @@
 package ch.njol.unofficialmonumentamod.options;
 
+import ch.njol.minecraft.config.annotations.Category;
+import ch.njol.minecraft.config.annotations.Color;
+import ch.njol.minecraft.config.annotations.DescriptionLine;
+import ch.njol.minecraft.config.annotations.FloatSlider;
+import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.unofficialmonumentamod.AbilityOptionPreset;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Options {
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface Category {
-		String value();
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface Color {
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface FloatSlider {
-		float min();
-
-		float max();
-
-		float step();
-
-		String unit();
-	}
-
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface IntSlider {
-		int min();
-
-		int max();
-	}
-
-	public interface DescriptionLine {
-	}
-
-	public static class Position {
-		public float offsetXRelative;
-		public float offsetYRelative;
-		public int offsetXAbsolute;
-		public int offsetYAbsolute;
-		public float alignX;
-		public float alignY;
-
-		public Position() {
-		}
-
-		public Position(float offsetXRelative, int offsetXAbsolute, float offsetYRelative, int offsetYAbsolute, float alignX, float alignY) {
-			this.offsetXRelative = offsetXRelative;
-			this.offsetXAbsolute = offsetXAbsolute;
-			this.offsetYRelative = offsetYRelative;
-			this.offsetYAbsolute = offsetYAbsolute;
-			this.alignX = alignX;
-			this.alignY = alignY;
-		}
-
-		public Position clone() {
-			Position clone = new Position();
-			clone.offsetXRelative = offsetXRelative;
-			clone.offsetYRelative = offsetYRelative;
-			clone.offsetXAbsolute = offsetXAbsolute;
-			clone.offsetYAbsolute = offsetYAbsolute;
-			clone.alignX = alignX;
-			clone.alignY = alignY;
-			return clone;
-		}
-	}
-
-	public enum HudMode {
-		VANILLA, REPLACE, REMOVE;
-	}
+public class Options implements ch.njol.minecraft.config.Options {
 
 	@Category("misc")
 	public boolean overrideTridentRendering = true;
@@ -122,24 +53,26 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_horizontal = AbilityOptionPreset.ABOVE_HOTBAR.horizontal;
 	@Category("abilities")
-	public Position abilitiesDisplay_position = AbilityOptionPreset.ABOVE_HOTBAR.position.clone();
+	public ElementPosition abilitiesDisplay_position = AbilityOptionPreset.ABOVE_HOTBAR.position.clone();
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_miscInfo;
 	@Category("abilities")
 	public boolean abilitiesDisplay_offCooldownResize = true;
 	@Category("abilities")
-	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%")
+	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%", unitStep = 100)
 	public float abilitiesDisplay_offCooldownFlashIntensity = 1;
 	@Category("abilities")
-	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%")
+	@FloatSlider(min = 0, max = 1, step = 0.01f, unit = "%", unitStep = 100)
 	public float abilitiesDisplay_offCooldownSoundVolume = 0f;
 	@Category("abilities")
-	@FloatSlider(min = 0, max = 2, step = 0.05f, unit = "")
+	@FloatSlider(min = 0, max = 2, step = 0.05f)
 	public float abilitiesDisplay_offCooldownSoundPitchMin = 1f;
 	@Category("abilities")
-	@FloatSlider(min = 0, max = 2, step = 0.05f, unit = "")
+	@FloatSlider(min = 0, max = 2, step = 0.05f)
 	public float abilitiesDisplay_offCooldownSoundPitchMax = 1f;
+	@Category("abilities")
+	public boolean abilitiesDisplay_offCooldownSoundUseAlt = false;
 	@Category("abilities")
 	public int abilitiesDisplay_iconSize = 32;
 	@Category("abilities")
@@ -160,55 +93,8 @@ public class Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_showPassiveAbilities = false;
 
-	@Category("hud")
-	public DescriptionLine hud_info;
-	@Category("hud")
-	public boolean hud_enabled = false;
-	@Category("hud")
-	public boolean hud_statusBarsEnabled = true;
-	@Category("hud")
-	public float hud_regenerationSpeed = 10;
-	@Category("hud")
-	public boolean hud_healthText = true;
-	@Category("hud")
-	public int hud_healthTextOffset = -5;
-	@Category("hud")
-	public boolean hud_healthMirror = false;
-	@Category("hud")
-	public boolean hud_hungerMirror = false;
-	@Category("hud")
-	public boolean hud_breathMirror = true;
-	@Category("hud")
-	public boolean hud_hideBreathWithWaterBreathing = false;
-	@Category("hud")
-	public boolean hud_mountHealthEnabled = true;
-	@Category("hud")
-	public boolean hud_mountHealthText = true;
-	@Category("hud")
-	public int hud_mountHealthTextOffset = -5;
-	@Category("hud")
-	public boolean hud_mountHealthMirror = false;
-	@Category("hud")
-	public boolean hud_moveOverlayMessage = true;
-	@Category("hud")
-	public boolean hud_moveHeldItemTooltip = true;
-	@Category("hud")
-	public DescriptionLine hud_positionsInfo;
-	@Category("hud")
-	public Position hud_healthBarPosition = new Position(0.5f, 0, 1.0f, -39, 0.5f, 1.0f);
-	@Category("hud")
-	public Position hud_hungerBarPosition = new Position(0.5f, 60, 1.0f, -22, 0.5f, 1.0f);
-	@Category("hud")
-	public Position hud_breathBarPosition = new Position(0.5f, -60, 1.0f, -22, 0.5f, 1.0f);
-	@Category("hud")
-	public Position hud_mountHealthBarPosition = new Position(0.5f, 60, 1.0f, -55, 0.5f, 1.0f);
-	@Category("hud")
-	public Position hud_overlayMessagePosition = new Position(0.5f, 0, 1.0f, -105, 0.5f, 1.0f);
-	@Category("hud")
-	public Position hud_heldItemTooltipPosition = new Position(0.5f, 0, 1.0f, -36, 0.5f, 1.0f);
-
 	/**
-	 * List of [class]/[ability]. Abilities not present in this list are sorted alphabetically.
+	 * List of [class]/[ability]
 	 */
 	public List<String> abilitiesDisplay_order = new ArrayList<>();
 
@@ -223,6 +109,11 @@ public class Options {
 			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
+		UnofficialMonumentaModClient.saveConfig();
+	}
+
+	public boolean categoryVisible(String category) {
+		return debugOptionsEnabled || !category.equals("debug");
 	}
 
 }

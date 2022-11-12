@@ -25,7 +25,8 @@ The display is highly configurable. Make sure to install Mod Menu and Cloth Conf
 all options. To reorder abilities, open the chat and then drag the abilities around with the mouse. The entire display
 can be dragged around by holding ctrl and then dragging.
 
-Big thanks to Mimi (mimi_29), Noelle (kindabland), Glenz (@AdaptiveClassic), and Grape (aGrxpe) for the textures!
+Big thanks to Mimi (mimi_29), Noelle (kindabland), Glenz (@AdaptiveClassic), Grape (aGrxpe), and TheKang for the
+textures!
 
 Textures are licensed under [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) by their respective authors.
 

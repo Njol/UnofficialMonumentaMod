@@ -20,7 +20,6 @@
       "ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient"
     ],
     "main": [
-      "ch.njol.unofficialmonumentamod.UnofficialMonumentaMod"
     ],
     "modmenu": [
       "ch.njol.unofficialmonumentamod.options.ConfigMenu"

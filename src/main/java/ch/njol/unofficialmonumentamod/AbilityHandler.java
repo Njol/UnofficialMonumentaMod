@@ -1,5 +1,9 @@
 package ch.njol.unofficialmonumentamod;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -7,14 +11,10 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 public class AbilityHandler {
 
 	private static final Identifier COOLDOWN_SOUND = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "cooldown_ping");
+	private static final Identifier COOLDOWN_SOUND_ALT = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "cooldown_ping_alt");
 
 	public static final int MAX_ANIMATION_TICKS = 20;
 
@@ -118,7 +118,7 @@ public class AbilityHandler {
 				float pitchMin = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMin;
 				float pitchMax = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMax;
 				MinecraftClient.getInstance().getSoundManager().play(
-					new PositionedSoundInstance(COOLDOWN_SOUND, SoundCategory.MASTER, UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume,
+					new PositionedSoundInstance(UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundUseAlt ? COOLDOWN_SOUND_ALT : COOLDOWN_SOUND, SoundCategory.MASTER, UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume,
 						pitchMin + (i == 0 ? 0 : (pitchMax - pitchMin) * i / (data.size() - 1)),
 						false, 0, SoundInstance.AttenuationType.NONE, 0, 0, 0, true));
 			}

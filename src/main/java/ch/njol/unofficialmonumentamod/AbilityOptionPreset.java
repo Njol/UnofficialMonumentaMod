@@ -1,6 +1,6 @@
 package ch.njol.unofficialmonumentamod;
 
-import ch.njol.unofficialmonumentamod.options.Options.Position;
+import ch.njol.minecraft.uiframework.ElementPosition;
 
 public enum AbilityOptionPreset {
 
@@ -14,7 +14,7 @@ public enum AbilityOptionPreset {
 
 	public final String name;
 	public final boolean horizontal;
-	public final Position position = new Position();
+	public final ElementPosition position = new ElementPosition();
 
 	AbilityOptionPreset(String name, boolean horizontal, float align, float offsetXRelative, float offsetYRelative, int offsetXAbsolute, int offsetYAbsolute) {
 		this.name = name;
