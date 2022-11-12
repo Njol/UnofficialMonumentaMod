@@ -3,6 +3,7 @@ package ch.njol.unofficialmonumentamod.mixins;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -11,7 +12,9 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.MissingSprite;
@@ -62,10 +65,17 @@ public class InGameHudMixin extends DrawableHelper {
 	@Shadow
 	private int scaledHeight;
 
+	@Inject(method = "setOverlayMessage", at = @At("TAIL"))
+	public void onActionbar(Text message, boolean tinted, CallbackInfo ci) {
+		ChestCountOverlay.onActionbarReceived(message);
+	}
+
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;renderStatusEffectOverlay(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.BEFORE))
 	void renderSkills_beforeStatusEffects(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (!renderInFrontOfChat()) {
+			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
+			ChestCountOverlay.render(matrices, scaledWidth, scaledHeight);
 			renderAbilities(matrices, tickDelta, false);
 		}
 	}
@@ -75,6 +85,8 @@ public class InGameHudMixin extends DrawableHelper {
 		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V")))
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (renderInFrontOfChat()) {
+			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
+			ChestCountOverlay.render(matrices, scaledWidth, scaledHeight);
 			renderAbilities(matrices, tickDelta, true);
 		}
 	}
@@ -144,11 +156,10 @@ public class InGameHudMixin extends DrawableHelper {
 
 					if (UnofficialMonumentaModClient.isAbilityVisible(abilityInfo, false)) {
 						// some settings are affected by called methods, so set them anew for each ability to render
-						RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-						RenderSystem.enableRescaleNormal();
+						RenderSystem.setShader(GameRenderer::getPositionTexShader);
+						RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 						RenderSystem.enableBlend();
 						RenderSystem.defaultBlendFunc();
-						RenderSystem.enableAlphaTest();
 
 						if (layer == 0) {
 
@@ -167,16 +178,16 @@ public class InGameHudMixin extends DrawableHelper {
 								// cooldown overlay is a series of 16 images, starting will full cooldown at the top, and successive shorter cooldowns below.
 								final int numCooldownTextures = 16;
 								int cooldownTextureIndex = (int) Math.floor((1 - cooldownFraction) * numCooldownTextures);
-								this.client.getTextureManager().bindTexture(COOLDOWN_OVERLAY);
+								RenderSystem.setShaderTexture(0, COOLDOWN_OVERLAY);
 								drawTextureSmooth(matrices,
 									scaledX, scaledY, scaledIconSize, scaledIconSize,
 									0, 1, 1f * cooldownTextureIndex / numCooldownTextures, 1f * (cooldownTextureIndex + 1) / numCooldownTextures);
 							}
 							if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
-								this.client.getTextureManager().bindTexture(COOLDOWN_FLASH);
-								RenderSystem.color4f(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
+								RenderSystem.setShaderTexture(0, COOLDOWN_FLASH);
+								RenderSystem.setShaderColor(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
 								drawTextureSmooth(matrices, scaledX, scaledY, scaledIconSize, scaledIconSize);
-								RenderSystem.color4f(1, 1, 1, 1);
+								RenderSystem.setShaderColor(1, 1, 1, 1);
 							}
 
 							bindTextureOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER);
@@ -212,10 +223,11 @@ public class InGameHudMixin extends DrawableHelper {
 
 	@Unique
 	private void bindTextureOrDefault(Identifier identifier, Identifier defaultIdentifier) {
-		this.client.getTextureManager().bindTexture(identifier);
 		AbstractTexture texture = this.client.getTextureManager().getTexture(identifier);
 		if (texture == null || texture == MissingSprite.getMissingSpriteTexture()) {
-			this.client.getTextureManager().bindTexture(defaultIdentifier);
+			RenderSystem.setShaderTexture(0, defaultIdentifier);
+		} else {
+			RenderSystem.setShaderTexture(0, identifier);
 		}
 	}
 
@@ -297,25 +309,24 @@ public class InGameHudMixin extends DrawableHelper {
 
 	@Unique
 	private static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height) {
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, 0, 1, 0, 1);
 	}
 
 	@Unique
 	private static void drawTextureSmooth(MatrixStack matrices, float x, float y, float width, float height, float u0, float u1, float v0, float v1) {
-		drawTexturedQuadSmooth(matrices.peek().getModel(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
+		drawTexturedQuadSmooth(matrices.peek().getPositionMatrix(), x, x + width, y, y + height, 0, u0, u1, v0, v1);
 	}
 
 	@Unique
 	private static void drawTexturedQuadSmooth(Matrix4f matrices, float x0, float x1, float y0, float y1, float z, float u0, float u1, float v0, float v1) {
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		bufferBuilder.begin(7, VertexFormats.POSITION_TEXTURE);
+		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 		bufferBuilder.vertex(matrices, x0, y1, z).texture(u0, v1).next();
 		bufferBuilder.vertex(matrices, x1, y1, z).texture(u1, v1).next();
 		bufferBuilder.vertex(matrices, x1, y0, z).texture(u1, v0).next();
 		bufferBuilder.vertex(matrices, x0, y0, z).texture(u0, v0).next();
 		bufferBuilder.end();
-		RenderSystem.enableAlphaTest();
 		BufferRenderer.draw(bufferBuilder);
 	}
-
 }

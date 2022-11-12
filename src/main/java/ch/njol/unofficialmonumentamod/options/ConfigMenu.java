@@ -3,8 +3,10 @@ package ch.njol.unofficialmonumentamod.options;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
+import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigCategory;
+import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import me.shedaniel.math.Color;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.LiteralText;
@@ -55,6 +57,7 @@ public class ConfigMenu implements ModMenuApi {
 							e.printStackTrace();
 						}
 					};
+
 					String translateKey = "unofficial-monumenta-mod.config.option." + name;
 					Options.Category categoryAnnotation = field.getAnnotation(Options.Category.class);
 					if (categoryAnnotation == null
@@ -62,71 +65,67 @@ public class ConfigMenu implements ModMenuApi {
 						continue;
 					}
 					ConfigCategory category = config.getOrCreateCategory(new TranslatableText("unofficial-monumenta-mod.config.category." + categoryAnnotation.value()));
-					// this code cannot be simplified because ClothConfig sucks
+					// this code cannot be simplified because ClothConfig sucks.
+					ConfigEntryBuilder builder = config.entryBuilder();
+					AbstractConfigListEntry entry;
 					if (field.getType() == Boolean.TYPE) {
-						category.addEntry(config.entryBuilder()
+						entry = builder
 							.startBooleanToggle(new TranslatableText(translateKey), (Boolean) value)
 							.setDefaultValue((Boolean) defaultValue)
 							.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-							.setSaveConsumer(saveConsumer::accept)
-							.build());
+							.setSaveConsumer(saveConsumer::accept).build();
 					} else if (field.getType() == Integer.TYPE) {
 						if (field.getAnnotation(Options.Color.class) != null) {
-							category.addEntry(config.entryBuilder()
+							entry = builder
 								.startColorField(new TranslatableText(translateKey), Color.ofOpaque((int) value))
 								.setDefaultValue((int) defaultValue)
 								.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-								.setSaveConsumer(saveConsumer::accept)
-								.build());
+								.setSaveConsumer(saveConsumer::accept).build();
 						} else {
-							category.addEntry(config.entryBuilder()
+							entry = builder
 								.startIntField(new TranslatableText(translateKey), (Integer) value)
 								.setDefaultValue((Integer) defaultValue)
 								.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-								.setSaveConsumer(saveConsumer::accept)
-								.build());
+								.setSaveConsumer(saveConsumer::accept).build();
 						}
 					} else if (field.getType() == Float.TYPE) {
 						Options.Slider slider = field.getAnnotation(Options.Slider.class);
 						if (slider != null) {
 							float step = slider.step();
-							category.addEntry(config.entryBuilder()
+							entry = builder
 								.startLongSlider(new TranslatableText(translateKey), Math.round((Float) value / step), Math.round(slider.min() / step), Math.round(slider.max() / step))
 								.setDefaultValue(Math.round((Float) defaultValue / slider.step()))
 								.setTextGetter(val -> new LiteralText("%".equals(slider.unit()) ? Math.round(val * step * 100) + "%" : "" + String.format("%.2f", val * step)))
 								.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-								.setSaveConsumer(l -> saveConsumer.accept(l * step))
-								.build());
+								.setSaveConsumer(l -> saveConsumer.accept(l * step)).build();
 						} else {
-							category.addEntry(config.entryBuilder()
+							entry = builder
 								.startFloatField(new TranslatableText(translateKey), (Float) value)
 								.setDefaultValue((Float) defaultValue)
 								.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-								.setSaveConsumer(saveConsumer::accept)
-								.build());
+								.setSaveConsumer(saveConsumer::accept).build();
 						}
 					} else if (field.getType() == String.class) {
-						category.addEntry(config.entryBuilder()
+						entry = builder
 							.startTextField(new TranslatableText(translateKey), (String) value)
 							.setDefaultValue((String) defaultValue)
 							.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-							.setSaveConsumer(saveConsumer::accept)
-							.build());
+							.setSaveConsumer(saveConsumer::accept).build();
 					} else if (Enum.class.isAssignableFrom(field.getType())) {
-						category.addEntry(config.entryBuilder()
+						entry = builder
 							.startEnumSelector(new TranslatableText(translateKey), (Class<Enum<?>>) field.getType(), (Enum<?>) value)
 							.setDefaultValue((Enum<?>) defaultValue)
 							.setTooltip(new TranslatableText(translateKey + ".tooltip"))
-							.setSaveConsumer(saveConsumer::accept)
-							.build());
+							.setSaveConsumer(saveConsumer::accept).build();
 					} else if (field.getType() == Options.DescriptionLine.class) {
-						category.addEntry(config.entryBuilder()
-							.startTextDescription(new TranslatableText(translateKey))
+						entry = builder
+							.startTextDescription(new TranslatableText(translateKey)).build();
 //                                .setTooltip(new TranslatableText(translateKey + ".tooltip"))
-							.build());
-					} else {
+					} else{
 						throw new RuntimeException("Unexpected field in Options: " + field);
 					}
+
+					category.addEntry(entry);
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				}
@@ -136,14 +135,14 @@ public class ConfigMenu implements ModMenuApi {
 				UnofficialMonumentaModClient.saveConfig();
 			});
 			if (client != null) {
-				client.openScreen(config.build());
+				client.setScreen(config.build());
 			}
 		}
 
 		@Override
-		public void onClose() {
+		public void close() {
 			if (client != null) {
-				client.openScreen(parent);
+				client.setScreen(parent);
 			}
 		}
 	}

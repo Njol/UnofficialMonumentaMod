@@ -6,15 +6,26 @@
   "mixins": [
     "ArmorFeatureRendererMixin",
     "BlockItemMixin",
-    "ChatScreenMixin",
     "ClientPlayerInteractionManagerMixin",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "PlayerListHudAccessor",
+    "ThreadExecutorMixin",
+    "item.ItemStackAccessor",
+    "item.ItemStackMixin",
+    "screen.ChatScreenMixin",
+    "screen.HandledScreenAccessor"
   ],
   "client": [
+    "CapeFeatureRendererMixin",
+    "ElytraFeatureRendererMixin",
+    "PlayerListHudAccessor",
+    "PlayerListHudMixin",
+    "ThreadExecutorMixin",
+    "screen.ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

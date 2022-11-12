@@ -1,21 +1,38 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.core.Constants;
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
+import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
+import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlayMoveScreen;
+import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
+import java.util.Objects;
 
 @net.fabricmc.api.Environment(net.fabricmc.api.EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
@@ -28,7 +45,19 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static final String OPTIONS_FILE_NAME = "unofficial-monumenta-mod.json";
 
+	public static final Logger LOGGER = LogManager.getLogger(MOD_IDENTIFIER);
+
 	public static Options options = new Options();
+
+	public static final Options dummyConfig = new Options();
+
+
+	public static Locations locations = new Locations();
+	public static TextureSpoofer spoofer = new TextureSpoofer();
+
+	public static DiscordRPC discordRPC = new DiscordRPC();
+
+	public static EffectOverlay eOverlay = new EffectOverlay();
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
@@ -39,7 +68,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public void onInitializeClient() {
 
 		FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
-			(itemStack, clientWorld, livingEntity) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
+			(itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
 		try {
 			options = readJsonFile(Options.class, OPTIONS_FILE_NAME);
@@ -51,27 +80,77 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			e.printStackTrace();
 		}
 
+		if (options.discordEnabled) discordRPC.Init();
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
+			eOverlay.tick();
+			Calculator.tick();
 		});
+
+		ClientTickEvents.END_WORLD_TICK.register(world -> {
+			Notifier.tick();
+		});
+
+		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
+			ChestCountOverlay.onWorldLoad();
+			//not sure where the actual reload is called when joining a server, so I opted for this.
+			Constants.onReload();
+		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
+		ClientCommandManager.DISPATCHER.register(
+				ClientCommandManager.literal("UMM")
+						.then(ClientCommandManager.literal("moveScreen")
+								.then(ClientCommandManager.literal("effectOverlay")
+										.executes((context) -> {
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
+											return 1;
+										}))
+								.then(ClientCommandManager.literal("chestCountOverlay")
+										.executes(context -> {
+											MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new ChestCountOverlayMoveScreen()));
+											return 1;
+										})))
+		);
 	}
 
 	public static void onDisconnect() {
 		abilityHandler.onDisconnect();
+		Notifier.onDisconnect();
+		LocationNotifier.onDisconnect();
+		locations.onDisconnect();
+		spoofer.onDisconnect();
 	}
 
-	private static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
+	public static boolean isOnMonumenta() {
+		boolean onMM = false;
+		MinecraftClient mc = MinecraftClient.getInstance();
+		String shard = Locations.getShard();
+
+		if (!Objects.equals(shard, "unknown")) onMM = true;
+
+		if (!onMM && mc.getCurrentServerEntry() != null) {
+			onMM = !mc.isInSingleplayer() && mc.getCurrentServerEntry().address.toLowerCase().endsWith(".playmonumenta.com");
+		}
+
+		return onMM;
+	}
+
+	public static <T> T readJsonFile(Class<T> c, String filePath) throws IOException, JsonParseException {
 		try (FileReader reader = new FileReader(FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile())) {
 			return new GsonBuilder().create().fromJson(reader, c);
 		}
 	}
 
-	private static void writeJsonFile(Object o, String filePath) {
+	public static void writeJsonFile(Object o, String filePath) {
 		try (FileWriter writer = new FileWriter((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()))) {
 			writer.write(new GsonBuilder().setPrettyPrinting().create().toJson(o));
+		} catch (NoSuchFileException | FileNotFoundException e) {
+			if ((FabricLoader.getInstance().getConfigDir().resolve(filePath).toFile()).getParentFile().mkdirs()) {
+				writeJsonFile(o, filePath);
+			}
 		} catch (IOException e) {
 			// Silently ignore save errors
 			e.printStackTrace();

@@ -82,7 +82,7 @@ pack, or a Recoil fix for MC 1.16. All features can be configured via the option
       }]
    }
    ```
-4. In the properties file of your helmet that has `type=item`, use `model=` instead of `texture=` and reference the json
+3. In the properties file of your helmet that has `type=item`, use `model=` instead of `texture=` and reference the json
    file created in step 2.
 
 ## Contribute
