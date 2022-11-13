@@ -30,15 +30,15 @@ public class InGameHudMixin {
 
 	@Inject(method = "setOverlayMessage", at = @At("TAIL"))
 	public void onActionbar(Text message, boolean tinted, CallbackInfo ci) {
-		ChestCountOverlay.onActionbarReceived(message);
+		ChestCountOverlay.INSTANCE.onActionbarReceived(message);
 	}
 
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;renderStatusEffectOverlay(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.BEFORE))
 	void renderSkills_beforeStatusEffects(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (!abiltiesHud.renderInFrontOfChat()) {
-			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
-			ChestCountOverlay.render(matrices, scaledWidth, scaledHeight);
+			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);
+			ChestCountOverlay.INSTANCE.renderAbsolute(matrices, tickDelta);
 			abiltiesHud.renderAbsolute(matrices, tickDelta);
 		}
 	}
@@ -48,8 +48,8 @@ public class InGameHudMixin {
 		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V")))
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (abiltiesHud.renderInFrontOfChat()) {
-			UnofficialMonumentaModClient.eOverlay.render(matrices, scaledWidth, scaledHeight);
-			ChestCountOverlay.render(matrices, scaledWidth, scaledHeight);
+			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);
+			ChestCountOverlay.INSTANCE.renderAbsolute(matrices, tickDelta);
 			abiltiesHud.renderAbsolute(matrices, tickDelta);
 		}
 	}

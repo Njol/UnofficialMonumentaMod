@@ -1,9 +1,10 @@
 package ch.njol.unofficialmonumentamod.features.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.core.Constants;
+import ch.njol.unofficialmonumentamod.core.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
-import club.minnced.discord.rpc.*;
+import club.minnced.discord.rpc.DiscordEventHandlers;
+import club.minnced.discord.rpc.DiscordRichPresence;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
@@ -60,7 +61,7 @@ public class DiscordRPC {
 		presence.startTimestamp = start_time;
 		presence.details = "In the Main menu";
 		presence.largeImageKey = "minecraft512";
-		presence.largeImageText = "Njol's Unofficial Monumenta Mod";
+		presence.largeImageText = "Unofficial Monumenta Mod";
 		presence.instance = 1;
 		lib.Discord_UpdatePresence(presence);
 	}
@@ -74,7 +75,7 @@ public class DiscordRPC {
 			DiscordRichPresence presence = new DiscordRichPresence();
 			presence.startTimestamp = start_time;
 			presence.largeImageKey = isOnMonumenta ? "monumenta" : "minecraft512";
-			presence.largeImageText = "Njol's Unofficial Monumenta Mod";
+			presence.largeImageText = "Unofficial Monumenta Mod";
 			presence.instance = 1;
 
 			if (isSinglePlayer) {
@@ -87,7 +88,7 @@ public class DiscordRPC {
 
 					presence.state = !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
-					String coolName = Constants.getOfficialName(shard);
+					String coolName = ShardData.getOfficialName(shard);
 					if (!shard.equals("unknown")) {
 						//set small image
 						presence.smallImageKey = shard;

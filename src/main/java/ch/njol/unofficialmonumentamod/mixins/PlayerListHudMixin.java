@@ -14,6 +14,6 @@ public class PlayerListHudMixin {
 	@Inject(method = "setHeader", at = @At("TAIL"))
 	public void onPlayerListHeader(Text header, CallbackInfo ci) {
 		Locations.resetCache();
-		ChestCountOverlay.onPlayerListHeader(header);
+		ChestCountOverlay.INSTANCE.onPlayerListHeader(header);
 	}
 }

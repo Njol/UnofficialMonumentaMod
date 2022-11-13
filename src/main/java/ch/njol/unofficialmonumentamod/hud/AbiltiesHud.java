@@ -161,7 +161,7 @@ public class AbiltiesHud extends HudElement {
 						float scaledX = x - (scaledIconSize - iconSize) / 2;
 						float scaledY = y - (scaledIconSize - iconSize) / 2;
 
-						drawSprite(matrices, getSpriteOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name, abilityInfo.mode), UNKNOWN_ABILITY_ICON), scaledX, scaledY, scaledIconSize, scaledIconSize);
+						drawSprite(matrices, getAbilityIcon(abilityInfo), scaledX, scaledY, scaledIconSize, scaledIconSize);
 
 						// silenceCooldownFraction is >= 0 so this is also >= 0
 						float cooldownFraction = abilityInfo.initialCooldown <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingCooldown - tickDelta) / abilityInfo.initialCooldown, silenceCooldownFraction), 1);
@@ -213,9 +213,24 @@ public class AbiltiesHud extends HudElement {
 
 	private static final Map<String, Identifier> abilityIdentifiers = new HashMap<>();
 
-	private static Identifier getAbilityFileIdentifier(String className, String name, String mode) {
-		return abilityIdentifiers.computeIfAbsent((className == null ? "unknown" : className) + "/" + name + (mode == null ? "" : "_" + mode),
-			key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+	private Sprite getAbilityIcon(AbilityHandler.AbilityInfo abilityInfo) {
+		String id = (abilityInfo.className == null ? "unknown" : abilityInfo.className) + "/" + abilityInfo.name + (abilityInfo.mode == null ? "" : "_" + abilityInfo.mode);
+
+		// for abilities with charges, use a special "_max" sprite when charges are full (and the sprite exists)
+		if ((abilityInfo.maxCharges > 1 || abilityInfo.maxCharges == 1 && abilityInfo.initialCooldown <= 0) && abilityInfo.charges == abilityInfo.maxCharges) {
+			Identifier maxIdentifier = abilityIdentifiers.computeIfAbsent(id + "_max", key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+			Sprite sprite = atlas.getSprite(maxIdentifier);
+			if (!(sprite instanceof MissingSprite)) {
+				return sprite;
+			}
+		}
+
+		Identifier baseIdentifier = abilityIdentifiers.computeIfAbsent(id, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+		Sprite sprite = atlas.getSprite(baseIdentifier);
+		if (!(sprite instanceof MissingSprite)) {
+			return sprite;
+		}
+		return atlas.getSprite(UNKNOWN_ABILITY_ICON);
 	}
 
 	private static final Map<String, Identifier> borderIdentifiers = new HashMap<>();
@@ -395,7 +410,7 @@ public class AbiltiesHud extends HudElement {
 		} else {
 			mouseY -= index * iconOffset;
 		}
-		return !isPixelTransparent(getSpriteOrDefault(getAbilityFileIdentifier(abilityInfo.className, abilityInfo.name, abilityInfo.mode), UNKNOWN_ABILITY_ICON), mouseX / iconSize, mouseY / iconSize)
+		return !isPixelTransparent(getAbilityIcon(abilityInfo), mouseX / iconSize, mouseY / iconSize)
 			       || !isPixelTransparent(getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), mouseX / iconSize, mouseY / iconSize);
 	}
 

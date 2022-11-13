@@ -116,7 +116,7 @@ public class TextureSpoofer {
 		return UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(key);
 	}
 
-	public void load() {
+	public void reload() {
 		File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_PATH).toFile();
 		if (!file.exists()) {
 			return;

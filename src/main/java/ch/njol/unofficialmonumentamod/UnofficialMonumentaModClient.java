@@ -2,17 +2,14 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
-import ch.njol.unofficialmonumentamod.core.Constants;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
-import ch.njol.unofficialmonumentamod.features.effect.EffectMoveScreen;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlayMoveScreen;
 import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
 import ch.njol.unofficialmonumentamod.options.ConfigMenu;
 import ch.njol.unofficialmonumentamod.options.Options;
@@ -23,12 +20,11 @@ import java.util.Objects;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -50,14 +46,14 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static DiscordRPC discordRPC = new DiscordRPC();
 
-	public static EffectOverlay eOverlay = new EffectOverlay();
+	public static EffectOverlay effectOverlay = new EffectOverlay();
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
 
 	@Override
 	public void onInitializeClient() {
 
-		FabricModelPredicateProviderRegistry.register(new Identifier("on_head"),
+		ModelPredicateProviderRegistry.register(new Identifier("on_head"),
 			(itemStack, clientWorld, livingEntity, seed) -> livingEntity != null && itemStack == livingEntity.getEquippedStack(EquipmentSlot.HEAD) ? 1 : 0);
 
 		try {
@@ -80,7 +76,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
-			eOverlay.tick();
+			effectOverlay.tick();
 			Calculator.tick();
 		});
 
@@ -89,37 +85,21 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
-			ChestCountOverlay.onWorldLoad();
-			//not sure where the actual reload is called when joining a server, so I opted for this.
-			Constants.onReload();
+			ChestCountOverlay.INSTANCE.onWorldLoad();
 		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
 		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
+		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
+		Hud.INSTANCE.addElement(effectOverlay);
 		ConfigMenu.registerTypes();
-
-		ClientCommandManager.DISPATCHER.register(
-			ClientCommandManager.literal("UMM")
-				.then(ClientCommandManager.literal("moveScreen")
-					      .then(ClientCommandManager.literal("effectOverlay")
-						            .executes((context) -> {
-							            MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new EffectMoveScreen()));
-							            return 1;
-						            }))
-					      .then(ClientCommandManager.literal("chestCountOverlay")
-						            .executes(context -> {
-							            MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new ChestCountOverlayMoveScreen()));
-							            return 1;
-						            })))
-		);
 	}
 
 	public static void onDisconnect() {
 		abilityHandler.onDisconnect();
 		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
-		locations.onDisconnect();
 		spoofer.onDisconnect();
 	}
 

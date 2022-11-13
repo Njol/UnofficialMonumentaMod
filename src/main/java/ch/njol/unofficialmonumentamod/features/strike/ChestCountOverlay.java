@@ -1,97 +1,73 @@
 package ch.njol.unofficialmonumentamod.features.strike;
 
+import ch.njol.minecraft.uiframework.ElementPosition;
+import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.core.Constants;
+import ch.njol.unofficialmonumentamod.core.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
-import ch.njol.unofficialmonumentamod.options.Options;
+import java.awt.Rectangle;
 import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 
-public class ChestCountOverlay extends DrawableHelper {
-	private static Integer currentCount;//get from actionbar
-	private static Integer totalChests;//take from Constants as a HashMap<shard, chestCount> (String, int)
-	private static String lastShard;
+public class ChestCountOverlay extends HudElement {
 
-	private static boolean isActive = false;
+	public static final ChestCountOverlay INSTANCE = new ChestCountOverlay();
 
-	public static boolean searchingForShard = false;
+	private static final int WIDTH = 64;
+	private static final int HEIGHT = 24;
 
-	private static final ItemStack CHEST = new ItemStack(Items.CHEST);
+	private Integer currentCount; //get from actionbar
+	private Integer totalChests; //take from Constants as a HashMap<shard, chestCount> (String, int)
+	private String lastShard;
 
-	public static boolean shouldRender() {
-		return UnofficialMonumentaModClient.options.chestCount_active && isActive && (totalChests != null && totalChests >= 0);
-	}
+	private boolean searchingForShard = false;
 
-	public static void testAddToCurrent() {
-		//don't add if shouldn't render
-		if (shouldRender()) {
-			currentCount++;
-		}
-	}
+	private final ItemStack CHEST = new ItemStack(Items.CHEST);
 
-	protected static boolean shouldRenderDummy = false;
-
-	public static void render(MatrixStack matrices, int scaledWidth, int scaledHeight) {
-		render(matrices, scaledWidth, scaledHeight, shouldRenderDummy);
-	}
-
-	protected static int width = 64;
-	protected static int height = 24;
-
-	private static void render(MatrixStack matrices, int scaledWidth, int scaledHeight, boolean bypass) {
-		if (!shouldRender() && !bypass) {
-			return;
-		}
+	@Override
+	protected void render(MatrixStack matrices, float tickDelta) {
 		final TextRenderer tr = MinecraftClient.getInstance().textRenderer;
-		final ItemRenderer Ir = MinecraftClient.getInstance().getItemRenderer();
-		final Options options = UnofficialMonumentaModClient.options;
 
-		//8 padding on item (16 + 8 = 24) 40 for text?
-		int x = (Math.round(scaledWidth * options.chestCount_offsetXRelative) + options.chestCount_offsetXAbsolute);
-		int y = (Math.round(scaledHeight * options.chestCount_offsetYRelative) + options.chestCount_offsetYAbsolute);
+		DrawableHelper.fill(matrices, 0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(0.3f));
 
-		fill(matrices, x, y, x + width, y + height, MinecraftClient.getInstance().options.getTextBackgroundColor(0.3f));
-		x += 8;
-		y += 2;
-		Ir.renderGuiItemIcon(CHEST, x, y);
-		x += 16;
-		y += 6;
+		Rectangle dimension = getDimension();
+		client.getItemRenderer().renderGuiItemIcon(CHEST, dimension.x + 4, dimension.y + (HEIGHT - 16) / 2);
 
 		Text text;
-		if (shouldRenderDummy) {
-			text = Text.of("Dummy");
+		if (isInEditMode()) {
+			text = Text.of("Chests");
 		} else {
 			text = Text.of("" + (totalChests != null && totalChests > 0 ? currentCount + "/" + totalChests : currentCount));
 		}
 
-		//center text as rest/2 - length of text / 2
-		x += (width - 24) / 2 - tr.getWidth(text) / 2;
+		// if total is 0 or the current count is under the total then render in gold else render in bright green
+		int color = totalChests != null && totalChests > 0 && currentCount >= totalChests ? 0xFF1FD655 : 0xFFFCCD12;
 
-		//if total is 0 or the current count is under the total then render in gold else render in bright green
-		int color = totalChests != null && totalChests > 0 ? currentCount >= totalChests ? 0xFF1FD655 : 0xFFFCCD12 : 0xFFFCCD12;
+		// center text
+		int x = 20 + (WIDTH - 20) / 2 - tr.getWidth(text) / 2;
+		int y = HEIGHT / 2 - tr.fontHeight / 2;
 
 		tr.draw(matrices, text, x, y, color);
 	}
 
 
-	public static void onActionbarReceived(Text text) {
+	public void onActionbarReceived(Text text) {
 		if (text.getString().equals("+1 Chest added to lootroom.")) {
 			currentCount++;
 		}
 	}
 
-	public static void onWorldLoad() {
+	public void onWorldLoad() {
 		searchingForShard = true;
 	}
 
-	public static void onPlayerListHeader(Text text) {
+	public void onPlayerListHeader(Text text) {
 		if (!searchingForShard || Locations.getShardFrom(text) == null) {
 			return;
 		}
@@ -99,12 +75,50 @@ public class ChestCountOverlay extends DrawableHelper {
 		if (Objects.equals(shard, "unknown")) {
 			return;
 		}
-		if (!Objects.equals(shard, lastShard)) {//reset
-			totalChests = Constants.getMaxChests(shard);//if null then non strike, if 0 then strike but max is unknown, > 0 means it's known so then render the max
+		if (!Objects.equals(shard, lastShard)) { // reset
+			totalChests = ShardData.getMaxChests(shard); // if null then non strike, if 0 then strike but max is unknown, > 0 means it's known so then render the max
 			currentCount = 0;
 			lastShard = shard;
-			isActive = Constants.shards.get(shard).shardType == Constants.ShardType.strike;
 			searchingForShard = false;
 		}
 	}
+
+	@Override
+	protected boolean isEnabled() {
+		return UnofficialMonumentaModClient.options.chestCount_enabled;
+	}
+
+	@Override
+	protected boolean isVisible() {
+		return totalChests != null;
+	}
+
+	@Override
+	protected int getWidth() {
+		return WIDTH;
+	}
+
+	@Override
+	protected int getHeight() {
+		return HEIGHT;
+	}
+
+	@Override
+	protected ElementPosition getPosition() {
+		return UnofficialMonumentaModClient.options.chestCount_position;
+	}
+
+	@Override
+	protected int getZOffset() {
+		return 0;
+	}
+
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		if (dragging) {
+			UnofficialMonumentaModClient.saveConfig();
+		}
+		return super.mouseReleased(mouseX, mouseY, button);
+	}
+
 }
