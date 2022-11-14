@@ -36,7 +36,7 @@ public class ShardData {
 
 	public static String getOfficialName(String shard) {
 		if (SHARDS.containsKey(shard)) {
-			return SHARDS.get(shard).offName;
+			return SHARDS.get(shard).officialName;
 		}
 		return null;
 	}
@@ -49,20 +49,20 @@ public class ShardData {
 	}
 
 	public static class Shard {
-		public final String offName;
+		public final String officialName;
 		public final ShardType shardType;
 		@Nullable
 		public final Integer maxChests;
 
-		public Shard(String offName, ShardType shardType, @Nullable Integer maxChests) {
-			this.offName = offName;
+		public Shard(String officialName, ShardType shardType, @Nullable Integer maxChests) {
+			this.officialName = officialName;
 			this.shardType = shardType;
 			this.maxChests = maxChests;
 		}
 
 		@Override
 		public String toString() {
-			return "{ \"officialName\": \"" + offName + "\", \"shardType\": \"" + shardType.toString() + "\", \"maxChests\": " + maxChests + " }";
+			return "{ \"officialName\": \"" + officialName + "\", \"shardType\": \"" + shardType.toString() + "\", \"maxChests\": " + maxChests + " }";
 		}
 	}
 

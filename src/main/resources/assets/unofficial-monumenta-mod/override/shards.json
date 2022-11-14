@@ -28,7 +28,7 @@
 	"shiftingcity": { "officialName": "City of Shifting Waters", "shardType": "DUNGEON", "maxChests": null },
 	"forum": { "officialName": "The Fallen Forum", "shardType": "DUNGEON", "maxChests": null },
 	"depths": { "officialName": "Darkest Depths", "shardType": "STRIKE", "maxChests": null },
-	"mist": { "officialName": "The Black Mist", "shardType": "STRIKE", "maxChests": 41 },
+	"mist": { "officialName": "The Black Mist", "shardType": "STRIKE", "maxChests": 42 },
 	"remorse": { "officialName": "The Sealed Remorse", "shardType": "STRIKE", "maxChests": 62 },
 	"rush": { "officialName": "Rush of Dissonance", "shardType": "MINIGAME", "maxChests": null },
 
@@ -38,7 +38,7 @@
 	"red": { "officialName": "red", "shardType": "DUNGEON", "maxChests": null },
 	"black": { "officialName": "black", "shardType": "DUNGEON", "maxChests": null },
 	"portal": { "officialName": "P.O.R.T.A.L.", "shardType": "STRIKE", "maxChests": 41 },
-	"skt": { "officialName": "Silver Knight's Tomb", "shardType": "STRIKE", "maxChests": 90 },
-	"ruin": { "officialName": "Masquerader's Ruin", "shardType": "STRIKE", "maxChests": 98 },
+	"skt": { "officialName": "Silver Knight's Tomb", "shardType": "STRIKE", "maxChests": 97 },
+	"ruin": { "officialName": "Masquerader's Ruin", "shardType": "STRIKE", "maxChests": 100 },
 	"gallery": { "officialName": "The Gallery of Fear", "shardType": "MINIGAME", "maxChests": null }
 }
