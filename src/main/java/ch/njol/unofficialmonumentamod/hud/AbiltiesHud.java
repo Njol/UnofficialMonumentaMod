@@ -9,6 +9,7 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -332,8 +333,14 @@ public class AbiltiesHud extends HudElement {
 		}
 
 		AbilityHandler.AbilityInfo abilityInfo = abilityInfos.get(index);
-		screen.renderTooltip(matrices, Text.of(abilityInfo.name), mouseX, mouseY);
-		// TODO also display ability description
+
+		// renderTooltip assumes that the coordinates passed in are absolute...
+		Rectangle dimension = getDimension();
+		matrices.push();
+		matrices.translate(-dimension.x, -dimension.y, 0);
+		screen.renderTooltip(matrices, Text.of(abilityInfo.name), mouseX + dimension.x, mouseY + dimension.y);
+		matrices.pop();
+		// TODO also display ability description?
 	}
 
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {

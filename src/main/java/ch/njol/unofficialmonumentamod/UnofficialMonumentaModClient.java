@@ -100,7 +100,14 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
-		ConfigMenu.registerTypes();
+
+		try {
+			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
+			Class.forName("me.shedaniel.clothconfig2.api.ConfigBuilder");
+			ConfigMenu.registerTypes();
+		} catch (ClassNotFoundException e) {
+			// ignore
+		}
 	}
 
 	public static void onDisconnect() {
