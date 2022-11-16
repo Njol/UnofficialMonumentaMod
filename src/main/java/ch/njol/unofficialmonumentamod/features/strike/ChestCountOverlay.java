@@ -58,7 +58,8 @@ public class ChestCountOverlay extends HudElement {
 
 
 	public void onActionbarReceived(Text text) {
-		if (text.getString().equals("+1 Chest added to lootroom.")) {
+		//first one is non-edited the second one is for edited by vlado's counter mod.
+		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76+1 Chest \u00a7cadded to lootroom\\..*")) {
 			currentCount++;
 		}
 	}
