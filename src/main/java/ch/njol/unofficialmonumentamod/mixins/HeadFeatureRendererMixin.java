@@ -51,6 +51,13 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 			return;
 		}
 
+		if (livingEntity instanceof VillagerEntity
+			    && !livingEntity.isInvisible()
+			    && UnofficialMonumentaModClient.options.hideVillagerPlayerHeads) {
+			ci.cancel();
+			return;
+		}
+
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
 		BakedModel baseModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.world, livingEntity, 0);
 		BakedModel headModel = baseModel.getOverrides().apply(baseModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);

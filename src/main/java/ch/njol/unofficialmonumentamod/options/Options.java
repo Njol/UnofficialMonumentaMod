@@ -17,6 +17,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean overrideTridentRendering = true;
 	@Category("misc")
 	public boolean lowerVillagerHelmets = false;
+	@Category("misc")
+	public boolean hideVillagerPlayerHeads = false;
 
 	@Category("misc")
 	public boolean firmamentPingFix = true;
@@ -29,7 +31,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean chestsortDisabledEverywhereElse = false;
 
 	@Category("misc")
-	public boolean notifyLocation = true;
+	public boolean notifyLocation = false;
 	@Category("misc")
 	@FloatSlider(min = 1.5F, max = 20F, step = 0.1F, unit = " seconds")
 	public float notifierShowTime = 5F;
@@ -134,22 +136,22 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public String discordDetails = "{player} is on {shard}";
 
 	@Category("effectOverlay")
+	public boolean effect_enabled = true;
+	@Category("effectOverlay")
 	public ElementPosition effect_position = new ElementPosition(0.5f, 0, 0.0f, 0, 0.5f, 0);
 
 	@Category("effectOverlay")
-	public transient DescriptionLine effect_format;
-	@Category("effectOverlay")
 	public boolean effect_compress = true;
 	@Category("effectOverlay")
-	public boolean effect_enabled = true;
+	public boolean effect_textAlightRight = false;
 	@Category("effectOverlay")
 	@IntSlider(min = 50, max = 500)
 	public int effect_width = 200;
-	@Category("chestCountOverlay")
-	public ElementPosition chestCount_position = new ElementPosition(1f, 0, 0.0f, 0, 1f, 0);
 
 	@Category("chestCountOverlay")
 	public boolean chestCount_enabled = true;
+	@Category("chestCountOverlay")
+	public ElementPosition chestCount_position = new ElementPosition(1f, 0, 0.0f, 0, 1f, 0);
 
 	@Category("debug")
 	public boolean debugOptionsEnabled = false;

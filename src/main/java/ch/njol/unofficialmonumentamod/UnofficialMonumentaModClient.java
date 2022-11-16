@@ -21,14 +21,17 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
@@ -49,6 +52,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static EffectOverlay effectOverlay = new EffectOverlay();
 
 	public static final AbilityHandler abilityHandler = new AbilityHandler();
+
+	public static KeyBinding toggleCalculatorKeyBinding = new KeyBinding("unofficial-monumenta-mod.keybinds.toggleCalculator", GLFW.GLFW_KEY_K, "unofficial-monumenta-mod.keybinds.category");
 
 	@Override
 	public void onInitializeClient() {
@@ -89,6 +94,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
+
+		KeyBindingHelper.registerKeyBinding(toggleCalculatorKeyBinding);
 
 		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);

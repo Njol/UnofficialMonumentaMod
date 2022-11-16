@@ -1,9 +1,12 @@
 package ch.njol.unofficialmonumentamod.features.effect;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
@@ -37,9 +40,19 @@ public class Effect {
 		return new Effect(name, effectPower, effectTime, isPercentage);
 	}
 
-	public Text toText(float tickDelta) {
-		return new LiteralText(getTimeRemainingAsString(tickDelta) + " ")
-			       .append(new LiteralText((effectPower != 0 ? POWER_FORMAT.format(effectPower) + (isPercentage ? "%" : "") + " " : "") + name).setStyle(Style.EMPTY.withColor(effectPower >= 0 ? 0x55FF55 : 0xFF5555)));
+	public Text toText(float tickDelta, boolean rightAligned) {
+		Text timeText = new LiteralText((rightAligned ? " " : "") + getTimeRemainingAsString(tickDelta) + (rightAligned ? "" : " "));
+		Style effectStyle = Style.EMPTY.withColor(effectPower >= 0 ? 0x55FF55 : 0xFF5555);
+		String effectString = (effectPower != 0 ? POWER_FORMAT.format(effectPower) + (isPercentage ? "%" : "") + " " : "") + name;
+		Text effectText = new LiteralText(effectString).setStyle(effectStyle);
+		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+		int maxEffectWidth = UnofficialMonumentaModClient.options.effect_width - textRenderer.getWidth(timeText);
+		if (textRenderer.getWidth(effectText) > maxEffectWidth) {
+			int trimmedLength = textRenderer.getTextHandler().getTrimmedLength(effectString, maxEffectWidth - textRenderer.getWidth("..."), effectStyle);
+			effectText = new LiteralText(effectString.substring(0, trimmedLength) + "...").setStyle(effectStyle);
+		}
+		return rightAligned ? new LiteralText("").append(effectText).append(timeText)
+			       : new LiteralText("").append(timeText).append(effectText);
 	}
 
 	public void tick() {

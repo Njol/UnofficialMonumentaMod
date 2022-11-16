@@ -3,7 +3,6 @@ package ch.njol.unofficialmonumentamod.features.effect;
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -11,7 +10,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Text;
 
 public class EffectOverlay extends HudElement {
 
@@ -112,10 +111,10 @@ public class EffectOverlay extends HudElement {
 
 		DrawableHelper.fill(matrices, 0, 0, width, height, client.options.getTextBackgroundColor(0.3f));
 
-		Rectangle dimension = getDimension();
+		boolean textAlightRight = UnofficialMonumentaModClient.options.effect_textAlightRight;
 		for (Effect effect : visibleEffects) {
-			StringVisitable text = textRenderer.trimToWidth(effect.toText(tickDelta), UnofficialMonumentaModClient.options.effect_width);
-			textRenderer.drawTrimmed(text, dimension.x + PADDING_HORIZONTAL, dimension.y + currentY, 100000, 0xFFFFFFFF);
+			Text text = effect.toText(tickDelta, textAlightRight);
+			textRenderer.draw(matrices, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
 			currentY += textRenderer.fontHeight + 2;
 		}
 	}
@@ -139,7 +138,7 @@ public class EffectOverlay extends HudElement {
 	protected int getHeight() {
 		ArrayList<Effect> effects = isInEditMode() ? dummyEffects : UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : this.effects;
 
-		return effects.size() * (client.textRenderer.fontHeight + 2) + (2 * PADDING_VERTICAL);
+		return effects.size() * (client.textRenderer.fontHeight + 2) - 2 + (2 * PADDING_VERTICAL);
 	}
 
 	@Override

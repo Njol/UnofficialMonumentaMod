@@ -71,8 +71,7 @@ is kept in the hotbar for immediate re-use.
 ### Minor Features
 
 There's some more minor features, like moving player heads worn by NPCs down to fit with the NPC model of the resource
-pack, location notifications (by Ascynx). All features can be
-configured via the options menu.
+pack, and location notifications (by Ascynx). All features can be configured via the options menu.
 
 #### Chest Count Overlay
 
@@ -83,6 +82,8 @@ The chest counts were "borrowed" from [Vladomeme's Lootcounter mod](https://gith
 #### Calculator
 
 Adds a small calculator for easier trading to opened containers in the player market. Feature made by Ascynx.
+
+Visibility of the calculator can be toggled by pressing 'K' (key can be rebound in the options menu).
 
 #### Optionally disable ChestSort
 

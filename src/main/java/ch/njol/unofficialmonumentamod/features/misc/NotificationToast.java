@@ -137,9 +137,9 @@ public class NotificationToast implements Toast {
 			}
 
 			if (this.lines.size() == 0) {
-				manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+				manager.getClient().textRenderer.drawWithShadow(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, 0xff500050);
 			} else {
-				manager.getClient().textRenderer.draw(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, -11534256);
+				manager.getClient().textRenderer.drawWithShadow(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, 0xff500050);
 				for (o = 0; o < this.lines.size(); ++o) {
 					int alignment = 0;
 
@@ -151,7 +151,7 @@ public class NotificationToast implements Toast {
 						alignment = align_right(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
 					}
 
-					manager.getClient().textRenderer.draw(matrices, this.lines.get(o), alignment, (float) (18 + o * 12), 0x404040);
+					manager.getClient().textRenderer.drawWithShadow(matrices, this.lines.get(o), alignment, (float) (18 + o * 12), 0xffcccccc);
 				}
 			}
 

@@ -15,7 +15,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import org.lwjgl.glfw.GLFW;
 
 import static java.lang.Integer.parseInt;
 
@@ -123,8 +122,12 @@ public class Calculator extends DrawableHelper {
 	public ButtonWidget changeMode;
 
 	public boolean shouldRender() {
+		return mightRender()
+			       && state == CalculatorState.OPEN;
+	}
+
+	public boolean mightRender() {
 		return UnofficialMonumentaModClient.options.showCalculator
-			       && state == CalculatorState.OPEN
 			       && Objects.equals(Locations.getShortShard(), "plots")
 			       && (mc.currentScreen instanceof GenericContainerScreen ||
 				           mc.currentScreen instanceof ShulkerBoxScreen);
@@ -226,7 +229,9 @@ public class Calculator extends DrawableHelper {
 	}
 
 	public boolean keyTyped(int keyCode, int scanCode, int modifiers) {
-		if (keyCode == GLFW.GLFW_KEY_K) {
+		if (mightRender()
+			    && UnofficialMonumentaModClient.toggleCalculatorKeyBinding.matchesKey(keyCode, scanCode)
+			    && modifiers == 0) {
 			//invert current state;
 			state = state == CalculatorState.OPEN ? CalculatorState.CLOSED : CalculatorState.OPEN;
 			if (mc.currentScreen == null) {
@@ -261,18 +266,18 @@ public class Calculator extends DrawableHelper {
 
 		changeMode.render(matrices, mouseX, mouseY, delta);
 		for (TextFieldWidget widget : children) {
-			mc.textRenderer.draw(matrices, widget.getMessage(), widget.x, widget.y - 15, 4210752);
+			mc.textRenderer.drawWithShadow(matrices, widget.getMessage(), widget.x, widget.y - 15, 0xffcccccc);
 			widget.render(matrices, mouseX, mouseY, delta);
 		}
 
-		mc.textRenderer.draw(matrices, Objects.requireNonNullElse(output, "0H* 0C*"), x + 10, y + 105, 4210752);
+		mc.textRenderer.drawWithShadow(matrices, Objects.requireNonNullElse(output, "0H* 0C*"), x + 10, y + 105, 0xffcccccc);
 	}
 	//endregion
 
 
 	public enum CalculatorState {
-		OPEN(),
-		CLOSED()
+		OPEN,
+		CLOSED
 	}
 
 	public enum CalculatorMode {
