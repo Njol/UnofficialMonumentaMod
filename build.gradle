@@ -1,6 +1,8 @@
 plugins {
     id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
+    id "com.modrinth.minotaur" version "2.+"
+    id "com.matthewprenger.cursegradle" version "1.+"
 //    id 'java'
 //    id 'com.github.johnrengelman.shadow' version '1.2.2'
 }
@@ -97,5 +99,50 @@ publishing {
     repositories {
         // uncomment to publish to the local maven
         // mavenLocal()
+    }
+}
+
+def changeLog = '''
+
+'''
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "unofficial-monumenta-mod"
+    versionNumber = project.mod_version
+    versionType = "release"
+    uploadFile = remapJar
+    gameVersions = ["1.18.2"]
+    loaders = ["fabric"]
+    changelog = changeLog
+    dependencies {
+        required.project "fabric-api"
+        optional.project "modmenu"
+        optional.project "cloth-config"
+    }
+    // debugMode = true
+}
+
+curseforge {
+    if (System.getenv("CURSEFORGE_TOKEN") != null) {
+        apiKey = System.getenv("CURSEFORGE_TOKEN")
+    }
+    project {
+        id = '509666'
+        changelog = changeLog
+        releaseType = 'release'
+        addGameVersion '1.18.2'
+        addGameVersion 'Fabric'
+
+        mainArtifact(remapJar) {
+            relations {
+                requiredDependency "fabric-api"
+                optionalDependency "modmenu"
+                optionalDependency "cloth-config"
+            }
+        }
+        options {
+            // debug = true
+        }
     }
 }
