@@ -28,10 +28,10 @@ dependencies {
     include(implementation('club.minnced:discord-rpc-release:v3.4.0'))
     include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 
-    modApi "ch.njol.minecraft:ui-framework:1.0.2-mc1.18"
-    include "ch.njol.minecraft:ui-framework:1.0.2-mc1.18"
-    modApi "ch.njol.minecraft:config-framework:1.1.0-mc1.18"
-    include "ch.njol.minecraft:config-framework:1.1.0-mc1.18"
+    modApi "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
+    include "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
+    modApi "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
+    include "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
 }
 repositories {
     mavenLocal()
