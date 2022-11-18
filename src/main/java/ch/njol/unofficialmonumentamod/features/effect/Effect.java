@@ -15,7 +15,7 @@ import net.minecraft.text.Text;
 public class Effect {
 
 	private static final DecimalFormat POWER_FORMAT = new DecimalFormat("+0.##;-#");
-	private static final Pattern EFFECT_PATTERN = Pattern.compile("(?:(?<effectPower>[+-]*\\d*)(?:\\.\\d+)?(?<percentage>%)? )?(?<effectName>.*) (?<timeRemaining>\\d*:\\d*)");
+	private static final Pattern EFFECT_PATTERN = Pattern.compile("(?:(?<effectPower>[+-]?\\d+(?:\\.\\d+)?)(?<percentage>%)? )?(?<effectName>.*) (?<timeRemaining>\\d*:\\d*)");
 
 	String name;
 	int effectTime;

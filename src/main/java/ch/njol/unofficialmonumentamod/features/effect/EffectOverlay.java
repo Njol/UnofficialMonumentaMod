@@ -114,7 +114,7 @@ public class EffectOverlay extends HudElement {
 		boolean textAlightRight = UnofficialMonumentaModClient.options.effect_textAlightRight;
 		for (Effect effect : visibleEffects) {
 			Text text = effect.toText(tickDelta, textAlightRight);
-			textRenderer.draw(matrices, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
+			textRenderer.drawWithShadow(matrices, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
 			currentY += textRenderer.fontHeight + 2;
 		}
 	}
