@@ -12,9 +12,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.resource.Resource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -95,7 +97,12 @@ public class Locations {
 	private static final Identifier FILE_IDENTIFIER = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "override/locations.json");
 
 	public void reload() {
-		try (InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER).getInputStream();
+		locations.clear();
+		Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER);
+		if (resource.isEmpty()) {
+			return;
+		}
+		try (InputStream stream = resource.get().getInputStream();
 		     InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
 			locations = GSON.fromJson(reader, new TypeToken<HashMap<String, ArrayList<Location>>>() {
 			}.getType());

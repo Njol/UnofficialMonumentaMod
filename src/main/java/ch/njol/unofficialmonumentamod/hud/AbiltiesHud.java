@@ -54,7 +54,8 @@ public class AbiltiesHud extends HudElement {
 		UNKNOWN_ABILITY_ICON = atlas.registerSprite("unknown_ability");
 		UNKNOWN_CLASS_BORDER = atlas.registerSprite("unknown_border");
 		List<Identifier> foundIcons = MinecraftClient.getInstance().getResourceManager().findResources("textures/abilities", path -> true)
-			                              .stream().filter(id -> id.getNamespace().equals(UnofficialMonumentaModClient.MOD_IDENTIFIER)).toList();
+			                              .keySet().stream()
+			                              .filter(id -> id.getNamespace().equals(UnofficialMonumentaModClient.MOD_IDENTIFIER)).toList();
 		for (Identifier foundIcon : foundIcons) {
 			if (foundIcon == COOLDOWN_OVERLAY || foundIcon == COOLDOWN_FLASH || foundIcon == UNKNOWN_ABILITY_ICON || foundIcon == UNKNOWN_CLASS_BORDER) {
 				continue;

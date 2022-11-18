@@ -9,8 +9,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 
 public class ShardData {
@@ -22,7 +24,11 @@ public class ShardData {
 
 	public static void reload() {
 		SHARDS.clear();
-		try (InputStream stream = MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER).getInputStream()) {
+		Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER);
+		if (resource.isEmpty()) {
+			return;
+		}
+		try (InputStream stream = resource.get().getInputStream()) {
 			HashMap<String, Shard> hash = new GsonBuilder().create().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), new TypeToken<HashMap<String, Shard>>() {
 			}.getType());
 			if (hash != null) {

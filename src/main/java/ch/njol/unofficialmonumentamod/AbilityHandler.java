@@ -9,6 +9,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.random.Random;
 import org.jetbrains.annotations.Nullable;
 
 public class AbilityHandler {
@@ -17,6 +18,8 @@ public class AbilityHandler {
 	private static final Identifier COOLDOWN_SOUND_ALT = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "cooldown_ping_alt");
 
 	public static final int MAX_ANIMATION_TICKS = 20;
+
+	private static final Random random = Random.create();
 
 	public static class AbilityInfo {
 		public String name;
@@ -118,9 +121,10 @@ public class AbilityHandler {
 				float pitchMin = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMin;
 				float pitchMax = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMax;
 				MinecraftClient.getInstance().getSoundManager().play(
-					new PositionedSoundInstance(UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundUseAlt ? COOLDOWN_SOUND_ALT : COOLDOWN_SOUND, SoundCategory.MASTER, UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume,
+					new PositionedSoundInstance(UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundUseAlt ? COOLDOWN_SOUND_ALT : COOLDOWN_SOUND,
+						SoundCategory.MASTER, UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume,
 						pitchMin + (i == 0 ? 0 : (pitchMax - pitchMin) * i / (data.size() - 1)),
-						false, 0, SoundInstance.AttenuationType.NONE, 0, 0, 0, true));
+						random, false, 0, SoundInstance.AttenuationType.NONE, 0, 0, 0, true), 0);
 			}
 			if (abilityInfo.offCooldownAnimationTicks < MAX_ANIMATION_TICKS) {
 				abilityInfo.offCooldownAnimationTicks++;

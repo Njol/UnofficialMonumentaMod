@@ -30,10 +30,10 @@ dependencies {
     include(implementation('club.minnced:discord-rpc-release:v3.4.0'))
     include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 
-    modApi "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
-    include "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
-    modApi "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
-    include "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
+    modApi "ch.njol.minecraft:ui-framework-mc1_19:${project.ui_framework_version}"
+    include "ch.njol.minecraft:ui-framework-mc1_19:${project.ui_framework_version}"
+    modApi "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
+    include "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
 }
 repositories {
     mavenLocal()
@@ -112,7 +112,7 @@ modrinth {
     versionNumber = project.mod_version
     versionType = "release"
     uploadFile = remapJar
-    gameVersions = ["1.18.2"]
+    gameVersions = [project.minecraft_version]
     loaders = ["fabric"]
     changelog = changeLog
     dependencies {
@@ -131,7 +131,7 @@ curseforge {
         id = '509666'
         changelog = changeLog
         releaseType = 'release'
-        addGameVersion '1.18.2'
+        addGameVersion project.minecraft_version
         addGameVersion 'Fabric'
 
         mainArtifact(remapJar) {

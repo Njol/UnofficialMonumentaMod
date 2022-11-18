@@ -8,7 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,8 +41,8 @@ public abstract class ClientPlayerInteractionManagerMixin {
 		if (MinecraftClient.getInstance().currentScreen instanceof GenericContainerScreen
 			    && !(screenHandler.getSlot(slotId).inventory instanceof PlayerInventory)
 			    && ("Ender Chest".equals(MinecraftClient.getInstance().currentScreen.getTitle().getString()) // fake Ender Chest inventory (opened via Remnant)
-				        || MinecraftClient.getInstance().currentScreen.getTitle() instanceof TranslatableText
-					           && "container.enderchest".equals(((TranslatableText) MinecraftClient.getInstance().currentScreen.getTitle()).getKey()))) {
+				        || MinecraftClient.getInstance().currentScreen.getTitle() instanceof TranslatableTextContent
+					           && "container.enderchest".equals(((TranslatableTextContent) MinecraftClient.getInstance().currentScreen.getTitle()).getKey()))) {
 			return UnofficialMonumentaModClient.options.chestsortDisabledForEnderchest;
 		}
 		return UnofficialMonumentaModClient.options.chestsortDisabledEverywhereElse;
