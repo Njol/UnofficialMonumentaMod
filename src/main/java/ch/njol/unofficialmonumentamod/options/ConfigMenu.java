@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.options;
 
-import ch.njol.minecraft.config.Config;
+import ch.njol.minecraft.config.ClothConfigSetup;
+import ch.njol.minecraft.config.ModMenuConfigSetup;
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
@@ -16,14 +17,14 @@ public class ConfigMenu implements ModMenuApi {
 
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
-		return Config.getModConfigScreenFactory(UnofficialMonumentaModClient.MOD_IDENTIFIER + ".config", () -> UnofficialMonumentaModClient.options, new Options());
+		return ModMenuConfigSetup.getModConfigScreenFactory(UnofficialMonumentaModClient.MOD_IDENTIFIER + ".config", () -> UnofficialMonumentaModClient.options, new Options());
 	}
 
 	public static void registerTypes() {
-		Config.registerType(ElementPosition.class, (value, defaultValue, field, translatePath, saveConsumer) -> {
+		ClothConfigSetup.registerType(ElementPosition.class, (value, defaultValue, field, translatePath, saveConsumer) -> {
 			List<AbstractConfigListEntry> entries = new ArrayList<>(); // API requires raw type
 			for (Field posField : ElementPosition.class.getDeclaredFields()) {
-				entries.add(Config.buildConfigEntry(value, defaultValue, posField, UnofficialMonumentaModClient.MOD_IDENTIFIER + ".config.position"));
+				entries.add(ClothConfigSetup.buildConfigEntry(value, defaultValue, posField, UnofficialMonumentaModClient.MOD_IDENTIFIER + ".config.position"));
 			}
 			return ConfigEntryBuilderImpl.create()
 				       .startSubCategory(new TranslatableText(translatePath), entries)

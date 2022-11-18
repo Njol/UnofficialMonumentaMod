@@ -31,47 +31,50 @@ public class Calculator extends DrawableHelper {
 	public static String output;
 
 	private static void switchMode() {
-		mode = (mode == CalculatorMode.NORMAL ? CalculatorMode.EXCHANGE : mode == CalculatorMode.EXCHANGE ? CalculatorMode.REVERSE_EXCHANGE : CalculatorMode.NORMAL);
+		mode = CalculatorMode.values()[(mode.ordinal() + 1) % CalculatorMode.values().length];
 	}
 
-	public synchronized static String logic() {
-		int HyperValue = (int) Math.floor((values.get(1) * values.get(0)) / 64.0);
-		int CompressedValue = (values.get(1) * values.get(0)) % 64;
+	public static String logic() {
+		long value = (long) values.get(1) * values.get(0);
 
-		return HyperValue + "H* " + CompressedValue + "C*";
+		return (value / 64) + "H* " + (value % 64) + "C*";
 	}
 
-	public synchronized static String exchangeLogic() {
+	public static String exchangeLogic() {
 		if (values.size() < 3) {
-			return "0H* 0C*";
+			return "***";
 		}
-		int rate1 = values.get(0);//in C*1
-		int rate2 = values.get(1);//in C*2
 
-		float exchange_rate = (float) rate1 / rate2;
-		int toTransfer = values.get(2);//in H*1
-
-		float result = (toTransfer * 64) * exchange_rate;
-
-		return ((int) Math.floor(result / 64)) + "H* " + ((int) result % 64) + "C*";
-	}
-
-	public synchronized static String reverseExchangeLogic() {//stonks momento
-		if (values.size() < 3) {
-			return "0H* 0C*";
-		}
-		int wantedAmount = values.get(2);//in H*2
-
+		int wantedAmount = values.get(2);//in H*1
 		int rate1 = values.get(0);//in C*1
 		int rate2 = values.get(1);//in C*2
 
 		if (rate2 == 0) {
-			return "0H* 0C*";//prevents ArithmeticException
+			return "***";
 		}
-		float exchange_rate = (float) rate1 / rate2;
-		int CWantedAmount = wantedAmount * 64;
 
-		return ((int) Math.floor((CWantedAmount * (1 / exchange_rate)) / 64)) + "H* " + ((int) (CWantedAmount * (1 / exchange_rate)) % 64) + "C*";
+		// (x+y-1)/y is integer division, rounding up
+		long result = (wantedAmount * 64L * rate1 + rate2 - 1) / rate2;
+
+		return (result / 64) + "H* " + (result % 64) + "C*";
+	}
+
+	public static String reverseExchangeLogic() {//stonks momento
+		if (values.size() < 3) {
+			return "***";
+		}
+
+		int wantedAmount = values.get(2);//in H*2
+		int rate1 = values.get(0);//in C*1
+		int rate2 = values.get(1);//in C*2
+
+		if (rate1 == 0) {
+			return "***";
+		}
+
+		long result = (wantedAmount * 64L * rate2 + rate1 - 1) / rate1;
+
+		return (result / 64) + "H* " + (result % 64) + "C*";
 	}
 
 	public static void tick() {
@@ -270,7 +273,7 @@ public class Calculator extends DrawableHelper {
 			widget.render(matrices, mouseX, mouseY, delta);
 		}
 
-		mc.textRenderer.drawWithShadow(matrices, Objects.requireNonNullElse(output, "0H* 0C*"), x + 10, y + 105, 0xffcccccc);
+		mc.textRenderer.drawWithShadow(matrices, Objects.requireNonNullElse(output, "***"), x + 10, y + 105, 0xffcccccc);
 	}
 	//endregion
 
