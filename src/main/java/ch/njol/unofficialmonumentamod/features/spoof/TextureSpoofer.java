@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.UUID;
+
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -22,7 +24,6 @@ import net.minecraft.util.registry.Registry;
 public class TextureSpoofer {
 	private static final String CACHE_PATH = "monumenta/texture-spoof.json";
 	public final HashMap<String, SpoofItem> spoofedItems = new HashMap<>();
-	//need to change nbt / item
 
 	private static final Gson GSON = new GsonBuilder()
 		                                 .setPrettyPrinting()
@@ -38,14 +39,12 @@ public class TextureSpoofer {
 			return stack;
 		}
 		String key = stack.getName().getString().toLowerCase();
-		//probably, just probably should make it, so it's just the render and not the actual item that's edited, because it being able to be placed, does do stupid things.
 		if (spoofedItems.containsKey(key)) {
 			SpoofItem item = spoofedItems.get(key);
 			if (stack.hasNbt() && hasBeenEdited(stack)) {
 				return stack;
 			}
-			if (item == null) {
-				//if I do dumb shit again, this should stop it from crashing
+			if (item == null || item.invalid) {
 				return stack;
 			}
 			ItemStack newItemStack = stack.copy();
@@ -56,6 +55,22 @@ public class TextureSpoofer {
 				assert newItemStack.getNbt() != null;
 				if (item.displayName != null) {
 					newItemStack.getNbt().put("plain", setPlain(newItemStack.getNbt(), item.displayName));
+				}
+				
+				if (item.hope != null) {
+					try {
+						//check if it's a valid uuid
+						UUID uuid = UUID.fromString(item.hope);
+						newItemStack.getNbt().put("Monumenta", setHoped(newItemStack.getNbt(), item.hope));
+					} catch (IllegalArgumentException e) {
+						UnofficialMonumentaModClient.LOGGER.error("invalid Hope skin uuid, removing entry.");
+						SpoofItem newSpoof = spoofedItems.get(key);
+						newSpoof.invalid = true;
+						spoofedItems.replace(key, newSpoof);
+						e.printStackTrace();
+						return stack;
+					}
+				
 				}
 				//to be able to detect already edited stacks
 				NbtCompound monumentamodCompound = new NbtCompound();
@@ -70,6 +85,20 @@ public class TextureSpoofer {
 
 	private final TypeToken<HashMap<String, SpoofItem>> typeToken = new TypeToken<>() {
 	};
+	
+	private static NbtCompound setHoped(NbtCompound stackData, String uuid) {
+		NbtCompound monumenta = getOrCreateCompound(stackData, "Monumenta");
+		NbtCompound playerModified = getOrCreateCompound(monumenta, "PlayerModified");
+		NbtCompound infusions = getOrCreateCompound(playerModified, "Infusions");
+		NbtCompound hope = getOrCreateCompound(infusions, "Hope");
+		
+		hope.putString("Infuser", uuid);
+		
+		infusions.put("Hope", hope);
+		playerModified.put("Infusions", infusions);
+		monumenta.put("PlayerModified", playerModified);
+		return monumenta;
+	}
 
 	private static NbtCompound setPlain(NbtCompound stackData, String displayName) {
 		NbtCompound plain = getOrCreateCompound(stackData, "plain");
@@ -113,7 +142,8 @@ public class TextureSpoofer {
 
 	public static boolean wouldveBeenEdited(ItemStack stack) {
 		String key = stack.getName().getString().toLowerCase();
-		return UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(key);
+		return UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(key) &&
+				!UnofficialMonumentaModClient.spoofer.spoofedItems.get(key).invalid;
 	}
 
 	public void reload() {
@@ -158,7 +188,11 @@ public class TextureSpoofer {
 		@Expose
 		public String displayName;
 		@Expose
-		public boolean override;
+		public String hope;
+		@Expose
+		public boolean override = false;
+		
+		protected boolean invalid;
 
 		public SpoofItem(Item item, String displayName) {
 			this.item = Registry.ITEM.getId(item).toString();
@@ -171,7 +205,7 @@ public class TextureSpoofer {
 
 		@Override
 		public String toString() {
-			return item + "-" + displayName;
+			return item + "-" + displayName + (hope != null ? "-(hoped by "+ hope +")" : "");
 		}
 	}
 }

@@ -82,6 +82,6 @@ public abstract class ItemRendererMixin {
 
 	@ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), argsOnly = true)
 	private ItemStack editStackrIE(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+		return !(value.isOf(Items.SHIELD) && UnofficialMonumentaModClient.spoofer.apply(value).isOf(Items.SHIELD)) ? UnofficialMonumentaModClient.spoofer.apply(value) : value;
 	}
 }
