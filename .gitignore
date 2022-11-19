@@ -113,7 +113,3 @@ gradle-app.setting
 
 # Common working directory
 run/
-
-gradlew
-gradlew.bat
-gradle-wrapper.properties
