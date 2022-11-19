@@ -36,12 +36,28 @@ dependencies {
     include "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
 }
 repositories {
-    mavenLocal()
+   mavenLocal()
     mavenCentral()
     maven { url = "https://maven.terraformersmc.com" }
     maven { url = "https://maven.shedaniel.me/" }
     jcenter()
     maven { url = "https://jitpack.io/" }
+    maven {
+        name = "GithubPackages-ConfigFramework"
+        url = uri("https://maven.pkg.github.com/Ascynx/MCUIFramework")
+        credentials {
+            username = System.getenv("GITHUB_AUTHOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+    maven {
+        name = "GithubPackages-ConfigFramework"
+        url = uri("https://maven.pkg.github.com/Ascynx/MCConfigFramework")
+        credentials {
+            username = System.getenv("GITHUB_AUTHOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 processResources {
