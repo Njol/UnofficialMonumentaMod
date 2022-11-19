@@ -37,4 +37,3 @@ jobs:
         with:
           name: Artifact
           path: build/libs/*.jar
-          path-ignore: build/libs/*-sources.jar
