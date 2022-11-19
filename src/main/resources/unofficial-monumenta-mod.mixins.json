@@ -11,6 +11,7 @@
     "ElytraFeatureRendererMixin",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
+    "HeldItemRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
     "MinecraftClientMixin",
