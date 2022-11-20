@@ -14,12 +14,10 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    environment: build
     runs-on: ubuntu-latest
     env:
       GIT_URL: ${{ github.server_url }}/${{ github.repository }}/tree/${{ github.sha }}
       REF_NAME: ${{ github.ref_name }}
-      WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
       GITHUB_ACTOR: ${{ secrets.ACTOR }}
       GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
@@ -37,4 +35,3 @@ jobs:
         with:
           name: Artifact
           path: build/libs/*.jar
-          path-ignore: build/libs/*-sources.jar
