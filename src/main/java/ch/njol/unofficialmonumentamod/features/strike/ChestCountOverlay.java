@@ -34,7 +34,7 @@ public class ChestCountOverlay extends HudElement {
 	protected void render(MatrixStack matrices, float tickDelta) {
 		final TextRenderer tr = MinecraftClient.getInstance().textRenderer;
 
-		DrawableHelper.fill(matrices, 0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(0.3f));
+		DrawableHelper.fill(matrices, 0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
 		Rectangle dimension = getDimension();
 		client.getItemRenderer().renderGuiItemIcon(CHEST, dimension.x + 4, dimension.y + (HEIGHT - 16) / 2);
@@ -59,7 +59,7 @@ public class ChestCountOverlay extends HudElement {
 
 	public void onActionbarReceived(Text text) {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
-		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76+1 Chest \u00a7cadded to lootroom\\..*")) {
+		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
 			currentCount++;
 		}
 	}

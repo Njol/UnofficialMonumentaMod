@@ -109,7 +109,7 @@ public class EffectOverlay extends HudElement {
 		int width = getWidth();
 		int currentY = PADDING_VERTICAL;
 
-		DrawableHelper.fill(matrices, 0, 0, width, height, client.options.getTextBackgroundColor(0.3f));
+		DrawableHelper.fill(matrices, 0, 0, width, height, client.options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
 		boolean textAlightRight = UnofficialMonumentaModClient.options.effect_textAlightRight;
 		for (Effect effect : visibleEffects) {

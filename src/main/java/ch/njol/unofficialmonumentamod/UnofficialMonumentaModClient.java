@@ -10,7 +10,7 @@ import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
+import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import ch.njol.unofficialmonumentamod.options.ConfigMenu;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.JsonParseException;
@@ -97,7 +97,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		KeyBindingHelper.registerKeyBinding(toggleCalculatorKeyBinding);
 
-		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
+		Hud.INSTANCE.addElement(AbilitiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
 

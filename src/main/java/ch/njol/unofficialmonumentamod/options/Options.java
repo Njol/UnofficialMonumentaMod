@@ -51,6 +51,12 @@ public class Options implements ch.njol.minecraft.config.Options {
 
 	@Category("misc")
 	public boolean enableTextureSpoofing = true;
+	
+	@Category("misc")
+	public transient DescriptionLine overlay_misc;
+	@Category("misc")
+	@FloatSlider(min = 0F, max = 1F, step = 0.05F, unit = "A/mm")
+	public float overlay_opacity = 0.3F;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;
