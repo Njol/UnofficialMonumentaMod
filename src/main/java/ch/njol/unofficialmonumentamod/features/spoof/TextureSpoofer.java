@@ -14,10 +14,12 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtInt;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
@@ -33,12 +35,31 @@ public class TextureSpoofer {
 	public void onDisconnect() {
 		save();
 	}
+	
+	public static String getKeyOf(ItemStack stack) {
+		return stack.getName().getString().toLowerCase();
+	}
+	
+	public Item getSpoofItem(ItemStack stack) {
+		if (!UnofficialMonumentaModClient.options.enableTextureSpoofing) {
+			return stack.getItem();
+		}
+		
+		String key = getKeyOf(stack);
+		if (spoofedItems.containsKey(key)) {
+			SpoofItem sI = spoofedItems.get(key);
+			
+			return Registry.ITEM.get(sI.getItemIdentifier());
+		}
+		
+		return stack.getItem();
+	}
 
-	public ItemStack apply(ItemStack stack) {
+	public ItemStack applyOnCopy(ItemStack stack) {
 		if (!UnofficialMonumentaModClient.options.enableTextureSpoofing) {
 			return stack;
 		}
-		String key = stack.getName().getString().toLowerCase();
+		String key = getKeyOf(stack);
 		if (spoofedItems.containsKey(key)) {
 			SpoofItem item = spoofedItems.get(key);
 			if (stack.hasNbt() && hasBeenEdited(stack)) {
@@ -47,11 +68,15 @@ public class TextureSpoofer {
 			if (item == null || item.invalid) {
 				return stack;
 			}
+			
 			ItemStack newItemStack = stack.copy();
-
-			((ItemStackAccessor) (Object) newItemStack).setItem(Registry.ITEM.get(item.getItemIdentifier()));
-
-			if (newItemStack.hasNbt()) {
+			
+			Item overrideItem = Registry.ITEM.get(item.getItemIdentifier());
+			if (!stack.getItem().equals(overrideItem)) {
+				((ItemStackAccessor) (Object) newItemStack).setItem(overrideItem);
+			}
+			
+			if (stack.hasNbt()) {
 				assert newItemStack.getNbt() != null;
 				if (item.displayName != null) {
 					newItemStack.getNbt().put("plain", setPlain(newItemStack.getNbt(), item.displayName));
@@ -70,17 +95,75 @@ public class TextureSpoofer {
 						e.printStackTrace();
 						return stack;
 					}
-				
+					
 				}
 				//to be able to detect already edited stacks
 				NbtCompound monumentamodCompound = new NbtCompound();
 				monumentamodCompound.put("edited", NbtInt.of(1));
 				newItemStack.getNbt().put("monumenta-mod", monumentamodCompound);
 			}
-
+			
 			return newItemStack;
 		}
 		return stack;
+	}
+	
+	public ItemStack apply(ItemStack stack) {
+		//avoid unforeseen use actions if the stack's item type is different from what it actually is (would look kinda dumb if I could place sword ._.)
+		if (stack.getItem() == this.getSpoofItem(stack)) {
+			applyOnOriginal(stack);
+			return null;
+		} else {
+			return applyOnCopy(stack);
+		}
+	}
+	
+	public void applyOnOriginal(ItemStack stack) {
+		if (!UnofficialMonumentaModClient.options.enableTextureSpoofing) {
+			return;
+		}
+		String key = getKeyOf(stack);
+		if (spoofedItems.containsKey(key)) {
+			SpoofItem item = spoofedItems.get(key);
+			if (stack.hasNbt() && hasBeenEdited(stack)) {
+				return;
+			}
+			if (item == null || item.invalid) {
+				return;
+			}
+			
+			Item overrideItem = Registry.ITEM.get(item.getItemIdentifier());
+			if (!stack.getItem().equals(overrideItem)) {
+				((ItemStackAccessor) (Object) stack).setItem(overrideItem);
+			}
+
+			if (stack.hasNbt()) {
+				assert stack.getNbt() != null;
+				if (item.displayName != null) {
+					stack.getNbt().put("plain", setPlain(stack.getNbt(), item.displayName));
+				}
+				
+				if (item.hope != null) {
+					try {
+						//check if it's a valid uuid
+						UUID uuid = UUID.fromString(item.hope);
+						stack.getNbt().put("Monumenta", setHoped(stack.getNbt(), item.hope));
+					} catch (IllegalArgumentException e) {
+						UnofficialMonumentaModClient.LOGGER.error("invalid Hope skin uuid, removing entry.");
+						SpoofItem newSpoof = spoofedItems.get(key);
+						newSpoof.invalid = true;
+						spoofedItems.replace(key, newSpoof);
+						e.printStackTrace();
+						return;
+					}
+				
+				}
+				//to be able to detect already edited stacks
+				NbtCompound monumentamodCompound = new NbtCompound();
+				monumentamodCompound.put("edited", NbtInt.of(1));
+				stack.getNbt().put("monumenta-mod", monumentamodCompound);
+			}
+		}
 	}
 
 	private final TypeToken<HashMap<String, SpoofItem>> typeToken = new TypeToken<>() {
@@ -100,7 +183,7 @@ public class TextureSpoofer {
 		return monumenta;
 	}
 
-	private static NbtCompound setPlain(NbtCompound stackData, String displayName) {
+	public static NbtCompound setPlain(NbtCompound stackData, String displayName) {
 		NbtCompound plain = getOrCreateCompound(stackData, "plain");
 		NbtCompound display = getOrCreateCompound(plain, "display");
 		display.putString("Name", displayName);
@@ -141,7 +224,7 @@ public class TextureSpoofer {
 	}
 
 	public static boolean wouldveBeenEdited(ItemStack stack) {
-		String key = stack.getName().getString().toLowerCase();
+		String key = getKeyOf(stack);
 		return UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(key) &&
 				!UnofficialMonumentaModClient.spoofer.spoofedItems.get(key).invalid;
 	}

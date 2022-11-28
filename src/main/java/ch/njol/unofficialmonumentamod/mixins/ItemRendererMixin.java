@@ -71,17 +71,20 @@ public abstract class ItemRendererMixin {
 	}
 
 	@ModifyVariable(method = "renderGuiItemIcon", at = @At("HEAD"), argsOnly = true)
-	private ItemStack editStackrGII(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+	private ItemStack umm$editStack$renderGuiItemIcon(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 	@ModifyVariable(method = "innerRenderInGui(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;IIII)V", at = @At("HEAD"), argsOnly = true)
-	private ItemStack editStackiRIG(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+	private ItemStack umm$editStack$innerRenderInGui(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 	@ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), argsOnly = true)
-	private ItemStack editStackrIE(ItemStack value) {
-		return !(value.isOf(Items.SHIELD) && UnofficialMonumentaModClient.spoofer.apply(value).isOf(Items.SHIELD)) ? UnofficialMonumentaModClient.spoofer.apply(value) : value;
+	private ItemStack umm$editStack$renderItem(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 }
