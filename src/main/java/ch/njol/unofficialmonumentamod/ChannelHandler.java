@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -19,10 +20,12 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 
 	private final Gson gson;
 	private final AbilityHandler abilityHandler;
+	private final ChestCountOverlay chestCountOverlay;
 
 	public ChannelHandler() {
 		gson = new GsonBuilder().create();
 		abilityHandler = UnofficialMonumentaModClient.abilityHandler;
+		chestCountOverlay = ChestCountOverlay.INSTANCE;
 	}
 
 	/**
@@ -79,6 +82,20 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 
 	}
 
+	/**
+	 * Sent whenever the number of chests in a strike changes
+	 */
+	public static class StrikeChestUpdatePacket {
+
+		final String _type = "StrikeChestUpdatePacket";
+
+		public int newLimit;
+
+		@Nullable
+		public Integer count;
+
+	}
+
 	@Override
 	public void receive(MinecraftClient client, ClientPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
 		String message = buf.readCharSequence(buf.readableBytes(), StandardCharsets.UTF_8).toString();
@@ -100,6 +117,10 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 				case "PlayerStatusPacket" -> {
 					PlayerStatusPacket packet = gson.fromJson(json, PlayerStatusPacket.class);
 					abilityHandler.updateStatus(packet);
+				}
+				case "StrikeChestUpdatePacket" -> {
+					StrikeChestUpdatePacket packet = gson.fromJson(json, StrikeChestUpdatePacket.class);
+					chestCountOverlay.onStrikeChestUpdatePacket(packet);
 				}
 			}
 		});
