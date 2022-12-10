@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.features.strike;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
+import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
@@ -61,6 +62,13 @@ public class ChestCountOverlay extends HudElement {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
 		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76+1 Chest \u00a7cadded to lootroom\\..*")) {
 			currentCount++;
+		}
+	}
+
+	public void onStrikeChestUpdatePacket(ChannelHandler.StrikeChestUpdatePacket packet) {
+		totalChests = packet.newLimit;
+		if (packet.count != null) {
+			currentCount = packet.count;
 		}
 	}
 
