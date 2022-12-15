@@ -70,6 +70,8 @@ public class ChestCountOverlay extends HudElement {
 		if (packet.count != null) {
 			currentCount = packet.count;
 		}
+		searchingForShard = false;
+		lastShard = null;
 	}
 
 	public void onWorldLoad() {
