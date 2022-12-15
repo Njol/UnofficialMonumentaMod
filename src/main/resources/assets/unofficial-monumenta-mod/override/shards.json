@@ -69,7 +69,7 @@
   "corridors": {
     "officialName": "Ephemeral Corridors",
     "shardType": "STRIKE",
-    "maxChests": 21
+    "maxChests": null
   },
   "reverie": {
     "officialName": "Malevolent Reverie",
