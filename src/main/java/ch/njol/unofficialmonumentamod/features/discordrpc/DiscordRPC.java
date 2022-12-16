@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Hand;
 
@@ -75,7 +76,7 @@ public class DiscordRPC {
 			DiscordRichPresence presence = new DiscordRichPresence();
 			presence.startTimestamp = start_time;
 			presence.largeImageKey = isOnMonumenta ? "monumenta" : "minecraft512";
-			presence.largeImageText = "Unofficial Monumenta Mod";
+			presence.largeImageText = FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Development Instance" : "Unofficial Monumenta Mod";
 			presence.instance = 1;
 
 			if (isSinglePlayer) {

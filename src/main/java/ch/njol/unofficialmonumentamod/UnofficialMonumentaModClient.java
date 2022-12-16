@@ -6,6 +6,7 @@ import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
@@ -83,6 +84,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			abilityHandler.tick();
 			effectOverlay.tick();
 			Calculator.tick();
+			SlotLocking.getInstance().onEndTick();
 		});
 
 		ClientTickEvents.END_WORLD_TICK.register(world -> {
@@ -96,6 +98,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
 		KeyBindingHelper.registerKeyBinding(toggleCalculatorKeyBinding);
+		KeyBindingHelper.registerKeyBinding(SlotLocking.LOCK_KEY);
 
 		Hud.INSTANCE.addElement(AbilitiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
@@ -115,6 +118,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
 		spoofer.onDisconnect();
+		SlotLocking.getInstance().save();
 	}
 
 	public static boolean isOnMonumenta() {
