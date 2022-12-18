@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.features.misc;
 
 import ch.njol.minecraft.uiframework.ModSpriteAtlasHolder;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.mixins.KeyBindingAccessor;
 import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import com.google.gson.Gson;
@@ -9,8 +10,8 @@ import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.BufferBuilder;
@@ -41,13 +42,8 @@ import java.io.IOException;
 import static ch.njol.minecraft.uiframework.hud.HudElement.drawSprite;
 
 public class SlotLocking {
-	// This feature is largely based on https://github.com/NotEnoughUpdates/NotEnoughUpdates/blob/master/src/main/java/io/github/moulberry/notenoughupdates/miscfeatures/SlotLocking.java
+	// This feature is largely based on https://github.com/NotEnoughUpdates/NotEnoughUpdates/blob/master/src/main/java/io/github/moulberry/notenoughupdates/miscfeatures/SlotLocking.java per the LGPL 3.0 license
 	private static final String CACHE_PATH = "monumenta/lockedSlots.json";
-	
-	//Currently set to a placeholder texture (will change it once I actually make one)
-	private static Identifier LOCK;
-	private static Identifier LEFT_CLICK_UNLOCKED;
-	private static Identifier LEFT_CLICK_LOCKED;
 	
 	private static final SlotLocking INSTANCE = new SlotLocking();
 	private static final LockedSlot DEFAULT_LOCKED_SLOT = new LockedSlot();
@@ -110,16 +106,31 @@ public class SlotLocking {
 	
 	private static ModSpriteAtlasHolder atlas;
 	
+	private static Identifier LOCK;
+	private static Identifier LEFT_CLICK_LOCK;
+	private static Identifier RIGHT_CLICK_LOCK;
+	private static Identifier DROP_LOCK;
+	
+	private static Identifier BASE_LOCK;
+	
 	public static void registerSprites() {
 		if (atlas == null) {
 			atlas = ModSpriteAtlasHolder.createAtlas(UnofficialMonumentaModClient.MOD_IDENTIFIER, "gui");
 		} else {
 			atlas.clearSprites();
 		}
-		LOCK = atlas.registerSprite("lock");
-		LEFT_CLICK_LOCKED = atlas.registerSprite("lf_blocked");
-		LEFT_CLICK_UNLOCKED = atlas.registerSprite("lf_unblocked");
+		LOCK = atlas.registerSprite("locks/locked");
+		LEFT_CLICK_LOCK = atlas.registerSprite("locks/left-click");
+		RIGHT_CLICK_LOCK = atlas.registerSprite("locks/right-click");
+		DROP_LOCK = atlas.registerSprite("locks/drop");
+		BASE_LOCK  = atlas.registerSprite("locks/base-lock");
+		
+		
 	}
+	
+	//NOTE: doesn't work in creative inventory because it would require too many compat layers to actually make it work without having a lot of unintended behaviours.
+	
+	private final Utils.Lerp circleSize = new Utils.Lerp(0, 1000);
 	
 	private SlotLockData config = new SlotLockData();
 	
@@ -133,21 +144,21 @@ public class SlotLocking {
 			return;
 		}
 		
-		if (locked.locked && LOCK != null) {
+		if ((locked.locked || locked.lockDrop || locked.lockHalfPickup || locked.lockPickup) && LOCK != null) {
 			drawSprite(matrices, atlas.getSprite(LOCK), originX, originY, 16, 16);
 		}
 		
 		//status of special locks
-		DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
-		DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
-		DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
+		//DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
+		//DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
+		//DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
 	}
 	
 	public static KeyBinding LOCK_KEY = new KeyBinding("unofficial-monumenta-mod.keybinds.lock_slot", GLFW.GLFW_KEY_L, "unofficial-monumenta-mod.keybinds.category");
 	
 	public void onInputEvent(CallbackInfo ci) {
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.player == null) {
+		if (client.player == null || (client.currentScreen instanceof CreativeInventoryScreen)) {
 			return;
 		}
 		
@@ -162,7 +173,7 @@ public class SlotLocking {
 	
 	private static boolean isHoldingLockKey = false;
 	
-	public void __testRenderPolygon(MatrixStack matrices, int originX, int originY, int radius, int sides, int color) {
+	public void __testRenderPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
 		float a = (float)(color >> 24 & 0xFF) / 255.0f;
 		float r = (float)(color >> 16 & 0xFF) / 255.0f;
 		float g = (float)(color >> 8 & 0xFF) / 255.0f;
@@ -200,6 +211,10 @@ public class SlotLocking {
 			return;
 		}
 		
+		circleSize.tick();
+		
+		int slotIndex = activeSlot.getIndex();
+		
 		int containerOriginX = ((HandledScreenAccessor) containerScreen).getX();
 		int containerOriginY = ((HandledScreenAccessor) containerScreen).getY();
 		
@@ -208,26 +223,42 @@ public class SlotLocking {
 		int absoluteSlotY = containerOriginY + activeSlot.y;
 		
 		if (isHoldingLockKey) {
+			if (circleSize.getTarget() != 25.0f) {
+				circleSize.setTarget(25.0f);
+				circleSize.resetTimer();
+			}
+		} else {
+			if (circleSize.getValue() != 0.0f) {
+				circleSize.setValue(0.0f);
+				circleSize.setTarget(0.0f);
+			}
+		}
+		
+		if (isHoldingLockKey) {
+			LockedSlot slot = config.lockedSlots[slotIndex];
 			//is active and being held
 			
-			__testRenderPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, 20, 360, 0x404040a0);
+			__testRenderPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
 			
-			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_UNLOCKED), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
-			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCKED), absoluteSlotX + 15, absoluteSlotY - 15, 16, 16);
-			drawSprite(matrices, atlas.getSprite(LOCK), absoluteSlotX, absoluteSlotY + 15, 16, 16);
+			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
+			if (slot.lockPickup) {
+				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
+			}
+			drawSprite(matrices, atlas.getSprite(RIGHT_CLICK_LOCK), absoluteSlotX + 15, absoluteSlotY - 15, 16, 16);
+			if (slot.lockHalfPickup) {
+				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX + 15, absoluteSlotY - 15, 16, 16);
+			}
+			drawSprite(matrices, atlas.getSprite(DROP_LOCK), absoluteSlotX, absoluteSlotY + 15, 16, 16);
+			if (slot.lockDrop) {
+				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX, absoluteSlotY + 15, 16, 16);
+			}
 			
-			//TODO render outside slots
-			//TODO check for if released on one of the slots and act accordingly
 		} else if (ticksSinceLastLockKeyClick <= 3) {
 			//right after releasing lock key
 			
 			//the player is probably clicking close to the middle of the slot, so it should be precise enough to use.
 			int dragX = (absoluteSlotX + 8) - mouseX;
 			int dragY = (absoluteSlotY + 8) - mouseY;
-			
-			System.out.println(dragX + " " + dragY);
-			
-			int slotIndex = activeSlot.getIndex();
 			
 			if (config.lockedSlots[slotIndex] == null) {
 				config.lockedSlots[slotIndex] = new LockedSlot();
@@ -257,27 +288,24 @@ public class SlotLocking {
 				DrawableHelper.fill(matrices, (absoluteSlotX + 8) - side_max_x, (absoluteSlotY + 8) + bottom_max_y, (absoluteSlotX + 8) + side_max_x, MinecraftClient.getInstance().getWindow().getScaledHeight(),0xFFFF00FF);
 			* */
 			
-			//A lil bit of fine tuning later
 			if (dragX > left_max_right && dragY > top_min_y) {
 				//LEFT button
-				System.out.println("released on LEFT button");
 				config.lockedSlots[slotIndex].switchLock(LockType.PICKUP);
 			} else if (dragX < -right_max_left && dragY > top_min_y) {
 				//RIGHT button
-				System.out.println("released on RIGHT button");
 				config.lockedSlots[slotIndex].switchLock(LockType.HALF_PICKUP);
 			} else if ((dragX > -side_max_x && dragX < side_max_x) && dragY < -bottom_max_y) {
 				//DROP button
-				System.out.println("released on DROP button");
 				config.lockedSlots[slotIndex].switchLock(LockType.DROP);
 			} else if ((dragX > -full_left && dragX < full_right) && (dragY > -full_down && dragY < full_up)) {
 				//FULL lock
-				System.out.println("released on full lock");
 				config.lockedSlots[slotIndex].switchLock(LockType.ALL);
 			}
 			
 			//reset active slot
 			activeSlot = null;
+			
+			//TODO play sound?
 		}
 	}
 	
@@ -303,7 +331,7 @@ public class SlotLocking {
 	}
 	
 	public void onKeyboardInput(Screen screen, int code, int scancode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (!(screen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null) {
+		if (!(screen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || (screen instanceof CreativeInventoryScreen)) {
 			return;
 		}
 		
@@ -324,7 +352,6 @@ public class SlotLocking {
 					}
 					
 					activeSlot = slot;
-					
 					//TODO add sound
 				}
 			}
@@ -364,13 +391,15 @@ public class SlotLocking {
 			return false;
 		}
 		
+		return handleClickAction(slot, button);
+	}
+	
+	private boolean handleClickAction(Slot slot, int button) {
 		LockedSlot locked = getLockedSlot(slot);
-		
 		if (locked == null) {
 			return false;
 		}
 		
-		//left click, right click or all
 		return (button == 0 ? (locked.lockPickup || locked.locked) : button == 1 ? (locked.lockHalfPickup || locked.locked) : locked.locked);
 	}
 	
