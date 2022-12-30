@@ -30,34 +30,23 @@ dependencies {
     include(implementation('club.minnced:discord-rpc-release:v3.4.0'))
     include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 
-    modApi "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
-    include "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
-    modApi "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
-    include "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
+    //modApi "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
+    //include "ch.njol.minecraft:ui-framework-mc1_18:${project.ui_framework_version}"
+    //modApi "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
+    //include "ch.njol.minecraft:config-framework-mc1_18:${project.config_framework_version}"
+    modApi('com.github.Ascynx:MCConfigFramework:mc1.18-SNAPSHOT')
+    include('com.github.Ascynx:MCConfigFramework:mc1.18-SNAPSHOT')
+    modApi('com.github.Ascynx:MCUIFramework:mc1.18-SNAPSHOT')
+    include('com.github.Ascynx:MCUIFramework:mc1.18-SNAPSHOT')
 }
+
 repositories {
-   mavenLocal()
+    mavenLocal()
     mavenCentral()
     maven { url = "https://maven.terraformersmc.com" }
     maven { url = "https://maven.shedaniel.me/" }
     jcenter()
     maven { url = "https://jitpack.io/" }
-    maven {
-        name = "GithubPackages-ConfigFramework"
-        url = uri("https://maven.pkg.github.com/Ascynx/MCUIFramework")
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
-    }
-    maven {
-        name = "GithubPackages-ConfigFramework"
-        url = uri("https://maven.pkg.github.com/Ascynx/MCConfigFramework")
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
 processResources {

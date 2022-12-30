@@ -130,7 +130,7 @@ public class SlotLocking {
 	
 	//NOTE: doesn't work in creative inventory because it would require too many compat layers to actually make it work without having a lot of unintended behaviours.
 	
-	private final Utils.Lerp circleSize = new Utils.Lerp(0, 1000);
+	private final Utils.Lerp circleSize = new Utils.Lerp(0, 200);
 	
 	private SlotLockData config = new SlotLockData();
 	
@@ -223,8 +223,8 @@ public class SlotLocking {
 		int absoluteSlotY = containerOriginY + activeSlot.y;
 		
 		if (isHoldingLockKey) {
-			if (circleSize.getTarget() != 25.0f) {
-				circleSize.setTarget(25.0f);
+			if (circleSize.getTarget() != 20.0f) {
+				circleSize.setTarget(20.0f);
 				circleSize.resetTimer();
 			}
 		} else {
@@ -253,7 +253,7 @@ public class SlotLocking {
 				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX, absoluteSlotY + 15, 16, 16);
 			}
 			
-		} else if (ticksSinceLastLockKeyClick <= 3) {
+		} else if (ticksSinceLastLockKeyClick <= 2) {
 			//right after releasing lock key
 			
 			//the player is probably clicking close to the middle of the slot, so it should be precise enough to use.
@@ -320,8 +320,8 @@ public class SlotLocking {
 			} else {
 				ticksSinceLastLockKeyClick++;
 			}
-			
-			if (isHoldingLockKey && ticksSinceLastLockKeyClick > 2) {
+
+			if (isHoldingLockKey && ticksSinceLastLockKeyClick > 1) {
 				isHoldingLockKey = false;
 			}
 		} else {
@@ -329,7 +329,7 @@ public class SlotLocking {
 			ticksSinceLastLockKeyClick = 0;
 		}
 	}
-	
+
 	public void onKeyboardInput(Screen screen, int code, int scancode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
 		if (!(screen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || (screen instanceof CreativeInventoryScreen)) {
 			return;
