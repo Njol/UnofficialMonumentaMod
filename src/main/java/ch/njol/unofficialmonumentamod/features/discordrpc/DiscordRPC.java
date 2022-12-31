@@ -5,10 +5,9 @@ import ch.njol.unofficialmonumentamod.core.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRichPresence;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+
+import java.util.*;
+
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Hand;
@@ -62,9 +61,13 @@ public class DiscordRPC {
 		presence.startTimestamp = start_time;
 		presence.details = "In the Main menu";
 		presence.largeImageKey = "minecraft512";
-		presence.largeImageText = "Unofficial Monumenta Mod";
+		presence.largeImageText = getLargeImageText();
 		presence.instance = 1;
 		lib.Discord_UpdatePresence(presence);
+	}
+
+	private String getLargeImageText() {
+		return FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Development Instance" : "Unofficial Monumenta Mod";
 	}
 
 	private void updatePresence() {
@@ -76,7 +79,7 @@ public class DiscordRPC {
 			DiscordRichPresence presence = new DiscordRichPresence();
 			presence.startTimestamp = start_time;
 			presence.largeImageKey = isOnMonumenta ? "monumenta" : "minecraft512";
-			presence.largeImageText = FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Development Instance" : "Unofficial Monumenta Mod";
+			presence.largeImageText = getLargeImageText();
 			presence.instance = 1;
 
 			if (isSinglePlayer) {
@@ -98,15 +101,38 @@ public class DiscordRPC {
 
 					//set details
 					String detail = UnofficialMonumentaModClient.options.discordDetails;
-					if (detail.matches(".*?\\{.*?}.*?") && !shard.equals("unknown") && mc.player != null) {
-						detail = detail.replace("{player}", mc.player.getName().getString());
-						detail = detail.replace("{shard}", coolName != null ? coolName : shard);
-						detail = detail.replace("{holding}", !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
-						detail = detail.replace("{class}", UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
-						detail = detail.replace("{location}", UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
-					} else if (shard.equals("unknown")) {
-						detail = "User timed out or their shard couldn't be detected.";
+					ArrayList<Match> replacers = getDetectedDetails(detail);
+
+					for (Match replacer: replacers) {
+						switch (replacer.match) {
+							case "player" -> {
+								if (mc.player == null) {
+									continue;
+								}
+								detail = replacer.replaceIn(detail, mc.player.getName().getString());
+							}
+							case "shard" -> {
+								if (shard.equals("unknown")) {
+									continue;
+								}
+								detail = replacer.replaceIn(detail, coolName != null ? coolName : shard);
+							}
+							case "holding" -> {
+								if (mc.player == null) {
+									continue;
+								}
+								detail = replacer.replaceIn(detail, !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
+							}
+							case "class" -> detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
+							case "location" -> {
+								if (shard.equals("unknown") || mc.player == null) {
+									continue;
+								}
+								detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
+							}
+						}
 					}
+
 					presence.details = detail;
 				}
 			}
@@ -114,6 +140,43 @@ public class DiscordRPC {
 			lib.Discord_UpdatePresence(presence);
 		} else {
 			startPresence();
+		}
+	}
+
+	private ArrayList<Match> getDetectedDetails(String detailString) {
+		int lastOpenBracketFound = -1;
+		StringBuilder currentReplacerString = new StringBuilder();
+
+		ArrayList<Match> matches = new ArrayList<>();
+
+		for (int i = 0; i < detailString.length(); i++) {
+			char c = detailString.charAt(i);
+
+			if (c == '{' && lastOpenBracketFound == -1) {
+				lastOpenBracketFound = i;
+			} else if (c == '}' && lastOpenBracketFound != -1) {
+				//add the replacer to the matches
+				matches.add(new Match(currentReplacerString.toString()));
+				//reset the string builder and open bracket index
+				currentReplacerString = new StringBuilder();
+				lastOpenBracketFound = -1;
+			} else if ((Character.isDigit(c) || Character.isLetter(c)) && lastOpenBracketFound != -1) {
+				currentReplacerString.append(c);
+			}
+		}
+
+		return matches;
+	}
+
+	private static class Match {
+		String match;
+
+		Match(String match) {
+			this.match = match;
+		}
+
+		String replaceIn(String string, String replaceValue) {
+			return string.replace("{" + match + "}", replaceValue);
 		}
 	}
 

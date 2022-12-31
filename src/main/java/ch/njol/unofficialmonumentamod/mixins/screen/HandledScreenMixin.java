@@ -40,8 +40,10 @@ public abstract class HandledScreenMixin {
 	)
 	private void umm$afterDrawnSlot(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, MatrixStack matrixStack, int k, Slot slot) {
 		RenderSystem.disableDepthTest();
+		RenderSystem.enableBlend();
 		HandledScreen $this = (HandledScreen) (Object) this;
 		SlotLocking.getInstance().drawSlot($this, matrices, slot);
 		RenderSystem.enableDepthTest();
+		RenderSystem.disableBlend();
 	}
 }
