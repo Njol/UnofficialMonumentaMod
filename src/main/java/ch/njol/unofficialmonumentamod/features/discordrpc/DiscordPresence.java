@@ -4,6 +4,7 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import club.minnced.discord.rpc.DiscordEventHandlers;
+import club.minnced.discord.rpc.DiscordRPC;
 import club.minnced.discord.rpc.DiscordRichPresence;
 
 import java.util.*;
@@ -13,11 +14,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Hand;
 
 
-public class DiscordRPC {
-	club.minnced.discord.rpc.DiscordRPC lib = club.minnced.discord.rpc.DiscordRPC.INSTANCE;
+public class DiscordPresence {
+	private DiscordRPC lib = null;
 	String applicationId = "989262014562070619";
 	String steamId = "";
-	DiscordEventHandlers handlers = new DiscordEventHandlers();
+	private DiscordEventHandlers handlers = null;
 	Long start_time = System.currentTimeMillis() / 1000;
 
 	MinecraftClient mc = MinecraftClient.getInstance();
@@ -25,7 +26,17 @@ public class DiscordRPC {
 	Integer times = 0;
 	Timer t = new Timer();
 
+	public static DiscordPresence INSTANCE = new DiscordPresence();
+
+	private boolean initialized = false;
 	public void Init() {
+		if (initialized) {
+			return;
+		}
+
+		lib = DiscordRPC.INSTANCE;
+		handlers = new DiscordEventHandlers();
+
 		handlers.ready = (user) -> UnofficialMonumentaModClient.LOGGER.info("Ready! Connected to Discord with " + user.username + "#" + user.discriminator);
 		lib.Discord_Initialize(applicationId, handlers, true, steamId);
 
@@ -52,6 +63,8 @@ public class DiscordRPC {
 				}
 			}
 		}, 15000, 15000);
+
+		initialized = true;
 	}
 
 	private void startPresence() {

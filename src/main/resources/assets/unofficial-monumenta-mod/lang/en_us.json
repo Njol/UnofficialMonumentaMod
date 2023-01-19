@@ -2,7 +2,7 @@
 
   "unofficial-monumenta-mod.keybinds.category": "Unofficial Monumenta Mod",
   "unofficial-monumenta-mod.keybinds.toggleCalculator": "Toggle Calculator (plots shard only)",
-  "unofficial-monumenta-mod.keybinds.lock_slot": "Lock/Unlock pointed(word not quite what I want it to be) inventory slot",
+  "unofficial-monumenta-mod.keybinds.lock_slot": "Lock/Unlock selected inventory slot",
 
   "unofficial-monumenta-mod.config.title": "Unofficial Monumenta Mod Configuration",
 
@@ -113,6 +113,10 @@
   "unofficial-monumenta-mod.config.option.debugOptionsEnabled.tooltip": "",
   "unofficial-monumenta-mod.config.option.logPackets": "Log packets",
   "unofficial-monumenta-mod.config.option.logPackets.tooltip": "",
+  "unofficial-monumenta-mod.config.option.description_debug_slotlocking": "Slot locking",
+  "unofficial-monumenta-mod.config.option.descriptiption_debug_slotlocking.tooltip": "",
+  "unofficial-monumenta-mod.config.option.renderDebuggingAdvancedLock":  "Render special locks",
+  "unofficial-monumenta-mod.config.option.renderDebuggingAdvancedLock.tooltip":  "When slots are rendered will also render letters that shows that state of every special locks.",
 
   "unofficial-monumenta-mod.config.category.discord": "Discord Rich Presence",
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence (Requires restart)",

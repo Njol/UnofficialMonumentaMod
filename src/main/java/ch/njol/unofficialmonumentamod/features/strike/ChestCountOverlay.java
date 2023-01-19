@@ -60,7 +60,6 @@ public class ChestCountOverlay extends HudElement {
 
 	public void onActionbarReceived(Text text) {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
-		System.out.println("got new actionbar text " + text.getString());
 		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
 			currentCount++;
 		}
@@ -73,23 +72,16 @@ public class ChestCountOverlay extends HudElement {
 		}
 		searchingForShard = false;
 		lastShard = null;
-
-		//Debug stuff
-		System.out.println("got strike chest packet");
-		System.out.println("currentCount: " + currentCount);
-		System.out.println("maxChests: " + totalChests);
 	}
 
 	public void onWorldLoad() {
 		searchingForShard = true;
-		System.out.println("looking for shard");
 	}
 
 	public void onPlayerListHeader(Text text) {
 		if (!searchingForShard || Locations.getShardFrom(text) == null) {
 			return;
 		}
-		System.out.println("got player list packet with shard and looking for shard");
 		String shard = Locations.getShortShard();
 		if (Objects.equals(shard, "unknown")) {
 			return;

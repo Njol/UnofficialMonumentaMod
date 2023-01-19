@@ -87,8 +87,6 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 
 	@ModifyVariable(method = "renderArmor", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
 	private ItemStack editStack(ItemStack value) {
-		//TODO fix logic, for some reason override isn't working anymore :scared:
-		
 		//override logic, if override is false and the item is wearable it will remove the original stack else it will carry on.
 		if (UnofficialMonumentaModClient.options.enableTextureSpoofing &&
 			    UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(TextureSpoofer.getKeyOf(value)) &&

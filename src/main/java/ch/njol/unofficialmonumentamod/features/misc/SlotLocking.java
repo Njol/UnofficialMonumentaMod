@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -20,13 +21,16 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.network.MessageType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.Matrix4f;
@@ -128,12 +132,24 @@ public class SlotLocking {
 		
 	}
 	
-	//NOTE: doesn't work in creative inventory because it would require too many compat layers to actually make it work without having a lot of unintended behaviours.
+	//NOTE: doesn't work in creative inventory because it would require too many compatibility layers to actually make it work without having a lot of unintended behaviours.
 	
 	private final Utils.Lerp circleSize = new Utils.Lerp(0, 200);
 	
 	private SlotLockData config = new SlotLockData();
-	
+
+	private boolean isLockedSlot(LockedSlot locked) {
+		if (locked == null) {
+			return false;
+		}
+
+		return ((locked.locked || locked.lockDrop || locked.lockHalfPickup || locked.lockPickup));
+	}
+
+	public boolean isLockedSlot(Slot slot) {
+		return isLockedSlot(getLockedSlot(slot));
+	}
+
 	public void drawSlot(Screen screen, MatrixStack matrices, Slot slot) {
 		int originX = slot.x;
 		int originY = slot.y;
@@ -144,29 +160,40 @@ public class SlotLocking {
 			return;
 		}
 		
-		if ((locked.locked || locked.lockDrop || locked.lockHalfPickup || locked.lockPickup) && LOCK != null) {
+		if (isLockedSlot(locked) && LOCK != null) {
 			drawSprite(matrices, atlas.getSprite(LOCK), originX, originY, 16, 16);
 		}
 		
 		//status of special locks
-		//DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
-		//DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
-		//DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
+		if (UnofficialMonumentaModClient.options.renderDebuggingAdvancedLock) {
+			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
+			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
+			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
+		}
 	}
 	
 	public static KeyBinding LOCK_KEY = new KeyBinding("unofficial-monumenta-mod.keybinds.lock_slot", GLFW.GLFW_KEY_L, "unofficial-monumenta-mod.keybinds.category");
-	
+
+	private static final Style lockTextStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xc49417)).withBold(true);
+
+	private static int tickSinceLastLockText = 0;
+	//default = 60 (3 seconds cooldown)
+	private static final int lockTextCooldown = 60;
+
 	public void onInputEvent(CallbackInfo ci) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.player == null || (client.currentScreen instanceof CreativeInventoryScreen)) {
 			return;
 		}
 		
-		if (client.options.dropKey.isPressed() || client.options.dropKey.wasPressed()) {//TODO make it only send message if it's first press //Seems like it sometimes bugs out and doesn't cancel
+		if (client.options.dropKey.isPressed() || client.options.dropKey.wasPressed()) {
 			LockedSlot activeHandLocked = getLockedSlotIndex(client.player.getInventory().selectedSlot);
 			if (activeHandLocked != null && (activeHandLocked.lockDrop || activeHandLocked.locked)) {
+				if (tickSinceLastLockText >= lockTextCooldown) {
+					client.inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
+					tickSinceLastLockText = 0;
+				}
 				ci.cancel();
-				if (!client.options.dropKey.wasPressed()) client.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("Stopped drop"), Util.NIL_UUID);
 			}
 		}
 	}
@@ -301,11 +328,11 @@ public class SlotLocking {
 				//FULL lock
 				config.lockedSlots[slotIndex].switchLock(LockType.ALL);
 			}
-			
+
+			MinecraftClient.getInstance().getSoundManager().play(new PositionedSoundInstance(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 1.0f, isLockedSlot(activeSlot) ? 0.943f : 0.1f, MinecraftClient.getInstance().player.getBlockPos()));
+
 			//reset active slot
 			activeSlot = null;
-			
-			//TODO play sound?
 		}
 	}
 	
@@ -314,6 +341,7 @@ public class SlotLocking {
 	}
 	
 	public void onEndTick() {
+		tickSinceLastLockText++;
 		if (!InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode())) {
 			if (ticksSinceLastLockKeyClick == -1) {
 				ticksSinceLastLockKeyClick = 1;
@@ -352,35 +380,6 @@ public class SlotLocking {
 					}
 					
 					activeSlot = slot;
-					//TODO add sound
-				}
-			}
-		} else {
-			//check for funny stuff
-			
-			MinecraftClient client = MinecraftClient.getInstance();
-			
-			for (int i = 0; i < client.options.hotbarKeys.length; i++) {
-				KeyBinding keyBinding = client.options.hotbarKeys[i];
-				if (keyBinding.matchesKey(code, scancode) &&
-						getLockedSlotIndex(i) != null && getLockedSlotIndex(i).locked &&
-						((HandledScreenAccessor) containerScreen).doGetSlotAt(mouseX, mouseY) != null) {
-					cir.setReturnValue(true);
-					client.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("Stopped slot exchange"), Util.NIL_UUID);
-				}
-			}
-			
-			if (client.options.dropKey.matchesKey(code, scancode)) {
-				LockedSlot locked = getLockedSlot(((HandledScreenAccessor) containerScreen).doGetSlotAt(mouseX, mouseY));
-				if (locked != null && (locked.lockDrop || locked.locked)) {
-					cir.setReturnValue(true);
-					client.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("Stopped drop"), Util.NIL_UUID);//DISCLAIMER: possibly will spam since yk I don't really check for anything to make sure it was the first keypress without the next ones.
-				} else if (locked == null) {
-					LockedSlot activeHandLocked = getLockedSlotIndex(client.player.getInventory().selectedSlot);
-					if (activeHandLocked != null && (activeHandLocked.lockDrop || activeHandLocked.locked)) {
-						cir.setReturnValue(true);
-						client.inGameHud.addChatMessage(MessageType.SYSTEM, Text.of("Stopped drop"), Util.NIL_UUID);//DISCLAIMER: possibly will spam since yk I don't really check for anything to make sure it was the first keypress without the next ones.
-					}
 				}
 			}
 		}
@@ -391,16 +390,69 @@ public class SlotLocking {
 			return false;
 		}
 		
-		return handleClickAction(slot, button);
+		return handleSlotInteraction(slot, button, actionType);
 	}
-	
-	private boolean handleClickAction(Slot slot, int button) {
+
+	private boolean handleSlotInteraction(Slot slot, int button, SlotActionType actionType) {
 		LockedSlot locked = getLockedSlot(slot);
 		if (locked == null) {
 			return false;
 		}
-		
-		return (button == 0 ? (locked.lockPickup || locked.locked) : button == 1 ? (locked.lockHalfPickup || locked.locked) : locked.locked);
+
+		boolean shouldBlock = false;
+
+		switch (actionType) {
+			case PICKUP -> {
+				shouldBlock = shouldBlockPickupAction(slot, button, actionType);
+			}
+			case SWAP -> {
+				shouldBlock = shouldBlockSwapAction(slot, button, actionType);
+			}
+			case THROW -> {
+				if (!getLockedSlot(slot).lockDrop) break;
+				shouldBlock = true;
+				if (tickSinceLastLockText < lockTextCooldown) break;
+
+				MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
+				tickSinceLastLockText = 0;
+			}
+		}
+
+		if (shouldBlock && MinecraftClient.getInstance().player != null) {
+			MinecraftClient.getInstance().getSoundManager().play(new PositionedSoundInstance(SoundEvents.BLOCK_NOTE_BLOCK_BASS, SoundCategory.PLAYERS, 1.0f, 0.1f, MinecraftClient.getInstance().player.getBlockPos()));
+		}
+
+		return shouldBlock;
+	}
+
+	private boolean shouldBlockPickupAction(Slot slot, int button, SlotActionType actionType) {
+		if (actionType != SlotActionType.PICKUP || slot == null) {
+			return false;
+		}
+		LockedSlot locked = getLockedSlot(slot);
+		if (locked == null) {
+			return false;
+		}
+
+		return button == 0 ? (locked.lockPickup || locked.locked) : button == 1 ? (locked.lockHalfPickup || locked.locked) : locked.locked;
+	}
+
+
+	private boolean shouldBlockSwapAction(Slot slot, int button, SlotActionType actionType) {
+		if (actionType != SlotActionType.SWAP || slot == null) {
+			return false;
+		}
+
+		for (int i = 0; i < MinecraftClient.getInstance().options.hotbarKeys.length; i++) {
+			if (button == i && (getLockedSlotIndex(i) != null && getLockedSlotIndex(i).locked || getLockedSlot(slot) != null && getLockedSlot(slot).locked)) {
+				if (tickSinceLastLockText >= lockTextCooldown) {
+					MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped exchange of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
+					tickSinceLastLockText = 0;
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public LockedSlot getLockedSlot(Slot slot) {

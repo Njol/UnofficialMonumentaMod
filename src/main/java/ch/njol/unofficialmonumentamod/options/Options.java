@@ -139,7 +139,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 	 * everything else is a string literal
 	 */
 	@Category("discord")
-	public String discordDetails = "{player} is on {shard}";
+	public String discordDetails = "{player} is in {shard}";
 
 	@Category("effectOverlay")
 	public boolean effect_enabled = true;
@@ -163,6 +163,10 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean debugOptionsEnabled = false;
 	@Category("debug")
 	public boolean logPackets = false;
+	@Category("debug")
+	public transient DescriptionLine description_debug_slotlocking;
+	@Category("debug")
+	public boolean renderDebuggingAdvancedLock = false;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {

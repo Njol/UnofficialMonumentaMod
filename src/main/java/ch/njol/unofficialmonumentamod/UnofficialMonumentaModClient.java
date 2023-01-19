@@ -3,7 +3,7 @@ package ch.njol.unofficialmonumentamod;
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
-import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
@@ -48,7 +48,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static Locations locations = new Locations();
 	public static TextureSpoofer spoofer = new TextureSpoofer();
 
-	public static DiscordRPC discordRPC = new DiscordRPC();
+	public static DiscordPresence discordRPC = DiscordPresence.INSTANCE;
 
 	public static EffectOverlay effectOverlay = new EffectOverlay();
 
