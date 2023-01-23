@@ -1,10 +1,6 @@
 package ch.njol.unofficialmonumentamod.options;
 
-import ch.njol.minecraft.config.annotations.Category;
-import ch.njol.minecraft.config.annotations.Color;
-import ch.njol.minecraft.config.annotations.DescriptionLine;
-import ch.njol.minecraft.config.annotations.FloatSlider;
-import ch.njol.minecraft.config.annotations.IntSlider;
+import ch.njol.minecraft.config.annotations.*;
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.unofficialmonumentamod.AbilityOptionPreset;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
@@ -23,15 +19,20 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("misc")
 	public boolean firmamentPingFix = true;
 
+	@Dropdown("chestsort")
 	@Category("misc")
 	public boolean chestsortDisabledForInventory = false;
+	@Dropdown("chestsort")
 	@Category("misc")
 	public boolean chestsortDisabledForEnderchest = false;
+	@Dropdown("chestsort")
 	@Category("misc")
 	public boolean chestsortDisabledEverywhereElse = false;
 
+	@Dropdown("location")
 	@Category("misc")
 	public boolean notifyLocation = false;
+	@Dropdown("location")
 	@Category("misc")
 	@FloatSlider(min = 1.5F, max = 20F, step = 0.1F, unit = " seconds")
 	public float notifierShowTime = 5F;
@@ -46,8 +47,12 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("misc")
 	public boolean silenceTeamErrors = true;
 
+	@Dropdown("calculator")
 	@Category("misc")
 	public boolean showCalculator = true;
+	@Dropdown("calculator")
+	@Category("misc")
+	public boolean enableKeybindOutsidePlots = false;
 
 	@Category("misc")
 	public boolean enableTextureSpoofing = true;
@@ -57,6 +62,11 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("misc")
 	@FloatSlider(min = 0F, max = 1F, step = 0.05F, unit = "A/mm")
 	public float overlay_opacity = 0.3F;
+
+	@Dropdown("lock")
+	@Category("misc")
+	@FloatSlider(min = 0.2F, max = 10F, step = 0.2F, unit = "s")
+	public float lock_textCooldown = 1F;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_info;
@@ -163,10 +173,10 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean debugOptionsEnabled = false;
 	@Category("debug")
 	public boolean logPackets = false;
+
+	@Dropdown("lock")
 	@Category("debug")
-	public transient DescriptionLine description_debug_slotlocking;
-	@Category("debug")
-	public boolean renderDebuggingAdvancedLock = false;
+	public boolean lock_renderDebuggingAdvancedLock = false;
 
 	public void onUpdate() {
 		if (abilitiesDisplay_preset != AbilityOptionPreset.CUSTOM) {

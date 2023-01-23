@@ -28,29 +28,41 @@
   "unofficial-monumenta-mod.config.option.hideVillagerPlayerHeads.tooltip": "Hides player heads on villagers, as long as they aren't invisible.",
   "unofficial-monumenta-mod.config.option.firmamentPingFix": "Firmament ping fix",
   "unofficial-monumenta-mod.config.option.firmamentPingFix.tooltip": "Changes the Firmament and Doorway from Eternity to place prismarine/blackstone\ninstead of a Shulker box for faster placement.",
+
+  "unofficial-monumenta-mod.config.subcategory.chestsort": "ChestSort options",
   "unofficial-monumenta-mod.config.option.chestsortDisabledForInventory": "Disable ChestSort in Inventory",
   "unofficial-monumenta-mod.config.option.chestsortDisabledForInventory.tooltip": "Disable ChestSort (double right click) in the player inventory",
   "unofficial-monumenta-mod.config.option.chestsortDisabledForEnderchest": "Disable ChestSort in Ender Chest",
   "unofficial-monumenta-mod.config.option.chestsortDisabledForEnderchest.tooltip": "Disable ChestSort (double right click) in the Ender Chest",
   "unofficial-monumenta-mod.config.option.chestsortDisabledEverywhereElse": "Disable ChestSort everywhere else",
   "unofficial-monumenta-mod.config.option.chestsortDisabledEverywhereElse.tooltip": "Disable ChestSort (double right click) in every other type of inventory",
-  "unofficial-monumenta-mod.config.option.renderItemCooldowns": "Show custom item cooldowns",
-  "unofficial-monumenta-mod.config.option.renderItemCooldowns.tooltip": "Display cooldowns of special items like Tesseracts.",
-  "unofficial-monumenta-mod.config.option.notifyLocation": "Location notifications",
-  "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Shows a notification when entering or leaving a known area",
-  "unofficial-monumenta-mod.config.option.notifierShowTime": "How long the notification stays on the screen",
+
+  "unofficial-monumenta-mod.config.subcategory.location": "Location notification options",
+  "unofficial-monumenta-mod.config.option.notifyLocation": "Enable Location notifications",
+  "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Toggle whether to show a notification when joining or leaving an area.",
+  "unofficial-monumenta-mod.config.option.notifierShowTime": "The time it will take to dissipate",
   "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "",
+
   "unofficial-monumenta-mod.config.option.enableTextureSpoofing": "Enable texture spoofing",
   "unofficial-monumenta-mod.config.option.enableTextureSpoofing.tooltip": "Allows the ability to change the rendered texture of an item by tricking Minecraft into believing that the item is another item.",
   "unofficial-monumenta-mod.config.option.silenceTeamErrors": "Silence Team related errors",
   "unofficial-monumenta-mod.config.option.silenceTeamErrors.tooltip": "Silences errors that happen when a player leaves the server or changes shard",
+
+  "unofficial-monumenta-mod.config.subcategory.calculator": "Calculator options",
   "unofficial-monumenta-mod.config.option.showCalculator": "Enable Calculator in plots",
   "unofficial-monumenta-mod.config.option.showCalculator.tooltip": "Allows the injection of the calculator when in a chest container in the plots.",
+  "unofficial-monumenta-mod.config.option.enableKeybindOutsidePlots": "Toggle whether the calculator can be opened when outside plots",
+  "unofficial-monumenta-mod.config.option.enableKeybindOutsidePlots.tooltip": "When this is toggled on, the player is able to open the calculator on any shard.\nThe calculator is disabled by default outside of Plots.",
 
-  "unofficial-monumenta-mod.config.option.overlay_misc": "Options affecting multiple overlays",
+  "unofficial-monumenta-mod.config.option.overlay_misc": "Miscellaneous Overlay options",
   "unofficial-monumenta-mod.config.option.overlay_misc.tooltip": "",
   "unofficial-monumenta-mod.config.option.overlay_opacity": "Overlay opacity",
   "unofficial-monumenta-mod.config.option.overlay_opacity.tooltip": "(Won't be used if the Text Background setting is set to Everywhere in Accessibility Settings)",
+
+  "unofficial-monumenta-mod.config.subcategory.lock": "Slot locking options",
+  "unofficial-monumenta-mod.config.option.lock_textCooldown": "Lock blocked messages cooldown",
+  "unofficial-monumenta-mod.config.option.lock_textCooldown.tooltip": "Will determine how often the mod can spam the player's chat with messages like \"Stopped dropping of locked item\"",
+
 
   "unofficial-monumenta-mod.config.category.abilities": "Ability Display",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_info": "Abilities can be reordered by opening the chat and then dragging them around with the mouse.\nTo move the whole ability display instead, hold ctrl while clicking & dragging.\nAlternatively, press the 'Edit HUD' button to move abilities and the display (assign this key in the Minecraft settings).",
@@ -113,10 +125,9 @@
   "unofficial-monumenta-mod.config.option.debugOptionsEnabled.tooltip": "",
   "unofficial-monumenta-mod.config.option.logPackets": "Log packets",
   "unofficial-monumenta-mod.config.option.logPackets.tooltip": "",
-  "unofficial-monumenta-mod.config.option.description_debug_slotlocking": "Slot locking",
-  "unofficial-monumenta-mod.config.option.descriptiption_debug_slotlocking.tooltip": "",
-  "unofficial-monumenta-mod.config.option.renderDebuggingAdvancedLock":  "Render special locks",
-  "unofficial-monumenta-mod.config.option.renderDebuggingAdvancedLock.tooltip":  "When slots are rendered will also render letters that shows that state of every special locks.",
+  "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock":  "Render special locks",
+  "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock.tooltip":  "When slots are rendered will also render letters that shows that state of every special locks.",
+
 
   "unofficial-monumenta-mod.config.category.discord": "Discord Rich Presence",
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence (Requires restart)",

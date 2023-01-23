@@ -68,32 +68,22 @@ public class SlotLocking {
 		//Drop, both in inventory and outside of one
 		public boolean lockDrop = false;
 		
-		public boolean switchLock(LockType type) {
+		public void switchLock(LockType type) {
 			if (type != LockType.ALL && locked) {
-				return true;
+				return;
 			}
-			boolean b = false;
 			
 			switch (type) {
-				case HALF_PICKUP -> b = lockHalfPickup = !lockHalfPickup;
-				case PICKUP -> b = lockPickup = !lockPickup;
-				case DROP -> b = lockDrop = !lockDrop;
+				case HALF_PICKUP -> lockHalfPickup = !lockHalfPickup;
+				case PICKUP -> lockPickup = !lockPickup;
+				case DROP -> lockDrop = !lockDrop;
 				case ALL -> {
-					b = locked = !locked;
+					locked = !locked;
 					lockDrop = locked;
 					lockHalfPickup = locked;
 					lockPickup = locked;
 				}
 			}
-			//switchLock(ALL);
-			// locked = true
-			
-			//locked -> false
-			//lockDrop -> false
-			//lockHalfPickup -> false
-			//lockPickup -> false
-			
-			return b;
 		}
 	}
 	
@@ -116,6 +106,27 @@ public class SlotLocking {
 	private static Identifier DROP_LOCK;
 	
 	private static Identifier BASE_LOCK;
+
+	public static KeyBinding LOCK_KEY = new KeyBinding("unofficial-monumenta-mod.keybinds.lock_slot", GLFW.GLFW_KEY_L, "unofficial-monumenta-mod.keybinds.category");
+
+	private static final Style lockTextStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xc49417)).withBold(true);
+
+	private static int tickSinceLastLockText = 0;
+
+	private static int getTextCooldown() {
+		return Math.round(UnofficialMonumentaModClient.options.lock_textCooldown * 20);
+	}
+
+	//NOTE: doesn't work in creative inventory because it would require too many compatibility layers to actually make it work without having a lot of unintended behaviours.
+	private final Utils.Lerp circleSize = new Utils.Lerp(0, 200);
+
+	private SlotLockData config = new SlotLockData();
+
+	private static boolean isHoldingLockKey = false;
+
+	private int ticksSinceLastLockKeyClick = -1;
+
+	private Slot activeSlot = null;
 	
 	public static void registerSprites() {
 		if (atlas == null) {
@@ -131,12 +142,6 @@ public class SlotLocking {
 		
 		
 	}
-	
-	//NOTE: doesn't work in creative inventory because it would require too many compatibility layers to actually make it work without having a lot of unintended behaviours.
-	
-	private final Utils.Lerp circleSize = new Utils.Lerp(0, 200);
-	
-	private SlotLockData config = new SlotLockData();
 
 	private boolean isLockedSlot(LockedSlot locked) {
 		if (locked == null) {
@@ -165,20 +170,12 @@ public class SlotLocking {
 		}
 		
 		//status of special locks
-		if (UnofficialMonumentaModClient.options.renderDebuggingAdvancedLock) {
+		if (UnofficialMonumentaModClient.options.lock_renderDebuggingAdvancedLock) {
 			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
 			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
 			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
 		}
 	}
-	
-	public static KeyBinding LOCK_KEY = new KeyBinding("unofficial-monumenta-mod.keybinds.lock_slot", GLFW.GLFW_KEY_L, "unofficial-monumenta-mod.keybinds.category");
-
-	private static final Style lockTextStyle = Style.EMPTY.withColor(TextColor.fromRgb(0xc49417)).withBold(true);
-
-	private static int tickSinceLastLockText = 0;
-	//default = 60 (3 seconds cooldown)
-	private static final int lockTextCooldown = 60;
 
 	public void onInputEvent(CallbackInfo ci) {
 		MinecraftClient client = MinecraftClient.getInstance();
@@ -189,7 +186,7 @@ public class SlotLocking {
 		if (client.options.dropKey.isPressed() || client.options.dropKey.wasPressed()) {
 			LockedSlot activeHandLocked = getLockedSlotIndex(client.player.getInventory().selectedSlot);
 			if (activeHandLocked != null && (activeHandLocked.lockDrop || activeHandLocked.locked)) {
-				if (tickSinceLastLockText >= lockTextCooldown) {
+				if (tickSinceLastLockText >= getTextCooldown()) {
 					client.inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
 					tickSinceLastLockText = 0;
 				}
@@ -198,9 +195,7 @@ public class SlotLocking {
 		}
 	}
 	
-	private static boolean isHoldingLockKey = false;
-	
-	public void __testRenderPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
+	public void drawPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
 		float a = (float)(color >> 24 & 0xFF) / 255.0f;
 		float r = (float)(color >> 16 & 0xFF) / 255.0f;
 		float g = (float)(color >> 8 & 0xFF) / 255.0f;
@@ -228,10 +223,6 @@ public class SlotLocking {
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
 	}
-	
-	private int ticksSinceLastLockKeyClick = -1;
-	
-	private Slot activeSlot = null;
 	
 	public void tickRender(MatrixStack matrices, int mouseX, int mouseY) {
 		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
@@ -265,7 +256,7 @@ public class SlotLocking {
 			LockedSlot slot = config.lockedSlots[slotIndex];
 			//is active and being held
 			
-			__testRenderPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
+			drawPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
 			
 			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
 			if (slot.lockPickup) {
@@ -283,7 +274,8 @@ public class SlotLocking {
 		} else if (ticksSinceLastLockKeyClick <= 2) {
 			//right after releasing lock key
 			
-			//the player is probably clicking close to the middle of the slot, so it should be precise enough to use.
+			//use middle of the slot as the origin.
+			//Since the detection of the slot is done in a 16x16 area from its origin it shouldn't cause an issue.
 			int dragX = (absoluteSlotX + 8) - mouseX;
 			int dragY = (absoluteSlotY + 8) - mouseY;
 			
@@ -291,29 +283,20 @@ public class SlotLocking {
 				config.lockedSlots[slotIndex] = new LockedSlot();
 			}
 			
-			//pos for full lock hitbox
+			//position for full lock hitbox
 			final int full_left = 8;//-
 			final int full_right = 8;
 			final int full_up = 8;
 			final int full_down = 8;//-
 			
-			//pos for top buttons hitbox (left and right click locks)
+			//position for top buttons hitbox (left and right click locks)
 			final int top_min_y = 2;
 			final int left_max_right = 10;
 			final int right_max_left = 10;
 			
-			//pos for drop button hitbox
+			//position for drop button hitbox
 			final int bottom_max_y = 8;
 			final int side_max_x = 20;
-			
-			/* render debug hitboxes
-			 	DrawableHelper.fill(matrices, (absoluteSlotX + 8) - full_left, (absoluteSlotY + 8) + full_up, (absoluteSlotX + 8) + full_right, (absoluteSlotY + 8) - full_down, 0xFFFFFF00);
-		
-				DrawableHelper.fill(matrices, 0, 0, (absoluteSlotX + 8) - left_max_right, (absoluteSlotY + 8) + top_min_y, 0xFF00FFFF);
-				DrawableHelper.fill(matrices, (absoluteSlotX + 8) + right_max_left, 0, MinecraftClient.getInstance().getWindow().getScaledWidth(), (absoluteSlotY + 8) + top_min_y, 0xFF00FFFF);
-		
-				DrawableHelper.fill(matrices, (absoluteSlotX + 8) - side_max_x, (absoluteSlotY + 8) + bottom_max_y, (absoluteSlotX + 8) + side_max_x, MinecraftClient.getInstance().getWindow().getScaledHeight(),0xFFFF00FF);
-			* */
 			
 			if (dragX > left_max_right && dragY > top_min_y) {
 				//LEFT button
@@ -402,16 +385,12 @@ public class SlotLocking {
 		boolean shouldBlock = false;
 
 		switch (actionType) {
-			case PICKUP -> {
-				shouldBlock = shouldBlockPickupAction(slot, button, actionType);
-			}
-			case SWAP -> {
-				shouldBlock = shouldBlockSwapAction(slot, button, actionType);
-			}
+			case PICKUP -> shouldBlock = shouldBlockPickupAction(slot, button, actionType);
+			case SWAP -> shouldBlock = shouldBlockSwapAction(slot, button, actionType);
 			case THROW -> {
 				if (!getLockedSlot(slot).lockDrop) break;
 				shouldBlock = true;
-				if (tickSinceLastLockText < lockTextCooldown) break;
+				if (tickSinceLastLockText < getTextCooldown()) break;
 
 				MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
 				tickSinceLastLockText = 0;
@@ -445,7 +424,7 @@ public class SlotLocking {
 
 		for (int i = 0; i < MinecraftClient.getInstance().options.hotbarKeys.length; i++) {
 			if (button == i && (getLockedSlotIndex(i) != null && getLockedSlotIndex(i).locked || getLockedSlot(slot) != null && getLockedSlot(slot).locked)) {
-				if (tickSinceLastLockText >= lockTextCooldown) {
+				if (tickSinceLastLockText >= getTextCooldown()) {
 					MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped exchange of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
 					tickSinceLastLockText = 0;
 				}
@@ -453,6 +432,13 @@ public class SlotLocking {
 			}
 		}
 		return false;
+	}
+
+	public boolean isSlotIndexLocked(int index) {
+		LockedSlot locked = getLockedSlotIndex(index);
+
+		return locked != null &&
+				locked.locked;
 	}
 	
 	public LockedSlot getLockedSlot(Slot slot) {
@@ -467,13 +453,6 @@ public class SlotLocking {
 			return null;
 		}
 		return getLockedSlotIndex(index);
-	}
-	
-	public boolean isSlotIndexLocked(int index) {
-		LockedSlot locked = getLockedSlotIndex(index);
-		
-		return locked != null &&
-				locked.locked;
 	}
 	
 	private LockedSlot getLockedSlot(LockedSlot[] lockedSlots, int index) {

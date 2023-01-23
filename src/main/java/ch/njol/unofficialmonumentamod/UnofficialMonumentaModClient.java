@@ -87,12 +87,11 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			SlotLocking.getInstance().onEndTick();
 		});
 
-		ClientTickEvents.END_WORLD_TICK.register(world -> {
-			Notifier.tick();
-		});
+		ClientTickEvents.END_WORLD_TICK.register(world -> Notifier.tick());
 
 		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
 			ChestCountOverlay.INSTANCE.onWorldLoad();
+			Locations.onWorldLoad();
 		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
