@@ -79,10 +79,11 @@ public class ChestCountOverlay extends HudElement {
 	}
 
 	public void onPlayerListHeader(Text text) {
-		if (!searchingForShard || Locations.getShardFrom(text) == null) {
+		String shard = Locations.getShortShardFrom(text);
+		if (!searchingForShard || shard == null) {
 			return;
 		}
-		String shard = Locations.getShortShard();
+
 		if (Objects.equals(shard, "unknown")) {
 			return;
 		}

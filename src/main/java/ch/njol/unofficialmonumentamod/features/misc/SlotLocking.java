@@ -475,9 +475,13 @@ public class SlotLocking {
 		}
 		return getLockedSlot(config.lockedSlots, index);
 	}
-	
+
+	private File getFile() {
+		return FabricLoader.getInstance().getConfigDir().resolve(CACHE_PATH).toFile();
+	}
+
 	public void reload() {
-		File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_PATH).toFile();
+		File file = getFile();
 		if (!file.exists()) {
 			return;
 		}
@@ -490,8 +494,7 @@ public class SlotLocking {
 	}
 	
 	public void save() {
-		File file = FabricLoader.getInstance().getConfigDir().resolve(CACHE_PATH).toFile();
-		
+		File file = getFile();
 		if (!file.exists()) {
 			try {
 				file.getParentFile().mkdirs();

@@ -73,6 +73,15 @@ public class Locations {
 		return shard;
 	}
 
+	public static String getShortShardFrom(Text text) {
+		String fullShard = getShardFrom(text);
+		if (fullShard == null) {
+			return null;
+		}
+
+		return cachedShard.replaceFirst("-\\d+$", "");
+	}
+
 	public static String getShortShard() {
 		if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
 			return cachedShortShard;
