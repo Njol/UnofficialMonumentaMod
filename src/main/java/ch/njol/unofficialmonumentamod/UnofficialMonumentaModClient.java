@@ -3,14 +3,15 @@ package ch.njol.unofficialmonumentamod;
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
-import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
+import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import ch.njol.unofficialmonumentamod.options.ConfigMenu;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.JsonParseException;
@@ -47,7 +48,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static Locations locations = new Locations();
 	public static TextureSpoofer spoofer = new TextureSpoofer();
 
-	public static DiscordRPC discordRPC = new DiscordRPC();
+	public static DiscordPresence discordRPC = DiscordPresence.INSTANCE;
 
 	public static EffectOverlay effectOverlay = new EffectOverlay();
 
@@ -83,21 +84,22 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			abilityHandler.tick();
 			effectOverlay.tick();
 			Calculator.tick();
+			SlotLocking.getInstance().onEndTick();
 		});
 
-		ClientTickEvents.END_WORLD_TICK.register(world -> {
-			Notifier.tick();
-		});
+		ClientTickEvents.END_WORLD_TICK.register(world -> Notifier.tick());
 
 		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
 			ChestCountOverlay.INSTANCE.onWorldLoad();
+			Locations.onWorldLoad();
 		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
 		KeyBindingHelper.registerKeyBinding(toggleCalculatorKeyBinding);
+		KeyBindingHelper.registerKeyBinding(SlotLocking.LOCK_KEY);
 
-		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
+		Hud.INSTANCE.addElement(AbilitiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
 
@@ -115,6 +117,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
 		spoofer.onDisconnect();
+		SlotLocking.getInstance().save();
 	}
 
 	public static boolean isOnMonumenta() {

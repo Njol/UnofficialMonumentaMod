@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -86,17 +87,21 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 
 	@ModifyVariable(method = "renderArmor", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
 	private ItemStack editStack(ItemStack value) {
+		//override logic, if override is false and the item is wearable it will remove the original stack else it will carry on.
 		if (UnofficialMonumentaModClient.options.enableTextureSpoofing &&
-			    UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(value.getName().getString().toLowerCase()) &&
-			    !(Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof ArmorItem)) {
-			if (UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).override &&
-				    (Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(value.getName().getString().toLowerCase()).getItemIdentifier()) instanceof Wearable) ||
-				    (contextSlot == EquipmentSlot.HEAD)) {
+			    UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(TextureSpoofer.getKeyOf(value)) &&
+			    !(Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).getItemIdentifier()) instanceof ArmorItem)) {
+			if (UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).override &&
+					((Registry.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).getItemIdentifier()) instanceof Wearable) ||
+				    (contextSlot == EquipmentSlot.HEAD))) {
 				return ItemStack.EMPTY;
 			}
+			//if the item is not an armor item (e.g: iron helmet, diamond leggings, golden boots, etc...) but is also not wearable
 			return value;
 		}
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+		
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 }
