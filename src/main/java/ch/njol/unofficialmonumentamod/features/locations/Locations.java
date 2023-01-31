@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.locations;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.MinecraftClient;
@@ -69,6 +71,15 @@ public class Locations {
 		}
 
 		return shard;
+	}
+
+	public static String getShortShardFrom(Text text) {
+		String fullShard = getShardFrom(text);
+		if (fullShard == null) {
+			return null;
+		}
+
+		return cachedShard.replaceFirst("-\\d+$", "");
 	}
 
 	public static String getShortShard() {
@@ -145,6 +156,28 @@ public class Locations {
 		public boolean isInBounds(double playerX, double playerZ) {
 			return ((playerX >= east && playerX <= west) || (playerX <= east && playerX >= west))
 				       && ((playerZ >= north && playerZ <= south) || (playerZ <= north && playerZ >= south));
+		}
+	}
+
+	private static boolean searchingForShard = true;
+	private static String lastShard = null;
+
+	public static void onWorldLoad() {
+		searchingForShard = true;
+	}
+
+	public static void onPlayerListHeader(Text text) {
+		if (!searchingForShard || Locations.getShardFrom(text) == null) {
+			return;
+		}
+		String shard = Locations.getShortShard();
+		if (Objects.equals(shard, "unknown")) {
+			return;
+		}
+		if (!Objects.equals(shard, lastShard)) { // reset
+			Calculator.onChangeShardListener(shard);
+			lastShard = shard;
+			searchingForShard = false;
 		}
 	}
 

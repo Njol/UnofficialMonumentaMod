@@ -24,7 +24,7 @@ public class Calculator extends DrawableHelper {
 	private static final MinecraftClient mc = MinecraftClient.getInstance();
 
 	private static CalculatorMode mode = CalculatorMode.NORMAL;
-	private static CalculatorState state = CalculatorState.OPEN;
+	private static CalculatorState state = CalculatorState.CLOSED;
 
 	private static final ArrayList<Integer> values = new ArrayList<>();
 
@@ -131,7 +131,7 @@ public class Calculator extends DrawableHelper {
 
 	public boolean mightRender() {
 		return UnofficialMonumentaModClient.options.showCalculator
-			       && Objects.equals(Locations.getShortShard(), "plots")
+			       && (Objects.equals(Locations.getShortShard(), "plots") || UnofficialMonumentaModClient.options.enableKeybindOutsidePlots)
 			       && (mc.currentScreen instanceof GenericContainerScreen ||
 				           mc.currentScreen instanceof ShulkerBoxScreen);
 	}
@@ -276,6 +276,10 @@ public class Calculator extends DrawableHelper {
 		mc.textRenderer.drawWithShadow(matrices, Objects.requireNonNullElse(output, "***"), x + 10, y + 105, 0xffcccccc);
 	}
 	//endregion
+
+	public static void onChangeShardListener(String shortShard) {
+		state = (shortShard.equals("plots") || !UnofficialMonumentaModClient.options.enableKeybindOutsidePlots) ? CalculatorState.OPEN : CalculatorState.CLOSED;
+	}
 
 
 	public enum CalculatorState {

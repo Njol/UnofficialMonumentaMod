@@ -3,7 +3,7 @@ package ch.njol.unofficialmonumentamod.mixins;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
+import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
 
 	@Unique
-	private final AbiltiesHud abiltiesHud = AbiltiesHud.INSTANCE;
+	private final AbilitiesHud abiltiesHud = AbilitiesHud.INSTANCE;
 
 	@Shadow
 	private int scaledWidth;
