@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "type": "namespace",
+      "source": "gui",
+      "prefix": "",
+      "namespace": "unofficial-monumenta-mod"
+    }
+  ]
+}

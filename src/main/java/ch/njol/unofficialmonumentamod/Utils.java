@@ -54,7 +54,7 @@ public abstract class Utils {
 	}
 
 	public static List<Text> getTooltip(ItemStack stack) {
-		return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL);
+		return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.BASIC);
 	}
 	
 	public static class Lerp {

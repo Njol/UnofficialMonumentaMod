@@ -4,6 +4,8 @@ import ch.njol.minecraft.uiframework.ModSpriteAtlasHolder;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.Utils;
 import ch.njol.unofficialmonumentamod.mixins.KeyBindingAccessor;
+import ch.njol.unofficialmonumentamod.mixins.SpriteAtlasHolderAccessor;
+import ch.njol.unofficialmonumentamod.mixins.SpriteAtlasTextureAccessor;
 import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -22,6 +24,8 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
@@ -31,8 +35,8 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
 import net.minecraft.util.math.random.Random;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -41,6 +45,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 
 import static ch.njol.minecraft.uiframework.hud.HudElement.drawSprite;
 
@@ -138,8 +143,6 @@ public class SlotLocking {
 		RIGHT_CLICK_LOCK = atlas.registerSprite("locks/right-click");
 		DROP_LOCK = atlas.registerSprite("locks/drop");
 		BASE_LOCK  = atlas.registerSprite("locks/base-lock");
-		
-		
 	}
 
 	private boolean isLockedSlot(LockedSlot locked) {
@@ -165,6 +168,12 @@ public class SlotLocking {
 		}
 		
 		if (isLockedSlot(locked) && LOCK != null) {
+			SpriteAtlasTexture atlasTexture = ((SpriteAtlasHolderAccessor) atlas).getAtlas();
+			Map<Identifier, Sprite> map = ((SpriteAtlasTextureAccessor) atlasTexture).getSprites();
+
+			for (Map.Entry<Identifier, Sprite> entry: map.entrySet()) {
+				System.out.println(entry.getKey());
+			}
 			drawSprite(matrices, atlas.getSprite(LOCK), originX, originY, 16, 16);
 		}
 		
@@ -201,7 +210,7 @@ public class SlotLocking {
 		float b = (float)(color & 0xFF) / 255.0f;
 		
 		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.enableBlend();
 		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
@@ -217,7 +226,7 @@ public class SlotLocking {
 			bufferBuilder.vertex(originX + Math.sin(angle) * radius, originY + Math.cos(angle) * radius, 0.0f).color(a, r, g, b).next();
 		}
 		
-		BufferRenderer.drawWithoutShader(bufferBuilder.end());
+		BufferRenderer.draw(bufferBuilder.end());
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
 	}
@@ -396,7 +405,7 @@ public class SlotLocking {
 		}
 
 		if (shouldBlock && MinecraftClient.getInstance().player != null) {
-			MinecraftClient.getInstance().getSoundManager().play(new PositionedSoundInstance(SoundEvents.BLOCK_NOTE_BLOCK_BASS, SoundCategory.PLAYERS, 1.0f, 0.1f, Random.create(), MinecraftClient.getInstance().player.getBlockPos()));
+			MinecraftClient.getInstance().getSoundManager().play(new PositionedSoundInstance(SoundEvents.BLOCK_NOTE_BLOCK_BASS.value(), SoundCategory.PLAYERS, 1.0f, 0.1f, Random.create(), MinecraftClient.getInstance().player.getBlockPos()));
 		}
 
 		return shouldBlock;

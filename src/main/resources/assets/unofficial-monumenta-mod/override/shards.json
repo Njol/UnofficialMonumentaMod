@@ -138,7 +138,7 @@
   },
   "depths": {
     "officialName": "Darkest Depths",
-    "shardType": "STRIKE",
+      "shardType": "STRIKE",
     "maxChests": null
   },
   "mist": {

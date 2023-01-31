@@ -150,7 +150,7 @@ public class AbilitiesHud extends HudElement {
 
 				if (isAbilityVisible(abilityInfo, false)) {
 					// some settings are affected by called methods, so set them anew for each ability to render
-					RenderSystem.setShader(GameRenderer::getPositionTexShader);
+					RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 					RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 					RenderSystem.enableBlend();
 					RenderSystem.defaultBlendFunc();
@@ -169,7 +169,7 @@ public class AbilitiesHud extends HudElement {
 						float cooldownFraction = abilityInfo.initialCooldown <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingCooldown - tickDelta) / abilityInfo.initialCooldown, silenceCooldownFraction), 1);
 						if (cooldownFraction > 0) {
 							Sprite cooldownOverlay = atlas.getSprite(COOLDOWN_OVERLAY);
-							float yOffset = (cooldownOverlay.getWidth() - cooldownOverlay.getHeight()) / 2f;
+							float yOffset = (cooldownOverlay.getContents().getWidth() - cooldownOverlay.getContents().getHeight()) / 2f;
 							drawPartialSprite(matrices, cooldownOverlay, scaledX, scaledY + yOffset, scaledIconSize, scaledIconSize - 2 * yOffset, 0, 1 - cooldownFraction, 1, 1);
 						}
 						if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
@@ -222,14 +222,14 @@ public class AbilitiesHud extends HudElement {
 		if ((abilityInfo.maxCharges > 1 || abilityInfo.maxCharges == 1 && abilityInfo.initialCooldown <= 0) && abilityInfo.charges == abilityInfo.maxCharges) {
 			Identifier maxIdentifier = abilityIdentifiers.computeIfAbsent(id + "_max", key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
 			Sprite sprite = atlas.getSprite(maxIdentifier);
-			if (!(sprite instanceof MissingSprite)) {
+			if (!sprite.getContents().getId().equals(MissingSprite.getMissingSpriteId())) {
 				return sprite;
 			}
 		}
 
 		Identifier baseIdentifier = abilityIdentifiers.computeIfAbsent(id, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
 		Sprite sprite = atlas.getSprite(baseIdentifier);
-		if (!(sprite instanceof MissingSprite)) {
+		if (!sprite.getContents().getId().equals(MissingSprite.getMissingSpriteId())) {
 			return sprite;
 		}
 		return atlas.getSprite(UNKNOWN_ABILITY_ICON);
@@ -245,7 +245,7 @@ public class AbilitiesHud extends HudElement {
 
 	private Sprite getSpriteOrDefault(Identifier identifier, Identifier defaultIdentifier) {
 		Sprite sprite = atlas.getSprite(identifier);
-		if (sprite instanceof MissingSprite) {
+		if (sprite.getContents().getId().equals(MissingSprite.getMissingSpriteId())) {
 			return atlas.getSprite(defaultIdentifier);
 		}
 		return sprite;

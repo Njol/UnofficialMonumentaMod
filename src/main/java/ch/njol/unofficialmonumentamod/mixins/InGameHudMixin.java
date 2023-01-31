@@ -45,7 +45,7 @@ public class InGameHudMixin {
 
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;getObjectiveForSlot(I)Lnet/minecraft/scoreboard/ScoreboardObjective;", shift = At.Shift.BEFORE),
-		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V")))
+		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;III)V")))
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (abiltiesHud.renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);

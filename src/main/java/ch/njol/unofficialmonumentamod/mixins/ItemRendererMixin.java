@@ -10,9 +10,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,10 +22,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
 
-	private static final Transformation THIRD_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vec3f(0, -90, 55), new Vec3f(0, 0.2f, 0), new Vec3f(1.7f, 1.7f, 0.85f));
-	private static final Transformation THIRD_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vec3f(0, 90, -55), new Vec3f(0, 0.2f, 0), new Vec3f(1.7f, 1.7f, 0.85f));
-	private static final Transformation FIRST_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vec3f(0, -90, 70), new Vec3f(0.1f, 0.2f, 0.1f), new Vec3f(1.36f, 1.36f, 0.68f));
-	private static final Transformation FIRST_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vec3f(0, 90, -70), new Vec3f(0.1f, 0.2f, 0.1f), new Vec3f(1.36f, 1.36f, 0.68f));
+	private static final Transformation THIRD_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vector3f(0, -90, 55), new Vector3f(0, 0.2f, 0), new Vector3f(1.7f, 1.7f, 0.85f));
+	private static final Transformation THIRD_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vector3f(0, 90, -55), new Vector3f(0, 0.2f, 0), new Vector3f(1.7f, 1.7f, 0.85f));
+	private static final Transformation FIRST_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vector3f(0, -90, 70), new Vector3f(0.1f, 0.2f, 0.1f), new Vector3f(1.36f, 1.36f, 0.68f));
+	private static final Transformation FIRST_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vector3f(0, 90, -70), new Vector3f(0.1f, 0.2f, 0.1f), new Vector3f(1.36f, 1.36f, 0.68f));
 
 	@Unique
 	private ModelTransformation.Mode originalRenderMode;

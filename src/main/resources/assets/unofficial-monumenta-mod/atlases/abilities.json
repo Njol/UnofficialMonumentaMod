@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "type": "namespace",
+      "source": "abilities",
+      "prefix": "",
+      "namespace": "unofficial-monumenta-mod"
+    }
+  ]
+}
