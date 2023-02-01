@@ -76,7 +76,11 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		}
 
 		if (options.discordEnabled) {
-			discordRPC.Init();
+			try {
+				discordRPC.Init();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
