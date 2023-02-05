@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.discordrpc;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.core.ShardData;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRPC;

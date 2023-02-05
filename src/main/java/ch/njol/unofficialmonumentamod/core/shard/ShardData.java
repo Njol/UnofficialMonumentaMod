@@ -1,6 +1,9 @@
-package ch.njol.unofficialmonumentamod.core;
+package ch.njol.unofficialmonumentamod.core.shard;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
@@ -9,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
@@ -38,6 +42,82 @@ public class ShardData {
 			UnofficialMonumentaModClient.LOGGER.error("Caught error while trying to load shards");
 			e.printStackTrace();
 		}
+	}
+
+	private static boolean searchingForShard;
+	private static String lastShard;
+	private static String currentShard = "unknown";
+
+	protected static boolean editedShard = false;
+
+	public static String getCurrentShard() {
+		return currentShard;
+	}
+
+	public static String getLastShard() {
+		return lastShard;
+	}
+
+	public static boolean isSearchingForShard() {
+		return searchingForShard;
+	}
+
+	public static void stopSearch() {
+		searchingForShard = false;
+	}
+
+	public static void onWorldLoad() {
+		//set the last shard as the current loaded one if it exists
+		lastShard = currentShard;
+		searchingForShard = true;
+		editedShard = false;
+
+		//If player has world name spoofing on from the PEB
+		if (MinecraftClient.getInstance().world != null) {
+			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
+			if (ShardData.isExistingShard(worldName.getPath())) {
+				String shard = worldName.getPath();
+
+				onShardChange(shard);
+				System.out.println("Infered shard data from world name.");
+			}
+		}
+	}
+
+	protected static void bypassCheckOnShardChange(String shardName) {
+		searchingForShard = true;
+		onShardChange(shardName);
+	}
+
+	public static void onShardChange(String shardName) {
+		if (shardName == null) {
+			shardName = "unknown";
+		}
+
+		if (!searchingForShard) {
+			//if not unknown and not last shard
+			if (!editedShard && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard, "unknown") && !Objects.equals(shardName, currentShard))) {
+				System.out.println("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard);
+			}
+			return;
+		}
+
+		currentShard = shardName;
+
+		if (!Objects.equals(currentShard, lastShard)) {//shard changed
+			Locations.resetCache();
+			ChestCountOverlay.INSTANCE.onShardChange(shardName);
+			Calculator.onChangeShardListener(shardName);
+		}
+		stopSearch();
+	}
+
+	protected static HashMap<String, Shard> getShards() {
+		return SHARDS;
+	}
+
+	public static boolean isExistingShard(String shard)  {
+		return SHARDS.get(shard) != null;
 	}
 
 	public static String getOfficialName(String shard) {
