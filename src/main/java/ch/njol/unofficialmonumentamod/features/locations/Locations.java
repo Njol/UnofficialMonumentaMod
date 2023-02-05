@@ -165,27 +165,4 @@ public class Locations {
 				       && ((playerZ >= north && playerZ <= south) || (playerZ <= north && playerZ >= south));
 		}
 	}
-
-	private static boolean searchingForShard = true;
-	private static String lastShard = null;
-
-	public static void onWorldLoad() {
-		searchingForShard = true;
-	}
-
-	public static void onPlayerListHeader(Text text) {
-		if (!searchingForShard || Locations.getShardFrom(text) == null) {
-			return;
-		}
-		String shard = Locations.getShortShard();
-		if (Objects.equals(shard, "unknown")) {
-			return;
-		}
-		if (!Objects.equals(shard, lastShard)) { // reset
-			Calculator.onChangeShardListener(shard);
-			lastShard = shard;
-			searchingForShard = false;
-		}
-	}
-
 }

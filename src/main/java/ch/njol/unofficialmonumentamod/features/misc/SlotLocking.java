@@ -168,12 +168,6 @@ public class SlotLocking {
 		}
 		
 		if (isLockedSlot(locked) && LOCK != null) {
-			SpriteAtlasTexture atlasTexture = ((SpriteAtlasHolderAccessor) atlas).getAtlas();
-			Map<Identifier, Sprite> map = ((SpriteAtlasTextureAccessor) atlasTexture).getSprites();
-
-			for (Map.Entry<Identifier, Sprite> entry: map.entrySet()) {
-				System.out.println(entry.getKey());
-			}
 			drawSprite(matrices, atlas.getSprite(LOCK), originX, originY, 16, 16);
 		}
 		

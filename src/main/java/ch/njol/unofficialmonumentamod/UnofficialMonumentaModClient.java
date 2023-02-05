@@ -2,6 +2,8 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
+import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
@@ -21,6 +23,7 @@ import java.util.Objects;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -93,10 +96,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientTickEvents.END_WORLD_TICK.register(world -> Notifier.tick());
 
-		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
-			ChestCountOverlay.INSTANCE.onWorldLoad();
-			Locations.onWorldLoad();
-		}));
+		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> ShardData.onWorldLoad()));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
@@ -106,6 +106,10 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Hud.INSTANCE.addElement(AbilitiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
+
+		ClientCommandRegistrationCallback.EVENT.register(
+				((dispatcher, registryAccess) -> dispatcher.register(new ShardDebugCommand().register()))
+		);
 
 		try {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
