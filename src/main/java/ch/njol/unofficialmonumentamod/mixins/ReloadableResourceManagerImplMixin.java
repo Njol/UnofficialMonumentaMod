@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.core.ShardData;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import java.util.List;
