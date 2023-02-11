@@ -18,35 +18,11 @@ public class ShardDebugCommand {
         LiteralArgumentBuilder<FabricClientCommandSource> builder = LiteralArgumentBuilder.literal("ummShard");
 
         //list shards
-        builder.then(
-                ClientCommandManager.literal("list")
-                        .executes(ShardDebugCommand::executeList)
-        );
-        //debug stuff e.g
-        //change -> change loaded shard to chosen one
-        //get -> sends to chat the information about the chosen shard (Shard "name" -> tooltip -> the json data)
-        //chest -> sends the information loaded by ChestCountOverlay.java
-        builder.then(
-                ClientCommandManager.literal("debug")
-                        .then(
-                                ClientCommandManager.literal("change")
-                                        .then(
-                                                ClientCommandManager.argument("shard", ShardArgumentType.Key())
-                                                        .executes(ShardDebugCommand::executeDebugChange)
-                                        )
-                        )
-                        .then(
-                                ClientCommandManager.literal("get")
-                                        .then(
-                                                ClientCommandManager.argument("shard", ShardArgumentType.Key())
-                                                        .executes(ShardDebugCommand::executeDebugGet)
-                                        )
-                        )
-                        .then(
-                                ClientCommandManager.literal("loaded")
-                                        .executes(ShardDebugCommand::executeDebugLoaded)
-                        )
-        );
+        builder.then(ClientCommandManager.literal("list").executes(ShardDebugCommand::executeList));
+        builder.then(ClientCommandManager.literal("debug")
+                .then(ClientCommandManager.literal("set").then(ClientCommandManager.argument("shard", ShardArgumentType.Key()).executes(ShardDebugCommand::executeDebugSet)))
+                .then(ClientCommandManager.literal("get").then(ClientCommandManager.argument("shard", ShardArgumentType.Key()).executes(ShardDebugCommand::executeDebugGet)))
+                .then(ClientCommandManager.literal("loaded").executes(ShardDebugCommand::executeDebugLoaded)));
         return builder;
     }
 
@@ -82,7 +58,7 @@ public class ShardDebugCommand {
         }
     }
 
-    public static int executeDebugChange(CommandContext<FabricClientCommandSource> context) {
+    public static int executeDebugSet(CommandContext<FabricClientCommandSource> context) {
         String shardName = context.getArgument("shard", String.class);
 
         ShardData.editedShard = true;

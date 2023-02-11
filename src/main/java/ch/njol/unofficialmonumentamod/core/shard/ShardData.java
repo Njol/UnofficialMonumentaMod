@@ -79,7 +79,7 @@ public class ShardData {
 				String shard = worldName.getPath();
 
 				onShardChange(shard);
-				System.out.println("Infered shard data from world name.");
+				System.out.println("Inferred shard data from world name.");
 			}
 		}
 	}
@@ -96,8 +96,8 @@ public class ShardData {
 
 		if (!searchingForShard) {
 			//if not unknown and not last shard
-			if (!editedShard && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard, "unknown") && !Objects.equals(shardName, currentShard))) {
-				System.out.println("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard);
+			if (!editedShard && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard, "unknown")) && (!Objects.equals(lastShard, shardName) && !Objects.equals(currentShard, shardName))) {
+				System.out.println("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard + " Currently loaded: " + currentShard);
 			}
 			return;
 		}
