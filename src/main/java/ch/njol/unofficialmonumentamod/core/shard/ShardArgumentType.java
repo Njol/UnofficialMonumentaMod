@@ -23,7 +23,7 @@ public class ShardArgumentType implements ArgumentType<String> {
 
     public static ShardData.Shard getShardFromKey(final CommandContext<?> context, final String name) {
         try {
-            return (ShardData.Shard) ShardData.getShards().get(context.getArgument(name, String.class));
+            return ShardData.getShards().get(context.getArgument(name, String.class));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -31,7 +31,7 @@ public class ShardArgumentType implements ArgumentType<String> {
     }
 
     @Override
-    public String parse(StringReader reader) throws CommandSyntaxException {
+    public String parse(StringReader reader) {
         try {
             String readString = reader.getRemaining();
             reader.readString();
