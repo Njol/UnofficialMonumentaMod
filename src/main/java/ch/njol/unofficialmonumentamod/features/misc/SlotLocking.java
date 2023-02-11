@@ -187,7 +187,7 @@ public class SlotLocking {
 			LockedSlot activeHandLocked = getLockedSlotIndex(client.player.getInventory().selectedSlot);
 			if (activeHandLocked != null && (activeHandLocked.lockDrop || activeHandLocked.locked)) {
 				if (tickSinceLastLockText >= getTextCooldown()) {
-					client.inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
+					client.inGameHud.getChatHud().addMessage(new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle));
 					tickSinceLastLockText = 0;
 				}
 				ci.cancel();
@@ -392,7 +392,7 @@ public class SlotLocking {
 				shouldBlock = true;
 				if (tickSinceLastLockText < getTextCooldown()) break;
 
-				MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
+				MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(new LiteralText("Stopped dropping of locked item").setStyle(lockTextStyle));
 				tickSinceLastLockText = 0;
 			}
 		}
@@ -425,7 +425,7 @@ public class SlotLocking {
 		for (int i = 0; i < MinecraftClient.getInstance().options.hotbarKeys.length; i++) {
 			if (button == i && (getLockedSlotIndex(i) != null && getLockedSlotIndex(i).locked || getLockedSlot(slot) != null && getLockedSlot(slot).locked)) {
 				if (tickSinceLastLockText >= getTextCooldown()) {
-					MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.SYSTEM, new LiteralText("Stopped exchange of locked item").setStyle(lockTextStyle), Util.NIL_UUID);
+					MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(new LiteralText("Stopped exchange of locked item").setStyle(lockTextStyle));
 					tickSinceLastLockText = 0;
 				}
 				return true;

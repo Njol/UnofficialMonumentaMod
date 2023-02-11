@@ -74,11 +74,7 @@ public class ChestCountOverlay extends HudElement {
 
 			if (currentCount > totalChests) {
 				//means that the current max count is probably not correct
-				client.inGameHud.addChatMessage(
-						MessageType.SYSTEM,
-						new LiteralText("Current max count seems incorrect.\nIf you haven't edited the count yourself, please report to the developer the new count: " + currentCount).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)),
-						Util.NIL_UUID
-				);
+				client.inGameHud.getChatHud().addMessage(new LiteralText("Current shard's max count seems incorrect.\nIf you haven't edited the count yourself, please report to a maintainer the new count: " + currentCount).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)));
 			}
 		}
 		//TODO handle miniboss added count.
