@@ -21,7 +21,7 @@ public abstract class ThreadExecutorMixin<R extends Runnable> {
 	 */
 	@Inject(method = "executeTask", at = @At(value = "INVOKE", target = "Lorg/slf4j/Logger;error(Lorg/slf4j/Marker;Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V", remap = false), locals = LocalCapture.CAPTURE_FAILSOFT, cancellable = true)
 	private void silenceTeamFatal(R task, CallbackInfo ci, Exception exception) {
-		if (UnofficialMonumentaModClient.options.silenceTeamErrors && exception != null) {
+		if (UnofficialMonumentaModClient.options.silenceTeamErrors && (exception != null && exception.getMessage() != null)) {
 			if (((teamRemovalPattern.matcher(exception.getMessage()).matches()|| Objects.equals(exception.getMessage(), "Cannot invoke \"net.minecraft.scoreboard.Team.getName()\" because \"team\" is null")))) {
 				ci.cancel();
 			}
