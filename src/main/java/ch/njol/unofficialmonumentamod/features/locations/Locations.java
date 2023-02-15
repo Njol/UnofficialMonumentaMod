@@ -79,7 +79,7 @@ public class Locations {
 			return null;
 		}
 
-		return cachedShard.replaceFirst("-\\d+$", "");
+		return fullShard.replaceFirst("-\\d+$", "");
 	}
 
 	public static String getShortShard() {
