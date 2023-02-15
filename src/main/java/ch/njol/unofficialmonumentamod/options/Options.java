@@ -60,7 +60,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("misc")
 	public transient DescriptionLine overlay_misc;
 	@Category("misc")
-	@FloatSlider(min = 0F, max = 1F, step = 0.05F, unit = "A/mm")
+	@FloatSlider(min = 0F, max = 1F, step = 0.05F, unit = "%")
 	public float overlay_opacity = 0.3F;
 
 	@Dropdown("lock")
