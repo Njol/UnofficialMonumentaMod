@@ -18,8 +18,6 @@
     "PlayerListHudAccessor",
     "PlayerListHudMixin",
     "ReloadableResourceManagerImplMixin",
-    "SpriteAtlasHolderAccessor",
-    "SpriteAtlasTextureAccessor",
     "ThreadExecutorMixin",
     "ThrowablePotionItemMixin",
     "item.ItemStackAccessor",
