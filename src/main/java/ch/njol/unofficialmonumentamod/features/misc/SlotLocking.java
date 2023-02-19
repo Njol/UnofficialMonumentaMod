@@ -25,14 +25,12 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.MessageType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -42,6 +40,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 import static ch.njol.minecraft.uiframework.hud.HudElement.drawSprite;
 
@@ -322,10 +321,21 @@ public class SlotLocking {
 	private static int getLockKeyCode() {
 		return ((KeyBindingAccessor) LOCK_KEY).getBoundKey().getCode();
 	}
+
+	private static boolean isLockKeyPressed() {
+		if (Objects.equals(((KeyBindingAccessor) LOCK_KEY).getBoundKey().getCategory(), InputUtil.Type.MOUSE)) {
+			return GLFW.glfwGetMouseButton(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode()) == 1;
+		} else {
+			return InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode());
+		}
+	}
 	
 	public void onEndTick() {
+		if (MinecraftClient.getInstance().world == null) {
+			return;
+		}
 		tickSinceLastLockText++;
-		if (!InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode())) {
+		if (!isLockKeyPressed()) {
 			if (ticksSinceLastLockKeyClick == -1) {
 				ticksSinceLastLockKeyClick = 1;
 			} else {
