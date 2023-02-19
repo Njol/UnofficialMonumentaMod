@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 import static ch.njol.minecraft.uiframework.hud.HudElement.drawSprite;
 
@@ -320,10 +321,21 @@ public class SlotLocking {
 	private static int getLockKeyCode() {
 		return ((KeyBindingAccessor) LOCK_KEY).getBoundKey().getCode();
 	}
+
+	private static boolean isLockKeyPressed() {
+		if (Objects.equals(((KeyBindingAccessor) LOCK_KEY).getBoundKey().getCategory(), InputUtil.Type.MOUSE)) {
+			return GLFW.glfwGetMouseButton(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode()) == 1;
+		} else {
+			return InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode());
+		}
+	}
 	
 	public void onEndTick() {
+		if (MinecraftClient.getInstance().world == null) {
+			return;
+		}
 		tickSinceLastLockText++;
-		if (!InputUtil.isKeyPressed(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode())) {
+		if (!isLockKeyPressed()) {
 			if (ticksSinceLastLockKeyClick == -1) {
 				ticksSinceLastLockKeyClick = 1;
 			} else {
