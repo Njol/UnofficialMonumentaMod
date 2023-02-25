@@ -24,7 +24,7 @@ public class Calculator extends DrawableHelper {
 	private static final MinecraftClient mc = MinecraftClient.getInstance();
 
 	private static CalculatorMode mode = CalculatorMode.NORMAL;
-	private static CalculatorState state = CalculatorState.OPEN;
+	private static CalculatorState state = CalculatorState.CLOSED;
 
 	private static final ArrayList<Integer> values = new ArrayList<>();
 
@@ -131,7 +131,7 @@ public class Calculator extends DrawableHelper {
 
 	public boolean mightRender() {
 		return UnofficialMonumentaModClient.options.showCalculator
-			       && Objects.equals(Locations.getShortShard(), "plots")
+			       && (Objects.equals(Locations.getShortShard(), "plots") || UnofficialMonumentaModClient.options.enableKeybindOutsidePlots)
 			       && (mc.currentScreen instanceof GenericContainerScreen ||
 				           mc.currentScreen instanceof ShulkerBoxScreen);
 	}
@@ -148,19 +148,19 @@ public class Calculator extends DrawableHelper {
 		this.y = ((HandledScreenAccessor) mc.currentScreen).getY();
 
 		if (changeMode != null) {
-			int XOffset = changeMode.x - oldX;
-			int YOffset = changeMode.y - oldY;
+			int XOffset = changeMode.getX() - oldX;
+			int YOffset = changeMode.getY() - oldY;
 
-			changeMode.x = this.x + XOffset;
-			changeMode.y = this.y + YOffset;
+			changeMode.setX(this.x + XOffset);
+			changeMode.setY(this.y + YOffset);
 		}
 
 		for (TextFieldWidget widget : children) {
-			int XOffset = widget.x - oldX;
-			int YOffset = widget.y - oldY;
+			int XOffset = widget.getX() - oldX;
+			int YOffset = widget.getY() - oldY;
 
-			widget.x = this.x + XOffset;
-			widget.y = this.y + YOffset;
+			widget.setX(this.x + XOffset);
+			widget.setY(this.y + YOffset);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class Calculator extends DrawableHelper {
 		resetPosition();
 
 		if (this.changeMode == null) {
-			this.changeMode = new ButtonWidget(x, y, mc.textRenderer.getWidth(mode.name) + 10, 12, Text.of(mode.name), (buttonWidget) -> {
+			ButtonWidget.Builder builder = ButtonWidget.builder(Text.of(mode.name), (buttonWidget) -> {
 				Calculator.switchMode();
 				if (mc.currentScreen == null) {
 					return;
@@ -215,6 +215,8 @@ public class Calculator extends DrawableHelper {
 					addChild(widget);
 				}
 			});
+			builder.dimensions(x, y, mc.textRenderer.getWidth(mode.name) + 10, 12);
+			this.changeMode = builder.build();
 		}
 
 		children.clear();
@@ -269,13 +271,17 @@ public class Calculator extends DrawableHelper {
 
 		changeMode.render(matrices, mouseX, mouseY, delta);
 		for (TextFieldWidget widget : children) {
-			mc.textRenderer.drawWithShadow(matrices, widget.getMessage(), widget.x, widget.y - 15, 0xffcccccc);
+			mc.textRenderer.drawWithShadow(matrices, widget.getMessage(), widget.getX(), widget.getY() - 15, 0xffcccccc);
 			widget.render(matrices, mouseX, mouseY, delta);
 		}
 
 		mc.textRenderer.drawWithShadow(matrices, Objects.requireNonNullElse(output, "***"), x + 10, y + 105, 0xffcccccc);
 	}
 	//endregion
+
+	public static void onChangeShardListener(String shortShard) {
+		state = (shortShard.equals("plots") || !UnofficialMonumentaModClient.options.enableKeybindOutsidePlots) ? CalculatorState.OPEN : CalculatorState.CLOSED;
+	}
 
 
 	public enum CalculatorState {

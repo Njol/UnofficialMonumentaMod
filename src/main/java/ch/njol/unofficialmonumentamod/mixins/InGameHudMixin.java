@@ -3,7 +3,7 @@ package ch.njol.unofficialmonumentamod.mixins;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
+import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
 
 	@Unique
-	private final AbiltiesHud abiltiesHud = AbiltiesHud.INSTANCE;
+	private final AbilitiesHud abiltiesHud = AbilitiesHud.INSTANCE;
 
 	@Shadow
 	private int scaledWidth;
@@ -45,7 +45,7 @@ public class InGameHudMixin {
 
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;getObjectiveForSlot(I)Lnet/minecraft/scoreboard/ScoreboardObjective;", shift = At.Shift.BEFORE),
-		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;I)V")))
+		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;III)V")))
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
 		if (abiltiesHud.renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);

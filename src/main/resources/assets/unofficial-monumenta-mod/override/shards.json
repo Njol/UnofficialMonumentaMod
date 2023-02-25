@@ -25,6 +25,11 @@
     "shardType": "OVERWORLD",
     "maxChests": null
   },
+  "build": {
+    "officialName": "Build shard",
+    "shardType": "OVERWORLD",
+    "maxChests": null
+  },
 
   "tutorial": {
     "officialName": "Tutorial",
@@ -133,7 +138,7 @@
   },
   "depths": {
     "officialName": "Darkest Depths",
-    "shardType": "STRIKE",
+      "shardType": "STRIKE",
     "maxChests": null
   },
   "mist": {

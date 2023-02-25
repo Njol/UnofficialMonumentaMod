@@ -23,7 +23,7 @@ import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -44,7 +44,9 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V",
 		at = @At("HEAD"), cancellable = true)
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-		ItemStack itemStack = UnofficialMonumentaModClient.spoofer.apply(livingEntity.getEquippedStack(EquipmentSlot.HEAD));
+		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(itemStack);
+		itemStack = edited != null ? edited : itemStack;
 
 		Item item = itemStack.getItem();
 		if (!(item instanceof BlockItem) || !(((BlockItem) item).getBlock() instanceof AbstractSkullBlock)) {
@@ -76,7 +78,7 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 		}
 		this.getContextModel().getHead().rotate(matrices);
 		matrices.translate(0.0D, -0.25D, 0.0D);
-		matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(180.0F));
+		matrices.multiply(new Quaternionf(0, 180, 0, 0));
 		matrices.scale(0.625F, -0.625F, -0.625F);
 		if (!UnofficialMonumentaModClient.options.lowerVillagerHelmets && (livingEntity instanceof VillagerEntity || livingEntity instanceof ZombieVillagerEntity)) {
 			matrices.translate(0.0D, 0.1875D, 0.0D);
@@ -105,7 +107,8 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 
 	@ModifyVariable(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
 	private ItemStack editStack(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 }

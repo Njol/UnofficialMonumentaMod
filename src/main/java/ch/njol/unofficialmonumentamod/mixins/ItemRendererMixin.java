@@ -10,9 +10,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,10 +22,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
 
-	private static final Transformation THIRD_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vec3f(0, -90, 55), new Vec3f(0, 0.2f, 0), new Vec3f(1.7f, 1.7f, 0.85f));
-	private static final Transformation THIRD_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vec3f(0, 90, -55), new Vec3f(0, 0.2f, 0), new Vec3f(1.7f, 1.7f, 0.85f));
-	private static final Transformation FIRST_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vec3f(0, -90, 70), new Vec3f(0.1f, 0.2f, 0.1f), new Vec3f(1.36f, 1.36f, 0.68f));
-	private static final Transformation FIRST_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vec3f(0, 90, -70), new Vec3f(0.1f, 0.2f, 0.1f), new Vec3f(1.36f, 1.36f, 0.68f));
+	private static final Transformation THIRD_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vector3f(0, -90, 55), new Vector3f(0, 0.2f, 0), new Vector3f(1.7f, 1.7f, 0.85f));
+	private static final Transformation THIRD_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vector3f(0, 90, -55), new Vector3f(0, 0.2f, 0), new Vector3f(1.7f, 1.7f, 0.85f));
+	private static final Transformation FIRST_PERSON_RIGHT_HAND_TRANSFORM = new Transformation(new Vector3f(0, -90, 70), new Vector3f(0.1f, 0.2f, 0.1f), new Vector3f(1.36f, 1.36f, 0.68f));
+	private static final Transformation FIRST_PERSON_LEFT_HAND_TRANSFORM = new Transformation(new Vector3f(0, 90, -70), new Vector3f(0.1f, 0.2f, 0.1f), new Vector3f(1.36f, 1.36f, 0.68f));
 
 	@Unique
 	private ModelTransformation.Mode originalRenderMode;
@@ -71,17 +71,20 @@ public abstract class ItemRendererMixin {
 	}
 
 	@ModifyVariable(method = "renderGuiItemIcon", at = @At("HEAD"), argsOnly = true)
-	private ItemStack editStackrGII(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+	private ItemStack umm$editStack$renderGuiItemIcon(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 	@ModifyVariable(method = "innerRenderInGui(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;IIII)V", at = @At("HEAD"), argsOnly = true)
-	private ItemStack editStackiRIG(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+	private ItemStack umm$editStack$innerRenderInGui(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 	@ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformation$Mode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), argsOnly = true)
-	private ItemStack editStackrIE(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+	private ItemStack umm$editStack$renderItem(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 }

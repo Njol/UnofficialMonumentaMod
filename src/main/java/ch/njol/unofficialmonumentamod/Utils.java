@@ -54,7 +54,75 @@ public abstract class Utils {
 	}
 
 	public static List<Text> getTooltip(ItemStack stack) {
-		return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.Default.NORMAL);
+		return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.BASIC);
+	}
+	
+	public static class Lerp {
+		//copied from https://github.com/NotEnoughUpdates/NotEnoughUpdates/blob/master/src/main/java/io/github/moulberry/notenoughupdates/core/util/lerp/LerpingFloat.java per the LGPL 3.0 license
+		
+		private int timeSpent;
+		private long lastMillis;
+		private final int targetTime;
+		
+		private float targetValue;
+		private float lerpValue;
+		
+		public Lerp(float initValue, int targetTime) {
+			this.targetValue = this.lerpValue = initValue;
+			this.targetTime = targetTime;
+		}
+		
+		public Lerp(int initValue) {
+			this(initValue, 200);
+		}
+		
+		public void tick() {
+			int lastTimeSpent = timeSpent;
+			this.timeSpent += System.currentTimeMillis() - lastMillis;
+			
+			float lastDistPercentToTarget = lastTimeSpent / (float) targetTime;
+			float distPercentToTarget = timeSpent / (float) targetTime;
+			float fac = (1 - lastDistPercentToTarget) / lastDistPercentToTarget;
+			
+			float startValue = lerpValue - (targetValue - lerpValue) / fac;
+			
+			float dist = targetValue - startValue;
+			if (dist == 0) return;
+			
+			float oldLerpValue = lerpValue;
+			if (distPercentToTarget >= 1) {
+				lerpValue = targetValue;
+			} else {
+				lerpValue = startValue + dist * distPercentToTarget;
+			}
+			
+			if (lerpValue == oldLerpValue) {
+				timeSpent = lastTimeSpent;
+			} else {
+				this.lastMillis = System.currentTimeMillis();
+			}
+		}
+		
+		public void resetTimer() {
+			this.timeSpent = 0;
+			this.lastMillis = System.currentTimeMillis();
+		}
+		
+		public void setTarget(float targetValue) {
+			this.targetValue = targetValue;
+		}
+		
+		public void setValue(float value) {
+			this.targetValue = this.lerpValue = value;
+		}
+		
+		public float getValue() {
+			return lerpValue;
+		}
+		
+		public float getTarget() {
+			return targetValue;
+		}
 	}
 
 }
