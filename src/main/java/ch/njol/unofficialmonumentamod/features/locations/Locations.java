@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.locations;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.MinecraftClient;
@@ -69,6 +71,15 @@ public class Locations {
 		}
 
 		return shard;
+	}
+
+	public static String getShortShardFrom(Text text) {
+		String fullShard = getShardFrom(text);
+		if (fullShard == null) {
+			return null;
+		}
+
+		return fullShard.replaceFirst("-\\d+$", "");
 	}
 
 	public static String getShortShard() {
@@ -147,5 +158,4 @@ public class Locations {
 				       && ((playerZ >= north && playerZ <= south) || (playerZ <= north && playerZ >= south));
 		}
 	}
-
 }
