@@ -2,15 +2,18 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
+import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
-import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordRPC;
+import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
 import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
-import ch.njol.unofficialmonumentamod.hud.AbiltiesHud;
+import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import ch.njol.unofficialmonumentamod.options.ConfigMenu;
 import ch.njol.unofficialmonumentamod.options.Options;
 import com.google.gson.JsonParseException;
@@ -20,6 +23,7 @@ import java.util.Objects;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -47,7 +51,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 	public static Locations locations = new Locations();
 	public static TextureSpoofer spoofer = new TextureSpoofer();
 
-	public static DiscordRPC discordRPC = new DiscordRPC();
+	public static DiscordPresence discordRPC = DiscordPresence.INSTANCE;
 
 	public static EffectOverlay effectOverlay = new EffectOverlay();
 
@@ -76,30 +80,34 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		}
 
 		if (options.discordEnabled) {
-			discordRPC.Init();
+			try {
+				discordRPC.Init();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 			effectOverlay.tick();
 			Calculator.tick();
+			SlotLocking.getInstance().onEndTick();
 		});
 
-		ClientTickEvents.END_WORLD_TICK.register(world -> {
-			Notifier.tick();
-		});
+		ClientTickEvents.END_WORLD_TICK.register(world -> Notifier.tick());
 
-		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
-			ChestCountOverlay.INSTANCE.onWorldLoad();
-		}));
+		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> ShardData.onWorldLoad()));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
 		KeyBindingHelper.registerKeyBinding(toggleCalculatorKeyBinding);
+		KeyBindingHelper.registerKeyBinding(SlotLocking.LOCK_KEY);
 
-		Hud.INSTANCE.addElement(AbiltiesHud.INSTANCE);
+		Hud.INSTANCE.addElement(AbilitiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
+
+		ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) -> dispatcher.register(new ShardDebugCommand().register())));
 
 		try {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
@@ -115,6 +123,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
 		spoofer.onDisconnect();
+		SlotLocking.getInstance().save();
 	}
 
 	public static boolean isOnMonumenta() {

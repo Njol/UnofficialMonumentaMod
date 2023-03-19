@@ -44,7 +44,9 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V",
 		at = @At("HEAD"), cancellable = true)
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-		ItemStack itemStack = UnofficialMonumentaModClient.spoofer.apply(livingEntity.getEquippedStack(EquipmentSlot.HEAD));
+		ItemStack itemStack = livingEntity.getEquippedStack(EquipmentSlot.HEAD);
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(itemStack);
+		itemStack = edited != null ? edited : itemStack;
 
 		Item item = itemStack.getItem();
 		if (!(item instanceof BlockItem) || !(((BlockItem) item).getBlock() instanceof AbstractSkullBlock)) {
@@ -105,7 +107,8 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 
 	@ModifyVariable(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V", at = @At(value = "STORE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
 	private ItemStack editStack(ItemStack value) {
-		return UnofficialMonumentaModClient.spoofer.apply(value);
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
 	}
 
 }

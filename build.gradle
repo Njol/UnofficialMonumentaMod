@@ -30,11 +30,18 @@ dependencies {
     include(implementation('club.minnced:discord-rpc-release:v3.4.0'))
     include(implementation("com.github.MinnDevelopment:java-discord-rpc:v2.0.2"))
 
-    modApi "ch.njol.minecraft:ui-framework-mc1_19:${project.ui_framework_version}"
-    include "ch.njol.minecraft:ui-framework-mc1_19:${project.ui_framework_version}"
-    modApi "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
-    include "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
+    //un-comment those if you want to load from local maven (don't have both local and jitpack sources on at the same time, dunno what it'd do I never tried it)
+    //modApi "ch.njol.minecraft:ui-framework-mc1_19:${project.ui_framework_version}"
+    //include "ch.njol.minecraft:ui-framework-mc1_19:${project.ui_framework_version}"
+    //modApi "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
+    //include "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
+    //un-comment those if you want to load from jitpack (don't have both local and jitpack sources on at the same time, dunno what it'd do I never tried it)
+    modApi('com.github.Ascynx:MCConfigFramework:mc1.19-SNAPSHOT')
+    include('com.github.Ascynx:MCConfigFramework:mc1.19-SNAPSHOT')
+    modApi('com.github.Ascynx:MCUIFramework:mc1.19-SNAPSHOT')
+    include('com.github.Ascynx:MCUIFramework:mc1.19-SNAPSHOT')
 }
+
 repositories {
     mavenLocal()
     mavenCentral()

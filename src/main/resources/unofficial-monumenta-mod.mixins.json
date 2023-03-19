@@ -13,6 +13,7 @@
     "HeldItemFeatureRendererMixin",
     "InGameHudMixin",
     "ItemRendererMixin",
+    "KeyBindingAccessor",
     "MinecraftClientMixin",
     "PlayerListHudAccessor",
     "PlayerListHudMixin",
@@ -22,6 +23,7 @@
     "item.ItemStackAccessor",
     "item.ItemStackMixin",
     "screen.HandledScreenAccessor",
+    "screen.HandledScreenMixin",
     "screen.ScreenMixin"
   ],
   "injectors": {
