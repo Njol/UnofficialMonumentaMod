@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.core.shard;
 
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -63,7 +64,9 @@ public class ShardDebugCommand {
 
         ShardData.editedShard = true;
         ShardData.bypassCheckOnShardChange(shardName);
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(new LiteralText("Successfully \"changed\" shards").setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
+        Locations.setShard(shardName);
+
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(new LiteralText("The Mod will now believe you are in: " + shardName).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
         return 0;
     }
 
@@ -99,7 +102,7 @@ public class ShardDebugCommand {
             boolean loadedCorrectly = !isSearching && !Objects.equals(lastShard, currentShard);
 
             //count: (if max exists then count/max else just count) loaded shard: lastShard, current shard: currentShard
-            LiteralText text = new LiteralText("Current shard data: " + "\nCount: " + (max != null ? count + "/" + max : count) + "\nLast shard: " + lastShard + " | Current shard: " + currentShard + "\nLoaded correctly: " + loadedCorrectly + " | Was edited: " + isEdited);
+            LiteralText text = new LiteralText("Current shard: " + "\nCount: " + (max != null ? count + "/" + max : count) + "\nLast shard: " + lastShard + " | Current shard: " + currentShard + "\nLoaded correctly: " + loadedCorrectly + " | Was edited: " + isEdited);
             MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text.setStyle(Style.EMPTY.withColor(Formatting.AQUA).withItalic(true)));
             return 0;
         } catch (Exception e) {

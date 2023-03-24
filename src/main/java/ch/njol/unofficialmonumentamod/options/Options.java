@@ -29,6 +29,9 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("misc")
 	public boolean chestsortDisabledEverywhereElse = false;
 
+	@Category("misc")
+	public boolean enableDelveRecognition = true;
+
 	@Dropdown("location")
 	@Category("misc")
 	public boolean notifyLocation = false;

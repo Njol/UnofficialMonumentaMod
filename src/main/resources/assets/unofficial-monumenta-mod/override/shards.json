@@ -44,41 +44,48 @@
   "white": {
     "officialName": "Halls of Wind And Blood",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "orange": {
     "officialName": "Fallen Menagerie",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "magenta": {
     "officialName": "Plagueroot Temple",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "lightblue": {
     "officialName": "Arcane Rivalry",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "yellow": {
     "officialName": "Vernal Nightmare",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "willows": {
     "officialName": "The Black Willows",
     "shardType": "DUNGEON",
-    "maxChests": null
-  },
-  "corridors": {
-    "officialName": "Ephemeral Corridors",
-    "shardType": "STRIKE",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "reverie": {
     "officialName": "Malevolent Reverie",
     "shardType": "DUNGEON",
+    "maxChests": null,
+    "canBeDelveBounty": true
+  },
+  "corridors": {
+    "officialName": "Ephemeral Corridors",
+    "shardType": "STRIKE",
     "maxChests": null
   },
   "verdant": {
@@ -94,47 +101,56 @@
   "lime": {
     "officialName": "Salazar's Folly",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "pink": {
     "officialName": "Harmonic Arboretum",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "gray": {
     "officialName": "Valley of the Forgotten Pharaohs",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "lightgray": {
     "officialName": "Palace Of Mirrors",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "cyan": {
     "officialName": "Scourge Of Lunacy",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "purple": {
     "officialName": "Grasp Of Avarice",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "teal": {
     "officialName": "Echoes Of Oblivion",
     "shardType": "DUNGEON",
-    "maxChests": null
-  },
-  "shiftingcity": {
-    "officialName": "City of Shifting Waters",
-    "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "forum": {
     "officialName": "The Fallen Forum",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
+  },
+  "shiftingcity": {
+    "officialName": "City of Shifting Waters",
+    "shardType": "DUNGEON",
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "depths": {
     "officialName": "Darkest Depths",

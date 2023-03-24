@@ -44,6 +44,10 @@ public class ShardData {
 
 	protected static boolean editedShard = false;
 
+	public static boolean isEditedShard() {
+		return editedShard;
+	}
+
 	public static String getCurrentShard() {
 		return currentShard;
 	}
@@ -106,7 +110,7 @@ public class ShardData {
 		stopSearch();
 	}
 
-	protected static HashMap<String, Shard> getShards() {
+	public static HashMap<String, Shard> getShards() {
 		return SHARDS;
 	}
 
@@ -133,16 +137,18 @@ public class ShardData {
 		public final ShardType shardType;
 		@Nullable
 		public final Integer maxChests;
+		public final boolean canBeDelveBounty;
 
-		public Shard(String officialName, ShardType shardType, @Nullable Integer maxChests) {
+		public Shard(String officialName, ShardType shardType, @Nullable Integer maxChests, @Nullable Boolean canBeDelveBounty) {
 			this.officialName = officialName;
 			this.shardType = shardType;
 			this.maxChests = maxChests;
+			this.canBeDelveBounty = Boolean.TRUE.equals(canBeDelveBounty);
 		}
 
 		@Override
 		public String toString() {
-			return "{ \"officialName\": \"" + officialName + "\", \"shardType\": \"" + shardType + "\", \"maxChests\": " + maxChests + " }";
+			return "{ \"officialName\": \"" + officialName + "\", \"shardType\": \"" + shardType + "\", \"maxChests\": " + maxChests + ",\"canBeDelveBounty\": \""+ canBeDelveBounty +"\" }";
 		}
 	}
 

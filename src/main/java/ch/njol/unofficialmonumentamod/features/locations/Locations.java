@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.locations;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.MinecraftClient;
@@ -39,8 +38,14 @@ public class Locations {
 	}
 	//endregion
 
+	public static void setShard(String shard) {
+		cachedShard = shard;
+		cachedShortShard = shard;
+		lastUpdateTimeShortShard = lastUpdateTimeShard = System.currentTimeMillis();
+	}
+
 	public static String getShard() {
-		if (cachedShard != null && lastUpdateTimeShard + 2000 > System.currentTimeMillis()) {
+		if (cachedShard != null && (lastUpdateTimeShard + 2000 > System.currentTimeMillis() || ShardData.isEditedShard())) {
 			return cachedShard;
 		}
 		Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListHud()).getHeader();
@@ -55,6 +60,20 @@ public class Locations {
 
 		cachedShard = shard;
 		lastUpdateTimeShard = System.currentTimeMillis();
+		return shard;
+	}
+
+	public static String getShortShard() {
+		if (cachedShortShard != null && (lastUpdateTimeShortShard + 2000 > System.currentTimeMillis() || ShardData.isEditedShard())) {
+			return cachedShortShard;
+		}
+
+		String shard = getShard();
+		shard = shard.replaceFirst("-\\d+$", "");
+
+		cachedShortShard = shard;
+		lastUpdateTimeShortShard = System.currentTimeMillis();
+
 		return shard;
 	}
 
@@ -80,20 +99,6 @@ public class Locations {
 		}
 
 		return fullShard.replaceFirst("-\\d+$", "");
-	}
-
-	public static String getShortShard() {
-		if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
-			return cachedShortShard;
-		}
-
-		String shard = getShard();
-		shard = shard.replaceFirst("-\\d+$", "");
-
-		cachedShortShard = shard;
-		lastUpdateTimeShortShard = System.currentTimeMillis();
-
-		return shard;
 	}
 	//endregion
 
