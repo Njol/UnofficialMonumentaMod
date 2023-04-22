@@ -1,16 +1,17 @@
-package ch.njol.unofficialmonumentamod.features.effect;
+package ch.njol.unofficialmonumentamod.features.effects;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 public class EffectOverlay extends HudElement {
 
@@ -21,31 +22,31 @@ public class EffectOverlay extends HudElement {
 
 	static {
 		dummyEffects.add(new Effect(
-			"Active effects",
-			0,
-			360000
+				"Active effects",
+				0,
+				360000
 		));
 		dummyEffects.add(
-			new Effect(
-				"are shown here.",
-				0,
-				240000
-			)
+				new Effect(
+						"are shown here.",
+						0,
+						240000
+				)
 		);
 		dummyEffects.add(
-			new Effect(
-				"Bad Effect",
-				-20,
-				120000
-			)
+				new Effect(
+						"Bad Effect",
+						-20,
+						120000
+				)
 		);
 		dummyEffects.add(
-			new Effect(
-				"A very long effect that will mostly likely be trimmed to fit",
-				10,
-				60000,
-				true
-			)
+				new Effect(
+						"A very long effect that will mostly likely be trimmed to fit",
+						10,
+						60000,
+						true
+				)
 		);
 	}
 
@@ -75,7 +76,7 @@ public class EffectOverlay extends HudElement {
 		for (Effect effect : effects) {
 			for (Effect cumulativeEffect : cumulativeEffects) {
 				if (Objects.equals(cumulativeEffect.name, effect.name)
-					    && cumulativeEffect.isPercentage == effect.isPercentage) {
+						&& cumulativeEffect.isPercentage == effect.isPercentage) {
 					cumulativeEffect.effectPower += effect.effectPower;
 					if (effect.effectTime < cumulativeEffect.effectTime) {
 						cumulativeEffect.effectTime = effect.effectTime;
@@ -85,6 +86,9 @@ public class EffectOverlay extends HudElement {
 			}
 			cumulativeEffects.add(effect.clone());
 		}
+
+		//clear effects that well... don't affect and aren't 0 power effects.
+		cumulativeEffects.removeIf((effect) -> effect.effectPower == 0 && !effect.isNonStackableEffect);
 		return cumulativeEffects;
 	}
 

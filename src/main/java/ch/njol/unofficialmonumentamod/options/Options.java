@@ -187,6 +187,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
+		UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
 		UnofficialMonumentaModClient.saveConfig();
 	}
 

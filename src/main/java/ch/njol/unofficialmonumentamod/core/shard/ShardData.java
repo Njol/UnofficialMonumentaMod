@@ -70,7 +70,7 @@ public class ShardData {
 		searchingForShard = true;
 		editedShard = false;
 
-		//If player has world name spoofing on from the PEB
+		//If player has world name spoofing on in the PEB
 		if (MinecraftClient.getInstance().world != null) {
 			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
 			if (ShardData.isExistingShard(worldName.getPath())) {

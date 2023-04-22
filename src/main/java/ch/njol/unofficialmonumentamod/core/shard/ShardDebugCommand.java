@@ -101,7 +101,6 @@ public class ShardDebugCommand {
             //check if it loaded correctly when entering the shard (should show false if it wasn't able to load the shard after world load)
             boolean loadedCorrectly = !isSearching && !Objects.equals(lastShard, currentShard);
 
-            //count: (if max exists then count/max else just count) loaded shard: lastShard, current shard: currentShard
             LiteralText text = new LiteralText("Current shard: " + "\nCount: " + (max != null ? count + "/" + max : count) + "\nLast shard: " + lastShard + " | Current shard: " + currentShard + "\nLoaded correctly: " + loadedCorrectly + " | Was edited: " + isEdited);
             MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text.setStyle(Style.EMPTY.withColor(Formatting.AQUA).withItalic(true)));
             return 0;
