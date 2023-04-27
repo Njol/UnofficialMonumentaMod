@@ -7,7 +7,6 @@ import ch.njol.unofficialmonumentamod.mixins.KeyBindingAccessor;
 import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -15,12 +14,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
@@ -31,7 +24,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -193,36 +185,7 @@ public class SlotLocking {
 			}
 		}
 	}
-	
-	public void drawPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
-		float a = (float)(color >> 24 & 0xFF) / 255.0f;
-		float r = (float)(color >> 16 & 0xFF) / 255.0f;
-		float g = (float)(color >> 8 & 0xFF) / 255.0f;
-		float b = (float)(color & 0xFF) / 255.0f;
-		
-		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.defaultBlendFunc();
-		
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		
-		bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
-		bufferBuilder.vertex(positionMatrix, originX, originY, 0.0f).color(a, r, g, b).next();
-		
-		//very optimised (trust)
-		for (int i = 0; i <= sides; i++) {
-			double angle = ((Math.PI * 2) * i / sides) + Math.toRadians(180);
-			bufferBuilder.vertex(originX + Math.sin(angle) * radius, originY + Math.cos(angle) * radius, 0.0f).color(a, r, g, b).next();
-		}
-		bufferBuilder.end();
-		
-		BufferRenderer.draw(bufferBuilder);
-		RenderSystem.enableTexture();
-		RenderSystem.disableBlend();
-	}
-	
+
 	public void tickRender(MatrixStack matrices, int mouseX, int mouseY) {
 		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
 			return;
@@ -248,15 +211,16 @@ public class SlotLocking {
 			if (circleSize.getValue() != 0.0f) {
 				circleSize.setValue(0.0f);
 				circleSize.setTarget(0.0f);
+				circleSize.resetTimer();
 			}
 		}
 		
 		if (isHoldingLockKey) {
 			LockedSlot slot = config.lockedSlots[slotIndex];
 			//is active and being held
-			
-			drawPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
-			
+
+			Utils.drawFilledPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
+
 			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
 			if (slot.lockPickup) {
 				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);

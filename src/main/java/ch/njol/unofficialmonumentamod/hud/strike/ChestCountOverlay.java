@@ -1,27 +1,24 @@
-package ch.njol.unofficialmonumentamod.features.strike;
+package ch.njol.unofficialmonumentamod.hud.strike;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
-import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import java.awt.Rectangle;
-import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.MessageType;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
 
 public class ChestCountOverlay extends HudElement {
+	//TODO generalize this class to be able to create one for any actionbar based counter / maybe other sources?
 
 	public static final ChestCountOverlay INSTANCE = new ChestCountOverlay();
 
