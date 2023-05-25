@@ -142,5 +142,8 @@ public class AbilityHandler {
 		}
 	}
 
-
+	public enum DurationRenderMode {
+		CIRCLE(),
+		BAR()
+	}
 }
