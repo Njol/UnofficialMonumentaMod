@@ -3,7 +3,7 @@ package ch.njol.unofficialmonumentamod.core.shard;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;

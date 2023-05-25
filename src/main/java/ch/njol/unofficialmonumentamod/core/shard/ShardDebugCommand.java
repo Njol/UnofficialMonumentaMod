@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.core.shard;
 
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;

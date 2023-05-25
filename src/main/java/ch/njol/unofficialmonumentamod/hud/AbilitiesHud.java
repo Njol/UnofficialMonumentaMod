@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
@@ -162,6 +163,25 @@ public class AbilitiesHud extends HudElement {
 						float scaledX = x - (scaledIconSize - iconSize) / 2;
 						float scaledY = y - (scaledIconSize - iconSize) / 2;
 
+						if (abilityInfo.initialDuration != null && abilityInfo.remainingDuration != null) {
+							float durationFraction = abilityInfo.initialDuration <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingDuration - tickDelta) / abilityInfo.initialDuration, silenceCooldownFraction), 1);
+							if (durationFraction > 0) {
+								if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.CIRCLE) {
+									Utils.drawPartialHollowPolygon(
+											matrices,
+											(int) scaledX + (iconSize / 2),
+											(int) scaledY + (iconSize / 2),
+											4, ((float) iconSize / 2),
+											360,
+											durationFraction > 0.10 ? 0x00FF00FF : 0xFF0000FF,//If above 10% then green else red
+											durationFraction
+									);
+								} else if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
+									DrawableHelper.drawCenteredText(matrices, MinecraftClient.getInstance().textRenderer, abilityInfo.remainingDuration + "/" + abilityInfo.initialDuration, (int) scaledX + (iconSize / 2), (int) scaledY - 4, 0xFFFFFFFF);
+								}
+							}
+						}
+
 						drawSprite(matrices, getAbilityIcon(abilityInfo), scaledX, scaledY, scaledIconSize, scaledIconSize);
 
 						// silenceCooldownFraction is >= 0 so this is also >= 0
@@ -178,7 +198,6 @@ public class AbilitiesHud extends HudElement {
 						}
 
 						drawSprite(matrices, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), scaledX, scaledY, scaledIconSize, scaledIconSize);
-
 					} else {
 
 						if ((abilityInfo.remainingCooldown > 0 || abilityHandler.silenceDuration > 0) && options.abilitiesDisplay_showCooldownAsText) {
