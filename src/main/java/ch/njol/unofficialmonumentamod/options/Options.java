@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.options;
 
 import ch.njol.minecraft.config.annotations.*;
 import ch.njol.minecraft.uiframework.ElementPosition;
+import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.AbilityOptionPreset;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Dropdown("chestsort")
 	@Category("misc")
 	public boolean chestsortDisabledEverywhereElse = false;
+
+	@Category("misc")
+	public boolean enableDelveRecognition = true;
 
 	@Dropdown("location")
 	@Category("misc")
@@ -80,6 +84,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean abilitiesDisplay_inFrontOfChat = false;
 	@Category("abilities")
 	public boolean abilitiesDisplay_tooltips = true;
+	@Category("abilities")
+	public AbilityHandler.DurationRenderMode abilitiesDisplay_durationRenderMode = AbilityHandler.DurationRenderMode.CIRCLE;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_positionInfo;
@@ -184,6 +190,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
+		UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
 		UnofficialMonumentaModClient.saveConfig();
 	}
 

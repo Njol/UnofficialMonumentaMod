@@ -1,13 +1,11 @@
-package ch.njol.unofficialmonumentamod.features.strike;
+package ch.njol.unofficialmonumentamod.hud.strike;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
-import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import java.awt.Rectangle;
-import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -20,6 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class ChestCountOverlay extends HudElement {
+	//TODO generalize this class to be able to create one for any actionbar based counter / maybe other sources?
 
 	public static final ChestCountOverlay INSTANCE = new ChestCountOverlay();
 
@@ -69,6 +68,7 @@ public class ChestCountOverlay extends HudElement {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
 		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
 			currentCount++;
+
 			if (currentCount > totalChests) {
 				//means that the current max count is probably not correct
 				MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of(

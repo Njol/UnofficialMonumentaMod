@@ -1,4 +1,4 @@
-package ch.njol.unofficialmonumentamod.features.effect;
+package ch.njol.unofficialmonumentamod.features.effects;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
@@ -85,6 +85,8 @@ public class EffectOverlay extends HudElement {
 			}
 			cumulativeEffects.add(effect.clone());
 		}
+		//clear effects that well... don't affect and aren't 0 power effects.
+		cumulativeEffects.removeIf((effect) -> effect.effectPower == 0 && !effect.isNonStackableEffect);
 		return cumulativeEffects;
 	}
 

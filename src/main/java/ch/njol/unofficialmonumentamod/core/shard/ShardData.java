@@ -3,7 +3,7 @@ package ch.njol.unofficialmonumentamod.core.shard;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
@@ -50,6 +50,10 @@ public class ShardData {
 
 	protected static boolean editedShard = false;
 
+	public static boolean isEditedShard() {
+		return editedShard;
+	}
+
 	public static String getCurrentShard() {
 		return currentShard;
 	}
@@ -72,7 +76,7 @@ public class ShardData {
 		searchingForShard = true;
 		editedShard = false;
 
-		//If player has world name spoofing on from the PEB
+		//If player has world name spoofing on in the PEB
 		if (MinecraftClient.getInstance().world != null) {
 			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
 			if (ShardData.isExistingShard(worldName.getPath())) {
@@ -112,7 +116,7 @@ public class ShardData {
 		stopSearch();
 	}
 
-	protected static HashMap<String, Shard> getShards() {
+	public static HashMap<String, Shard> getShards() {
 		return SHARDS;
 	}
 
@@ -139,16 +143,18 @@ public class ShardData {
 		public final ShardType shardType;
 		@Nullable
 		public final Integer maxChests;
+		public final boolean canBeDelveBounty;
 
-		public Shard(String officialName, ShardType shardType, @Nullable Integer maxChests) {
+		public Shard(String officialName, ShardType shardType, @Nullable Integer maxChests, @Nullable Boolean canBeDelveBounty) {
 			this.officialName = officialName;
 			this.shardType = shardType;
 			this.maxChests = maxChests;
+			this.canBeDelveBounty = Boolean.TRUE.equals(canBeDelveBounty);
 		}
 
 		@Override
 		public String toString() {
-			return "{ \"officialName\": \"" + officialName + "\", \"shardType\": \"" + shardType + "\", \"maxChests\": " + maxChests + " }";
+			return "{ \"officialName\": \"" + officialName + "\", \"shardType\": \"" + shardType + "\", \"maxChests\": " + maxChests+ ",\"canBeDelveBounty\": \""+ canBeDelveBounty +"\" }";
 		}
 	}
 
