@@ -1,6 +1,6 @@
 package ch.njol.unofficialmonumentamod.core.shard;
 
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
@@ -17,6 +17,7 @@ public class ShardDebugCommand {
     public LiteralArgumentBuilder<FabricClientCommandSource> register() {
         LiteralArgumentBuilder<FabricClientCommandSource> builder = LiteralArgumentBuilder.literal("ummShard");
 
+        //list shards
         builder.then(ClientCommandManager.literal("list").executes(ShardDebugCommand::executeList));
         builder.then(ClientCommandManager.literal("debug")
                 .then(ClientCommandManager.literal("set").then(ClientCommandManager.argument("shard", ShardArgumentType.Key()).executes(ShardDebugCommand::executeDebugSet)))
@@ -62,7 +63,7 @@ public class ShardDebugCommand {
 
         ShardData.editedShard = true;
         ShardData.bypassCheckOnShardChange(shardName);
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of("Successfully \"changed\" shards").getContent()).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of("The Mod will now believe you are in: " + shardName).getContent()).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
         return 0;
     }
 

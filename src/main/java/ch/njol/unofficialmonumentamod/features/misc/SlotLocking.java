@@ -194,34 +194,6 @@ public class SlotLocking {
 		}
 	}
 	
-	public void drawPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
-		float a = (float)(color >> 24 & 0xFF) / 255.0f;
-		float r = (float)(color >> 16 & 0xFF) / 255.0f;
-		float g = (float)(color >> 8 & 0xFF) / 255.0f;
-		float b = (float)(color & 0xFF) / 255.0f;
-		
-		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
-		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.defaultBlendFunc();
-		
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		
-		bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
-		bufferBuilder.vertex(positionMatrix, originX, originY, 0.0f).color(a, r, g, b).next();
-		
-		//very optimised (trust)
-		for (int i = 0; i <= sides; i++) {
-			double angle = ((Math.PI * 2) * i / sides) + Math.toRadians(180);
-			bufferBuilder.vertex(originX + Math.sin(angle) * radius, originY + Math.cos(angle) * radius, 0.0f).color(a, r, g, b).next();
-		}
-		
-		BufferRenderer.draw(bufferBuilder.end());
-		RenderSystem.enableTexture();
-		RenderSystem.disableBlend();
-	}
-	
 	public void tickRender(MatrixStack matrices, int mouseX, int mouseY) {
 		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
 			return;
@@ -254,7 +226,7 @@ public class SlotLocking {
 			LockedSlot slot = config.lockedSlots[slotIndex];
 			//is active and being held
 			
-			drawPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
+			Utils.drawFilledPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
 			
 			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
 			if (slot.lockPickup) {
