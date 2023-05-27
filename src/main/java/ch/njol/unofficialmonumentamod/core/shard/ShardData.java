@@ -40,6 +40,7 @@ public class ShardData {
 	}
 
 	private static boolean searchingForShard;
+	private static boolean loadedFromWorldName;
 	private static TabShard lastShard;
 	private static TabShard currentShard = TabShard.UNKNOWN;
 
@@ -69,6 +70,7 @@ public class ShardData {
 		//set the last shard as the current loaded one if it exists
 		lastShard = currentShard;
 		searchingForShard = true;
+		loadedFromWorldName = false;
 		editedShard = false;
 
 		//If player has world name spoofing on in the PEB
@@ -76,6 +78,7 @@ public class ShardData {
 			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
 			if (ShardData.isExistingShard(worldName.getPath())) {
 				String shard = worldName.getPath();
+				loadedFromWorldName = true;
 
 				onShardChange(shard);
 				System.out.println("Inferred shard data from world name.");
@@ -95,7 +98,7 @@ public class ShardData {
 
 		if (!searchingForShard) {
 			//if not unknown and not last shard
-			if (!editedShard && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard, "unknown")) && (!Objects.equals(lastShard, shardName) && !Objects.equals(currentShard, shardName))) {
+			if (!editedShard && !loadedFromWorldName && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard, "unknown")) && (!Objects.equals(lastShard, shardName) && !Objects.equals(currentShard, shardName))) {
 				System.out.println("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard + " Currently loaded: " + currentShard);
 			}
 			return;
@@ -172,6 +175,11 @@ public class ShardData {
 		}
 
 		protected static TabShard UNKNOWN = new TabShard("unknown");
+
+		@Override
+		public String toString() {
+			return shardString;
+		}
 	}
 
 	public enum ShardType {
