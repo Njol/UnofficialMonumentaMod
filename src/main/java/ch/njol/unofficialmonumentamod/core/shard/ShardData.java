@@ -16,6 +16,7 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 public class ShardData {
 
@@ -39,8 +40,8 @@ public class ShardData {
 	}
 
 	private static boolean searchingForShard;
-	private static String lastShard;
-	private static String currentShard = "unknown";
+	private static TabShard lastShard;
+	private static TabShard currentShard = TabShard.UNKNOWN;
 
 	protected static boolean editedShard = false;
 
@@ -48,11 +49,11 @@ public class ShardData {
 		return editedShard;
 	}
 
-	public static String getCurrentShard() {
+	public static TabShard getCurrentShard() {
 		return currentShard;
 	}
 
-	public static String getLastShard() {
+	public static TabShard getLastShard() {
 		return lastShard;
 	}
 
@@ -100,7 +101,7 @@ public class ShardData {
 			return;
 		}
 
-		currentShard = shardName;
+		currentShard = shardName.equals("unknown") ? TabShard.UNKNOWN : new TabShard(shardName);
 
 		if (!Objects.equals(currentShard, lastShard)) {//shard changed
 			Locations.resetCache();
@@ -112,6 +113,10 @@ public class ShardData {
 
 	public static HashMap<String, Shard> getShards() {
 		return SHARDS;
+	}
+
+	public static Shard getShard(String shard) {
+		return SHARDS.get(shard);
 	}
 
 	public static boolean isExistingShard(String shard)  {
@@ -150,6 +155,23 @@ public class ShardData {
 		public String toString() {
 			return "{ \"officialName\": \"" + officialName + "\", \"shardType\": \"" + shardType + "\", \"maxChests\": " + maxChests + ",\"canBeDelveBounty\": \""+ canBeDelveBounty +"\" }";
 		}
+	}
+
+	public static class TabShard {
+		@NotNull
+		public final String shardString;
+		@NotNull
+		public final String shortShard;
+		@Nullable
+		public final Shard shard;
+
+		public TabShard(@NotNull String shard) {
+			this.shardString = shard;
+			this.shortShard = shardString.replaceFirst("-\\d+$", "");
+			this.shard = getShard(shortShard);
+		}
+
+		protected static TabShard UNKNOWN = new TabShard("unknown");
 	}
 
 	public enum ShardType {

@@ -94,11 +94,21 @@ public class InGameHudMixin {
 		}
 	}
 
+	@Unique
+	private final String NPCNamePattern = "\\[\\w*] ";
+
 	@Inject(method = "addChatMessage", at = @At("TAIL"))
 	private void umm$newChatMessageListener(MessageType type, Text message, UUID sender, CallbackInfo ci) {
 		if (!Locations.getShortShard().equals("isles") || !UnofficialMonumentaModClient.options.enableDelveRecognition) {
 			return;	//stop it on triggering either on another shard (outside dev environment) than a possible one or if the feature is disabled
 		}
+
+		String npcText = message.getString();
+		String npcMessage = npcText.replaceFirst(NPCNamePattern, "");
+		if (npcMessage.equals(npcText)) {
+			return;//if it's not given by an NPC, it should not be used.
+		}
+
 		for (Map.Entry<String, ShardData.Shard> entry: ShardData.getShards().entrySet()) {
 			if (!entry.getValue().canBeDelveBounty) {
 				continue;//skip if shard cannot be a delve bounty
@@ -106,7 +116,7 @@ public class InGameHudMixin {
 
 			TranslatableText translatedText = new TranslatableText("unofficial-monumenta-mod.delvebounty." + entry.getKey().toLowerCase());
 
-			if (Objects.equals(message.getString(), translatedText.getString())) {
+			if (Objects.equals(npcMessage, translatedText.getString())) {
 				MutableText text = new TranslatableText("unofficial-monumenta-mod.delvebounty.newBountyMessage")
 						.setStyle(Style.EMPTY.withColor(Formatting.GOLD))
 						.append(new LiteralText(entry.getValue().officialName).setStyle(Style.EMPTY.withColor(Formatting.RED)));

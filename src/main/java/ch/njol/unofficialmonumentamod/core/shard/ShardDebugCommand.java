@@ -93,8 +93,8 @@ public class ShardDebugCommand {
 
             Integer count = chestCountOverlay.getCurrentCount();
             Integer max = chestCountOverlay.getTotalChests();
-            String lastShard = ShardData.getLastShard();
-            String currentShard = ShardData.getCurrentShard();
+            String lastShard = ShardData.getLastShard().shardString;
+            String currentShard = ShardData.getCurrentShard().shardString;
             boolean isSearching = ShardData.isSearchingForShard();
             boolean isEdited = ShardData.editedShard;
 
