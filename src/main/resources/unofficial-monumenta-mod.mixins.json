@@ -8,6 +8,7 @@
     "BlockItemMixin",
     "CapeFeatureRendererMixin",
     "ClientPlayerInteractionManagerMixin",
+    "ClientPlayNetworkHandlerMixin",
     "ElytraFeatureRendererMixin",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
