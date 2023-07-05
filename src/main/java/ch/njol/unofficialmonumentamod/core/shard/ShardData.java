@@ -22,6 +22,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class ShardData {
+	public static boolean loadedAtLeastOnce = false;
 
 	private static final HashMap<String, Shard> SHARDS = new HashMap<>();
 
@@ -73,6 +74,9 @@ public class ShardData {
 	}
 
 	public static void onWorldLoad() {
+		if (!loadedAtLeastOnce) {
+			loadedAtLeastOnce = true;
+		}
 		//set the last shard as the current loaded one if it exists
 		lastShard = currentShard;
 		searchingForShard = true;
@@ -88,6 +92,10 @@ public class ShardData {
 				System.out.println("Inferred shard data from world name.");
 			}
 		}
+	}
+
+	public static void onPlayerTeleport() {
+		onWorldLoad();
 	}
 
 	protected static void bypassCheckOnShardChange(String shardName) {

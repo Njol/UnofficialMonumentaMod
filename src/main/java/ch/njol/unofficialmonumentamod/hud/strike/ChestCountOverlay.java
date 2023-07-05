@@ -67,16 +67,12 @@ public class ChestCountOverlay extends HudElement {
 	public void onActionbarReceived(Text text) {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
 		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
-			currentCount++;
-
-			if (currentCount > totalChests) {
-				//means that the current max count is probably not correct
-				MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of(
-						"Current max count seems incorrect.\nIf you haven't edited the count yourself, please report to the developer the new count: " + currentCount
-				).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)));
-			}
+			addCount(1);
 		}
-		//TODO handle miniboss added count.
+
+		if (text.getString().equals("+5 Chests added to lootroom.") || text.getString().matches("\u00a76\\+5 Chests \u00a7cadded to lootroom\\..*")) {
+			addCount(5);
+		}
 	}
 
 	public void onStrikeChestUpdatePacket(ChannelHandler.StrikeChestUpdatePacket packet) {
@@ -85,6 +81,17 @@ public class ChestCountOverlay extends HudElement {
 			currentCount = packet.count;
 		}
 		ShardData.stopSearch();
+	}
+
+	private void addCount(int num) {
+		currentCount += num;
+
+		if (currentCount > totalChests) {
+			//means that the current max count is probably not correct
+			MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of(
+					"Current max count seems incorrect.\nIf you haven't edited the count yourself, please report to the developer the new count: " + currentCount
+			).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)));
+		}
 	}
 
 	public void onShardChange(String shardName) {
