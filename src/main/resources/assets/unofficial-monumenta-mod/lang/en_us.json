@@ -132,6 +132,8 @@
   "unofficial-monumenta-mod.config.option.debugOptionsEnabled.tooltip": "",
   "unofficial-monumenta-mod.config.option.logPackets": "Log packets",
   "unofficial-monumenta-mod.config.option.logPackets.tooltip": "",
+  "unofficial-monumenta-mod.config.option.shardDebug": "Log Shard debug data",
+  "unofficial-monumenta-mod.config.option.shardDebug.tooltip": "Sends information on when shard was changed, errors and other related stuff.",
   "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock":  "Render special locks",
   "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock.tooltip":  "When slots are rendered will also render letters that shows that state of every special locks.",
 

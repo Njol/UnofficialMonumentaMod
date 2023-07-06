@@ -179,6 +179,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean debugOptionsEnabled = false;
 	@Category("debug")
 	public boolean logPackets = false;
+	@Category("debug")
+	public boolean shardDebug = false;
 
 	@Dropdown("lock")
 	@Category("debug")
