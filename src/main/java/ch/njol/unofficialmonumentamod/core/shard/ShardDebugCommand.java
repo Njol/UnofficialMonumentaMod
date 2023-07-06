@@ -63,7 +63,7 @@ public class ShardDebugCommand {
         String shardName = context.getArgument("shard", String.class);
 
         ShardData.editedShard = true;
-        ShardData.bypassCheckOnShardChange(shardName);
+        ShardData.onShardChangeSkipChecks(shardName);
         Locations.setShard(shardName);
 
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(new LiteralText("The Mod will now believe you are in: " + shardName).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
