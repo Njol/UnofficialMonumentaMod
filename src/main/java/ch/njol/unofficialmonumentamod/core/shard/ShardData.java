@@ -30,23 +30,24 @@ public class ShardData {
 
 	public static void reload() {
 		SHARDS.clear();
-		Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER);
-		if (resource.isEmpty()) {
-			return;
-		}
-		try (InputStream stream = resource.get().getInputStream()) {
-			HashMap<String, Shard> hash = new GsonBuilder().create().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), new TypeToken<HashMap<String, Shard>>() {
-			}.getType());
+		try {
+			Optional<Resource> resource = Optional.ofNullable(MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER));
+			if (resource.isEmpty()) {
+				return;
+			}
+			InputStream stream = resource.get().getInputStream();
+			HashMap<String, Shard> hash = new GsonBuilder().create().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), new TypeToken<HashMap<String, Shard>>() {}.getType());
 			if (hash != null) {
 				SHARDS.putAll(hash);
 			}
 		} catch (IOException | JsonParseException e) {
-			UnofficialMonumentaModClient.LOGGER.error("Caught error while trying to load shards");
+			UnofficialMonumentaModClient.LOGGER.error("Caught error while trying to reload shards");
 			e.printStackTrace();
 		}
 	}
 
 	private static boolean searchingForShard;
+	private static boolean loadedFromWorldName;
 	private static TabShard lastShard;
 	private static TabShard currentShard = TabShard.UNKNOWN;
 
@@ -76,9 +77,11 @@ public class ShardData {
 		if (!loadedAtLeastOnce) {
 			loadedAtLeastOnce = true;
 		}
+
 		//set the last shard as the current loaded one if it exists
 		lastShard = currentShard;
 		searchingForShard = true;
+		loadedFromWorldName = false;
 		editedShard = false;
 
 		//If player has world name spoofing on in the PEB
@@ -86,18 +89,24 @@ public class ShardData {
 			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
 			if (ShardData.isExistingShard(worldName.getPath())) {
 				String shard = worldName.getPath();
+				loadedFromWorldName = true;
 
 				onShardChange(shard);
-				System.out.println("Inferred shard data from world name.");
+				if (UnofficialMonumentaModClient.options.shardDebug) {
+					UnofficialMonumentaModClient.LOGGER.info("Inferred shard data from world name.");
+				}
 			}
 		}
 	}
 
 	public static void onPlayerTeleport() {
+		if (UnofficialMonumentaModClient.options.shardDebug) {
+			UnofficialMonumentaModClient.LOGGER.info("Called Shard change from teleport event.");
+		}
 		onWorldLoad();
 	}
 
-	protected static void bypassCheckOnShardChange(String shardName) {
+	protected static void onShardChangeSkipChecks(String shardName) {
 		searchingForShard = true;
 		onShardChange(shardName);
 	}
@@ -108,9 +117,9 @@ public class ShardData {
 		}
 
 		if (!searchingForShard) {
-			//if not unknown and not last shard
-			if (!editedShard && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard, "unknown")) && (!Objects.equals(lastShard, shardName) && !Objects.equals(currentShard, shardName))) {
-				System.out.println("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard + " Currently loaded: " + currentShard);
+			//if the new shard is not unknown and the last shard exists.
+			if (UnofficialMonumentaModClient.options.shardDebug && !editedShard && !loadedFromWorldName && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard.shardString, "unknown")) && (!Objects.equals(lastShard.shardString, shardName) && !Objects.equals(currentShard.shardString, shardName))) {
+				UnofficialMonumentaModClient.LOGGER.warn("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard + " Currently loaded: " + currentShard);
 			}
 			return;
 		}
@@ -121,6 +130,10 @@ public class ShardData {
 			Locations.resetCache();
 			ChestCountOverlay.INSTANCE.onShardChange(shardName);
 			Calculator.onChangeShardListener(shardName);
+
+			if (UnofficialMonumentaModClient.options.shardDebug) {
+				UnofficialMonumentaModClient.LOGGER.info("Shard changed.");
+			}
 		}
 		stopSearch();
 	}
@@ -186,6 +199,24 @@ public class ShardData {
 		}
 
 		protected static TabShard UNKNOWN = new TabShard("unknown");
+
+		@Override
+		public String toString() {
+			return shardString;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			TabShard other = (TabShard) o;
+			//check object equality of every field.
+			return shardString.equals(other.shardString) && shortShard.equals(other.shortShard) && Objects.equals(shard, other.shard);
+		}
 	}
 
 	public enum ShardType {
