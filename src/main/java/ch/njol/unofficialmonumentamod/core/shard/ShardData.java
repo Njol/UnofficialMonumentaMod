@@ -30,13 +30,13 @@ public class ShardData {
 
 	public static void reload() {
 		SHARDS.clear();
-		try {
-			Optional<Resource> resource = Optional.ofNullable(MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER));
-			if (resource.isEmpty()) {
-				return;
-			}
-			InputStream stream = resource.get().getInputStream();
-			HashMap<String, Shard> hash = new GsonBuilder().create().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), new TypeToken<HashMap<String, Shard>>() {}.getType());
+		Optional<Resource> resource = MinecraftClient.getInstance().getResourceManager().getResource(FILE_IDENTIFIER);
+		if (resource.isEmpty()) {
+			return;
+		}
+		try (InputStream stream = resource.get().getInputStream()) {
+			HashMap<String, Shard> hash = new GsonBuilder().create().fromJson(new InputStreamReader(stream, StandardCharsets.UTF_8), new TypeToken<HashMap<String, Shard>>() {
+			}.getType());
 			if (hash != null) {
 				SHARDS.putAll(hash);
 			}
