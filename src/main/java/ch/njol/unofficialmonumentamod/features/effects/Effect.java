@@ -47,6 +47,10 @@ public class Effect {
 		return positiveEffect;
 	}
 
+	public boolean isInfiniteDuration() {
+		return effectTime == -1;
+	}
+
 	@Override
 	protected Effect clone() {
 		//DON'T FORGET TO MAKE SURE THIS SETS ALL THE PARAMETERS CORRECTLY
@@ -71,6 +75,7 @@ public class Effect {
 	}
 
 	public void tick() {
+		if (isInfiniteDuration()) return;
 		effectTime = Math.max(0, effectTime - 50); // never lower below 0; also don't remove until removed by the server
 	}
 
@@ -87,12 +92,17 @@ public class Effect {
 
 		String timeRemainingStr = matcher.group("timeRemaining");
 		int timeRemaining = 0;
-		String[] r = timeRemainingStr.split(":");
-		int minutes = Integer.parseInt(r[0]);//mm
-		int seconds = Integer.parseInt(r[1]);//ss
+		if (timeRemainingStr != null) {
+			String[] r = timeRemainingStr.split(":");
+			int minutes = Integer.parseInt(r[0]);//mm
+			int seconds = Integer.parseInt(r[1]);//ss
 
-		timeRemaining += minutes * 60000;
-		timeRemaining += seconds * 1000;
+			timeRemaining += minutes * 60000;
+			timeRemaining += seconds * 1000;
+		} else {
+			//set as infinite duration.
+			timeRemaining = -1;
+		}
 
 		Effect effect = new Effect(matcher.group("effectName"), effectPower, timeRemaining);
 		effect.isPercentage = matcher.group("percentage") != null;
@@ -101,6 +111,9 @@ public class Effect {
 	}
 
 	public String getTimeRemainingAsString(float tickDelta) {
+		if (isInfiniteDuration()) {
+			return "";
+		}
 		Duration duration = Duration.ofMillis(effectTime + (int) (tickDelta * 50));
 		long seconds = duration.getSeconds();
 		if (seconds >= 3600) {
