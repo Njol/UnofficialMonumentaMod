@@ -128,9 +128,6 @@ public class AbilityHandler {
 		for (int i = 0; i < data.size(); i++) {
 			AbilityInfo abilityInfo = data.get(i);
 			abilityInfo.tick();
-			if (abilityInfo.remainingCooldown > 1) {
-				abilityInfo.remainingCooldown--;
-			}
 			if (abilityInfo.offCooldownAnimationTicks == 0 && UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume > 0) {
 				float pitchMin = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMin;
 				float pitchMax = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMax;
