@@ -12,15 +12,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientPlayNetworkHandlerMixin {
     @Unique
-    //used to limit the amount of teleports it will catch.
+    //used to limit the amount of synchronization packets it can catch.
     private static long lastUpdate;
 
     @Inject(method = "onPlayerPositionLook", at = @At("HEAD"))
-    public void umm$onPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
-        //The actual teleport packet being a C2S means I have to use this one (which is the one that tells the server that the teleport was successful.
+    public void umm$onSynchronizePositionPacket(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
+        //This packet is the only one sent by the server that could be considered a teleport packet, as the confirmation is sent from C2S.
         if (ShardData.loadedAtLeastOnce && lastUpdate + 1000 < System.currentTimeMillis()) {
             lastUpdate = System.currentTimeMillis();
-            ShardData.onPlayerTeleport();
+            ShardData.onPlayerSynchronizePosition();
         }
     }
 }

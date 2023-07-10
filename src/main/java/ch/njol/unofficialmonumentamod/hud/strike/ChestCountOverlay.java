@@ -12,6 +12,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -88,14 +89,14 @@ public class ChestCountOverlay extends HudElement {
 		currentCount = 0;
 	}
 
-	private void addCount(int num) {
+	public void addCount(int num) {
 		currentCount += num;
 
 		if (currentCount > totalChests) {
 			//means that the current max count is probably not correct
 			MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of(
-					"Current max count seems incorrect.\nIf you haven't edited the count yourself, please report to the developer the new count: " + currentCount
-			).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)));
+					"[UMM] Current shard's max count seems incorrect.\nPlease report the new count to a Unofficial Monumenta Mod maintainer: " + currentCount + "\nYou can disable this message by clicking on it."
+			).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm disableChestCountError"))));
 		}
 	}
 
