@@ -12,6 +12,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -50,7 +51,7 @@ public class ChestCountOverlay extends HudElement {
 		if (isInEditMode()) {
 			text = Text.of("Chests");
 		} else {
-			text = Text.of("" + (totalChests != null && totalChests > 0 ? currentCount + "/" + totalChests : currentCount));
+			text = Text.of(String.valueOf(totalChests != null && totalChests > 0 ? currentCount + "/" + totalChests : currentCount));
 		}
 
 		// if total is 0 or the current count is under the total then render in gold if equal or higher, then render in bright green
@@ -88,12 +89,12 @@ public class ChestCountOverlay extends HudElement {
 		currentCount = 0;
 	}
 
-	private void addCount(int num) {
+	public void addCount(int num) {
 		currentCount += num;
 
-		if (currentCount > totalChests) {
+		if (currentCount > totalChests && UnofficialMonumentaModClient.options.enableChestCountMaxError) {
 			//means that the current max count is probably not correct
-			client.inGameHud.getChatHud().addMessage(new LiteralText("Current shard's max count seems incorrect.\nIf you haven't edited the count yourself, please report to a maintainer the new count: " + currentCount).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)));
+			client.inGameHud.getChatHud().addMessage(new LiteralText("[UMM] Current shard's max count seems incorrect, Shit's about to go down.\nPlease report the new count to a Unofficial Monumenta Mod maintainer: " + currentCount + "\nYou can disable this message by clicking on it.").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm disableChestCountError"))));
 		}
 	}
 

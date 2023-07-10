@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.unofficialmonumentamod.core.commands.MainCommand;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
@@ -28,9 +29,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.S2CPlayChannelEvents;
-import net.fabricmc.fabric.impl.networking.NetworkingImpl;
-import net.fabricmc.fabric.impl.networking.client.ClientNetworkingImpl;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
@@ -110,6 +108,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Hud.INSTANCE.addElement(effectOverlay);
 
 		ClientCommandManager.DISPATCHER.register(new ShardDebugCommand().register());
+		ClientCommandManager.DISPATCHER.register(new MainCommand().register());
 
 		try {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");

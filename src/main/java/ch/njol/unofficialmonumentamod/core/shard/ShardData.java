@@ -93,9 +93,9 @@ public class ShardData {
 		}
 	}
 
-	public static void onPlayerTeleport() {
+	public static void onPlayerSynchronizePosition() {
 		if (UnofficialMonumentaModClient.options.shardDebug) {
-			UnofficialMonumentaModClient.LOGGER.info("Called Shard change from teleport event.");
+			UnofficialMonumentaModClient.LOGGER.info("Called Shard change from synchronization event.");
 		}
 		onWorldLoad();
 	}
