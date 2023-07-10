@@ -94,7 +94,7 @@ public class ChestCountOverlay extends HudElement {
 
 		if (currentCount > totalChests && UnofficialMonumentaModClient.options.enableChestCountMaxError) {
 			//means that the current max count is probably not correct
-			client.inGameHud.getChatHud().addMessage(new LiteralText("[UMM] Current shard's max count seems incorrect, Shit's about to go down.\nPlease report the new count to a Unofficial Monumenta Mod maintainer: " + currentCount + "\nYou can disable this message by clicking on it.").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm disableChestCountError"))));
+			client.inGameHud.getChatHud().addMessage(new LiteralText("[UMM] Current shard's max count seems incorrect.\nPlease report the new count to a Unofficial Monumenta Mod maintainer: " + currentCount + "\nYou can disable this message by clicking on it.").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm disableChestCountError"))));
 		}
 	}
 
