@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.unofficialmonumentamod.core.commands.MainCommand;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
@@ -107,9 +108,10 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
 
-		ClientCommandRegistrationCallback.EVENT.register(
-				((dispatcher, registryAccess) -> dispatcher.register(new ShardDebugCommand().register()))
-		);
+		ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) -> {
+					dispatcher.register(new ShardDebugCommand().register());
+					dispatcher.register(new MainCommand().register());
+		}));
 
 		try {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
