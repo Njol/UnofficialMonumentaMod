@@ -42,11 +42,7 @@ public class ShardDebugCommand {
                 ShardData.Shard shard = shardEntry.getValue();
 
                 shardText.setStyle(
-                        Style.EMPTY
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of(
-                                        "Official name: " + shard.officialName + "\nShard type: " + shard.shardType + "\nMax chests: " + (shard.maxChests != null ? shard.maxChests : "None")
-                                )))
-                                .withColor(Formatting.AQUA)
+                        Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.of("Official name: " + shard.officialName + "\nShard type: " + shard.shardType + "\nMax chests: " + (shard.maxChests != null ? shard.maxChests : "None")))).withColor(Formatting.AQUA)
                 );
 
                 MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(shardText);
@@ -101,8 +97,24 @@ public class ShardDebugCommand {
             //check if it loaded correctly when entering the shard (should show false if it wasn't able to load the shard after world load)
             boolean loadedCorrectly = !isSearching && !Objects.equals(lastShard, currentShard);
 
-            LiteralText text = new LiteralText("Current shard: " + "\nCount: " + (max != null ? count + "/" + max : count) + "\nLast shard: " + lastShard + " | Current shard: " + currentShard + "\nLoaded correctly: " + loadedCorrectly + " | Was edited: " + isEdited);
-            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text.setStyle(Style.EMPTY.withColor(Formatting.AQUA).withItalic(true)));
+            MutableText text = new LiteralText("[Current Shard]\n").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+
+            text.append(new LiteralText("Count: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(new LiteralText((max != null ? count + "/" + max : count) + "\n").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+            text.append(new LiteralText("Last shard: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(new LiteralText(lastShard).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+            text.append(new LiteralText(" | Current shard: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(new LiteralText(currentShard + "\n").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+            text.append(new LiteralText("Loaded correctly: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(new LiteralText(loadedCorrectly ? "Yes" : "No").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+            text.append(new LiteralText(" | Was edited: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(new LiteralText(isEdited ? "Yes" : "No").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
             return 0;
         } catch (Exception e) {
             e.printStackTrace();

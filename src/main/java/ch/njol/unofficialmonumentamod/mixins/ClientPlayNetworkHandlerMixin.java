@@ -1,6 +1,9 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +21,8 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "onPlayerPositionLook", at = @At("HEAD"))
     public void umm$onSynchronizePositionPacket(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
         //This packet is the only one sent by the server that could be considered a teleport packet, as the confirmation is sent from C2S.
-        if (ShardData.loadedAtLeastOnce && lastUpdate + 1000 < System.currentTimeMillis()) {
+        if (packet.getTeleportId() != 1 && lastUpdate + 1000 < System.currentTimeMillis()) {
+            //skip 1st "teleport" as it is synchronization after world join.
             lastUpdate = System.currentTimeMillis();
             ShardData.onPlayerSynchronizePosition();
         }

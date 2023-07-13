@@ -94,6 +94,9 @@ public class ShardData {
 	}
 
 	public static void onPlayerSynchronizePosition() {
+		if (!loadedAtLeastOnce) {
+			return;//first loading needs to be using world loading.
+		}
 		if (UnofficialMonumentaModClient.options.shardDebug) {
 			UnofficialMonumentaModClient.LOGGER.info("Called Shard change from synchronization event.");
 		}
@@ -120,7 +123,7 @@ public class ShardData {
 
 		currentShard = shardName.equals("unknown") ? TabShard.UNKNOWN : new TabShard(shardName);
 
-		if (!Objects.equals(currentShard, lastShard)) {//shard changed
+		if (!Objects.equals(currentShard, lastShard) && currentShard != TabShard.UNKNOWN) {//shard changed and new shard is not unknown.
 			Locations.resetCache();
 			ChestCountOverlay.INSTANCE.onShardChange(shardName);
 			Calculator.onChangeShardListener(shardName);
@@ -129,7 +132,10 @@ public class ShardData {
 				UnofficialMonumentaModClient.LOGGER.info("Shard changed.");
 			}
 		}
-		stopSearch();
+		if (currentShard != TabShard.UNKNOWN) {
+			//continue search if shard is unknown.
+			stopSearch();
+		}
 	}
 
 	public static HashMap<String, Shard> getShards() {
