@@ -18,7 +18,8 @@ public class ClientPlayNetworkHandlerMixin {
     @Inject(method = "onPlayerPositionLook", at = @At("HEAD"))
     public void umm$onSynchronizePositionPacket(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
         //This packet is the only one sent by the server that could be considered a teleport packet, as the confirmation is sent from C2S.
-        if (ShardData.loadedAtLeastOnce && lastUpdate + 1000 < System.currentTimeMillis()) {
+        if (packet.getTeleportId() != 1 && ShardData.loadedAtLeastOnce && lastUpdate + 1000 < System.currentTimeMillis()) {
+            //skip 1st "teleport" as it is synchronization after world join.
             lastUpdate = System.currentTimeMillis();
             ShardData.onPlayerSynchronizePosition();
         }
