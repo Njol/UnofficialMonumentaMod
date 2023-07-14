@@ -175,12 +175,14 @@
   "blue": {
     "officialName": "Coven's Gambit",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "brown": {
     "officialName": "Cradle of the Broken God",
     "shardType": "DUNGEON",
-    "maxChests": null
+    "maxChests": null,
+    "canBeDelveBounty": true
   },
   "green": {
     "officialName": "green",
