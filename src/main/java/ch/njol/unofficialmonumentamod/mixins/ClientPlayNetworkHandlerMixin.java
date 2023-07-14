@@ -1,9 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
-import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
