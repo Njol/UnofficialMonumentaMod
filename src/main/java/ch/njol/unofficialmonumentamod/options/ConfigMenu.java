@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.impl.ConfigEntryBuilderImpl;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.text.Text;
 
 public class ConfigMenu implements ModMenuApi {
 
@@ -28,7 +27,7 @@ public class ConfigMenu implements ModMenuApi {
 				entries.add(ClothConfigSetup.buildConfigEntry(value, defaultValue, posField, UnofficialMonumentaModClient.MOD_IDENTIFIER + ".config.position"));
 			}
 			return ConfigEntryBuilderImpl.create()
-				       .startSubCategory(MutableText.of(new TranslatableTextContent(translatePath)), entries)
+				       .startSubCategory(Text.translatable(translatePath), entries)
 				       .build();
 		});
 	}

@@ -44,9 +44,9 @@ public class MessageHandlerMixin {
                 continue;//skip if shard cannot be delve bounty
             }
 
-            MutableText translatedText = MutableText.of(new TranslatableTextContent("unofficial-monumenta-mod.delvebounty." + entry.getKey().toLowerCase()));
+            MutableText translatedText = Text.translatable("unofficial-monumenta-mod.delvebounty." + entry.getKey().toLowerCase());
             if (Objects.equals(npcMessage, translatedText.getString())) {
-                MutableText text = MutableText.of(new TranslatableTextContent("unofficial-monumenta-mod.delvebounty.newBountyMessage"))
+                MutableText text = Text.translatable("unofficial-monumenta-mod.delvebounty.newBountyMessage")
                         .setStyle(Style.EMPTY.withColor(Formatting.GOLD))
                         .append(MutableText.of(new LiteralTextContent(entry.getValue().officialName)).setStyle(Style.EMPTY.withColor(Formatting.RED)));
                 MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);

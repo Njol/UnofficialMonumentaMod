@@ -178,7 +178,7 @@ public class AbilitiesHud extends HudElement {
 											durationFraction
 									);
 								} else if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
-									DrawableHelper.drawCenteredText(matrices, MinecraftClient.getInstance().textRenderer, abilityInfo.remainingDuration + "/" + abilityInfo.initialDuration, (int) scaledX + (iconSize / 2), (int) scaledY - 4, 0xFFFFFFFF);
+									DrawableHelper.drawCenteredTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, abilityInfo.remainingDuration + "/" + abilityInfo.initialDuration, (int) scaledX + (iconSize / 2), (int) scaledY - 4, 0xFFFFFFFF);
 								}
 							}
 						}

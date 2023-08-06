@@ -45,7 +45,7 @@ public class ChestCountOverlay extends HudElement {
 		DrawableHelper.fill(matrices, 0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
 		Rectangle dimension = getDimension();
-		client.getItemRenderer().renderGuiItemIcon(CHEST, dimension.x + 4, dimension.y + (HEIGHT - 16) / 2);
+		client.getItemRenderer().renderGuiItemIcon(matrices, CHEST, dimension.x + 4, dimension.y + (HEIGHT - 16) / 2);
 
 		Text text;
 		if (isInEditMode()) {

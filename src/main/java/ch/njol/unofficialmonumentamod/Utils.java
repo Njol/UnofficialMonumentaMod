@@ -80,7 +80,6 @@ public abstract class Utils {
 		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
 		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
 
 		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
@@ -96,7 +95,6 @@ public abstract class Utils {
 		BufferBuilder.BuiltBuffer built = bufferBuilder.end();
 
 		BufferRenderer.draw(built);
-		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
 	}
 
@@ -108,7 +106,6 @@ public abstract class Utils {
 		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
 		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
 
 		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
@@ -124,7 +121,6 @@ public abstract class Utils {
 		BufferBuilder.BuiltBuffer built = bufferBuilder.end();
 		BufferRenderer.draw(built);
 		RenderSystem.disableBlend();
-		RenderSystem.enableTexture();
 	}
 
 	public static void drawPartialHollowPolygon(MatrixStack matrices, int originX, int originY, int borderWidth, float radius, int sides, int color, double percentage) {
