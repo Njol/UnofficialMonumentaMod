@@ -33,12 +33,12 @@ public abstract class HandledScreenMixin {
 			method = "render",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;isPointOverSlot(Lnet/minecraft/screen/slot/Slot;DD)Z",
-					shift = Shift.BEFORE
+					target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlot(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/screen/slot/Slot;)V",
+					shift = Shift.AFTER
 			),
 			locals = LocalCapture.CAPTURE_FAILSOFT
 	)
-	private void umm$afterDrawnSlot(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, MatrixStack matrixStack, int k, Slot slot) {
+	private void umm$afterDrawnSlot(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, int k, Slot slot) {
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		HandledScreen $this = (HandledScreen) (Object) this;

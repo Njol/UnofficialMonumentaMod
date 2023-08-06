@@ -106,7 +106,7 @@ public class DiscordPresence {
 					presence.state = !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
 					String shardName = ShardData.getOfficialName(shard);
-					if (!shard.equals("unknown")) {
+					if (!Objects.equals(shard, "unknown")) {
 						//set small image
 						presence.smallImageKey = shard;
 						presence.smallImageText = shardName != null ? shardName : shard;
@@ -125,7 +125,7 @@ public class DiscordPresence {
 								detail = replacer.replaceIn(detail, mc.player.getName().getString());
 							}
 							case "shard" -> {
-								if (shard.equals("unknown")) {
+								if (shard == null || Objects.equals(shard, "unknown")) {
 									continue;
 								}
 								detail = replacer.replaceIn(detail, shardName != null ? shardName : shard);

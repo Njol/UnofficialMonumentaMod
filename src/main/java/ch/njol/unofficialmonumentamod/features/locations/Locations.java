@@ -49,9 +49,18 @@ public class Locations {
 	}
 
 	public static String getShard() {
-		if (cachedShard != null && lastUpdateTimeShard + 2000 > System.currentTimeMillis()|| ShardData.isEditedShard()) {
+		if (cachedShard != null && lastUpdateTimeShard + 2000 > System.currentTimeMillis()) {
 			return cachedShard;
 		}
+
+		if (ShardData.getCurrentShard() != null) {
+			ShardData.TabShard shard = ShardData.getCurrentShard();
+
+			cachedShard = shard.shardString;
+			lastUpdateTimeShard = System.currentTimeMillis();
+			return shard.shardString;
+		}
+
 		Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListHud()).getHeader();
 		String shard = "unknown";
 		if (header != null) {
@@ -68,7 +77,7 @@ public class Locations {
 	}
 
 	public static String getShortShard() {
-		if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis() || ShardData.isEditedShard()) {
+		if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
 			return cachedShortShard;
 		}
 
