@@ -12,6 +12,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.metadata.ModMetadata;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.MutableText;
@@ -52,6 +53,9 @@ public class MainCommand {
 
         text.append(MutableText.of(Text.of("\nVersion: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
         text.append(MutableText.of(Text.of(version.getFriendlyString()).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+        text.append(MutableText.of(Text.of("\nMinecraft: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+        text.append(MutableText.of(Text.of(MinecraftClient.getInstance().getGameVersion() + "-" + SharedConstants.getGameVersion().getName()).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
         text.append(MutableText.of(Text.of("\nIsDevEnvironment: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
         text.append(MutableText.of(Text.of(FabricLoader.getInstance().isDevelopmentEnvironment() ? "Yes" : "No").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));

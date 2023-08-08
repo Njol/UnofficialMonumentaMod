@@ -5,7 +5,6 @@ import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
-import java.awt.Rectangle;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -44,11 +43,7 @@ public class ChestCountOverlay extends HudElement {
 
 		DrawableHelper.fill(matrices, 0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
-		Rectangle dimension = getDimension();
-		matrices.push();
-		matrices.translate(0, 0, 999);
-		client.getItemRenderer().renderInGuiWithOverrides(matrices, CHEST, dimension.x + 4, dimension.y + (HEIGHT - 16) / 2);
-		matrices.pop();
+		client.getItemRenderer().renderInGui(matrices, CHEST, 4, (HEIGHT - 16) / 2);
 
 		Text text;
 		if (isInEditMode()) {

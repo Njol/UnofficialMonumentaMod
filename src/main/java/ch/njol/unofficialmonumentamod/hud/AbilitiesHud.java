@@ -172,11 +172,17 @@ public class AbilitiesHud extends HudElement {
 											matrices,
 											(int) scaledX + (iconSize / 2),
 											(int) scaledY + (iconSize / 2),
-											4, ((float) iconSize / 2),
+											4,
+											((float) iconSize / 2),
 											360,
 											durationFraction > 0.10 ? 0x00FF00FF : 0xFF0000FF,//If above 10% then green else red
 											durationFraction
 									);
+									//as RenderSystem settings are changed during the circle drawing, need to re-set them.
+									RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+									RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+									RenderSystem.enableBlend();
+									RenderSystem.defaultBlendFunc();
 								} else if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
 									DrawableHelper.drawCenteredTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, abilityInfo.remainingDuration + "/" + abilityInfo.initialDuration, (int) scaledX + (iconSize / 2), (int) scaledY - 4, 0xFFFFFFFF);
 								}

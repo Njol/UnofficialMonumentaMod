@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class InGameHudMixin {
 
 	@Unique
-	private final AbilitiesHud abiltiesHud = AbilitiesHud.INSTANCE;
+	private final AbilitiesHud abilitiesHud = AbilitiesHud.INSTANCE;
 
 	@Shadow
 	private int scaledWidth;
@@ -36,10 +36,10 @@ public class InGameHudMixin {
 	@Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;F)V",
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;renderStatusEffectOverlay(Lnet/minecraft/client/util/math/MatrixStack;)V", shift = At.Shift.BEFORE))
 	void renderSkills_beforeStatusEffects(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
-		if (!abiltiesHud.renderInFrontOfChat()) {
+		if (!abilitiesHud.renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);
 			ChestCountOverlay.INSTANCE.renderAbsolute(matrices, tickDelta);
-			abiltiesHud.renderAbsolute(matrices, tickDelta);
+			abilitiesHud.renderAbsolute(matrices, tickDelta);
 		}
 	}
 
@@ -47,10 +47,10 @@ public class InGameHudMixin {
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/scoreboard/Scoreboard;getObjectiveForSlot(I)Lnet/minecraft/scoreboard/ScoreboardObjective;", shift = At.Shift.BEFORE),
 		slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/ChatHud;render(Lnet/minecraft/client/util/math/MatrixStack;III)V")))
 	void renderSkills_afterChat(MatrixStack matrices, float tickDelta, CallbackInfo ci) {
-		if (abiltiesHud.renderInFrontOfChat()) {
+		if (abilitiesHud.renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);
 			ChestCountOverlay.INSTANCE.renderAbsolute(matrices, tickDelta);
-			abiltiesHud.renderAbsolute(matrices, tickDelta);
+			abilitiesHud.renderAbsolute(matrices, tickDelta);
 		}
 	}
 

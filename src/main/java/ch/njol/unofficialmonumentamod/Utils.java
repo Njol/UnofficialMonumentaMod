@@ -3,6 +3,8 @@ package ch.njol.unofficialmonumentamod;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
@@ -66,7 +68,6 @@ public abstract class Utils {
 		return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.BASIC);
 	}
 
-	//TODO make the draw Polygon methods work with matrix translations
 	public static void drawFilledPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
 		drawPartialFilledPolygon(matrices, originX, originY, radius, sides, color, 1.0);
 	}
@@ -94,7 +95,7 @@ public abstract class Utils {
 		}
 		BufferBuilder.BuiltBuffer built = bufferBuilder.end();
 
-		BufferRenderer.draw(built);
+		BufferRenderer.drawWithGlobalProgram(built);
 		RenderSystem.disableBlend();
 	}
 
@@ -119,7 +120,7 @@ public abstract class Utils {
 		}
 
 		BufferBuilder.BuiltBuffer built = bufferBuilder.end();
-		BufferRenderer.draw(built);
+		BufferRenderer.drawWithGlobalProgram(built);
 		RenderSystem.disableBlend();
 	}
 
@@ -135,7 +136,7 @@ public abstract class Utils {
 	}
 	
 	public static class Lerp {
-		//copied from https://github.com/NotEnoughUpdates/NotEnoughUpdates/blob/master/src/main/java/io/github/moulberry/notenoughupdates/core/util/lerp/LerpingFloat.java per the LGPL 3.0 license
+		//copied from https://github.com/NotEnoughUpdates/NotEnoughUpdates/blob/master/src/main/java/io/github/moulberry/notenoughupdates/core/util/lerp/LerpingFloat.java under the LGPL 3.0 license
 		
 		private int timeSpent;
 		private long lastMillis;
