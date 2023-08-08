@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class HandledScreenMixin {
 	@Inject(method = "onMouseClick(Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V", at = @At("HEAD"), cancellable = true)
 	void umm$onSlotClicked(Slot slot, int slotId, int button, SlotActionType actionType, CallbackInfo ci) {
-		HandledScreen $this = (HandledScreen) (Object) this;
+		HandledScreen<?> $this = (HandledScreen<?>) (Object) this;
 		
 		if (SlotLocking.getInstance().onSlotClicked($this, slot, slotId, button, actionType)) {
 			ci.cancel();
@@ -41,7 +41,7 @@ public abstract class HandledScreenMixin {
 	private void umm$afterDrawnSlot(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, int k, Slot slot) {
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
-		HandledScreen $this = (HandledScreen) (Object) this;
+		HandledScreen<?> $this = (HandledScreen<?>) (Object) this;
 		SlotLocking.getInstance().drawSlot($this, matrices, slot);
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();

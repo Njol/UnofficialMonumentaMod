@@ -93,7 +93,7 @@ public class Calculator extends DrawableHelper {
 					values.add(e);
 				}
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst parsing integer input", e);
 			}
 		}
 

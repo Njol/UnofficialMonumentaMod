@@ -3,8 +3,6 @@ package ch.njol.unofficialmonumentamod;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
@@ -156,7 +154,7 @@ public abstract class Utils {
 		
 		public void tick() {
 			int lastTimeSpent = timeSpent;
-			this.timeSpent += System.currentTimeMillis() - lastMillis;
+			this.timeSpent += (int) (System.currentTimeMillis() - lastMillis);
 			
 			float lastDistPercentToTarget = lastTimeSpent / (float) targetTime;
 			float distPercentToTarget = timeSpent / (float) targetTime;

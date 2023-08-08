@@ -29,13 +29,60 @@ public class MainCommand {
         builder.then(ClientCommandManager.literal("debug").then(ClientCommandManager.literal("addCount").then(ClientCommandManager.argument("count", IntegerArgumentType.integer(0)).executes((MainCommand::runAddCount)))));
 
         builder.then(ClientCommandManager.literal("info").executes(ctx -> runSelfInfo()));
-        builder.then(ClientCommandManager.literal("info").then(ClientCommandManager.literal("modlist").executes(ctx -> runModList())));
+        builder.then(ClientCommandManager.literal("info")
+                .then(ClientCommandManager.literal("modlist")
+                        .then(ClientCommandManager.literal("clip").executes(ctw -> runCopyInfo()))
+                        .executes(ctx -> runModList())));
 
         return builder;
     }
 
     public String getName() {
         return MainCommand.class.getSimpleName();
+    }
+
+    private static String getSelfInfoString() {
+        StringBuilder data = new StringBuilder();
+        data.append("[Mod Info]");
+
+        if (FabricLoader.getInstance().isModLoaded(UnofficialMonumentaModClient.MOD_IDENTIFIER)) {
+            ModMetadata thisMetadata = FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).get().getMetadata();
+            Version version = thisMetadata.getVersion();
+            String name = thisMetadata.getName();
+            data.append("\nName: ").append(name);
+            data.append("\nVersion: ").append(version.getFriendlyString());
+        }
+
+        data.append("\nMinecraft: ") .append(MinecraftClient.getInstance().getGameVersion()).append("-").append(SharedConstants.getGameVersion().getName());
+        data.append("\nIn Development environment: ").append(FabricLoader.getInstance().isDevelopmentEnvironment() ? "Yes" : "No");
+        return data.append("\n").toString();
+    }
+
+    private static String getModListString() {
+        Collection<ModContainer> mods = FabricLoader.getInstance().getAllMods();
+        StringBuilder data = new StringBuilder();
+
+        data.append("[Mod List]");
+        for (ModContainer mod: mods) {
+            ModMetadata metadata = mod.getMetadata();
+            if (metadata.getId().startsWith("fabric-") || metadata.getId().equals("minecraft") || metadata.getId().equals("java")) {
+                continue;//Skip fabric apis, Minecraft and Java.
+            }
+            data.append("\n").append(metadata.getName()).append(" (").append(metadata.getId()).append(") ").append(metadata.getVersion().getFriendlyString());
+            if (mod.getContainingMod().isPresent()) {
+                data.append(" via ").append(mod.getContainingMod().get().getMetadata().getId());
+            }
+        }
+
+        return data.append("\n").toString();
+    }
+
+    private static int runCopyInfo() {
+        MinecraftClient.getInstance().keyboard.setClipboard(getSelfInfoString().concat(getModListString()));
+        MutableText text = Text.literal("Copied info to clipboard").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY));
+
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
+        return 0;
     }
 
     private static int runSelfInfo() {
@@ -46,23 +93,26 @@ public class MainCommand {
         Version version = thisMetadata.getVersion();
         String name = thisMetadata.getName();
 
-        MutableText text = MutableText.of(Text.of("[Mod Info]").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+        MutableText text = Text.literal("[Mod Info]").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
 
-        text.append(MutableText.of(Text.of("\nName: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-        text.append(MutableText.of(Text.of(name).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+        text.append(Text.literal("\nName: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+        text.append(Text.literal(name).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-        text.append(MutableText.of(Text.of("\nVersion: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-        text.append(MutableText.of(Text.of(version.getFriendlyString()).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+        text.append(Text.literal("\nVersion: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+        text.append(Text.literal(version.getFriendlyString()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-        text.append(MutableText.of(Text.of("\nMinecraft: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-        text.append(MutableText.of(Text.of(MinecraftClient.getInstance().getGameVersion() + "-" + SharedConstants.getGameVersion().getName()).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+        text.append(Text.literal("\nMinecraft: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+        text.append(Text.literal(MinecraftClient.getInstance().getGameVersion() + "-" + SharedConstants.getGameVersion().getName()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-        text.append(MutableText.of(Text.of("\nIsDevEnvironment: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-        text.append(MutableText.of(Text.of(FabricLoader.getInstance().isDevelopmentEnvironment() ? "Yes" : "No").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+        text.append(Text.literal("\nIn Development environment: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+        text.append(Text.literal(FabricLoader.getInstance().isDevelopmentEnvironment() ? "Yes" : "No").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
         //other "pages"
-        text.append(MutableText.of(Text.of("\n[Press Here to show modlist]").getContent()).setStyle(Style.EMPTY.withColor(Formatting.GRAY).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm info modlist"))));
-        text.append(MutableText.of(Text.of("\n[Press Here to show current shard]").getContent()).setStyle(Style.EMPTY.withColor(Formatting.GRAY).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ummShard debug loaded"))));
+        text.append(Text.literal("\n[Press Here to show modlist]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm info modlist"))));
+        text.append(Text.literal("\n[Press Here to show current shard]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/ummShard debug loaded"))));
+
+        //copy all info to clipboard
+        text.append(Text.literal("\n[Press Here to copy to clipboard]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm info clip"))));
 
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
 
@@ -71,7 +121,7 @@ public class MainCommand {
 
     private static int runModList() {
         Collection<ModContainer> mods = FabricLoader.getInstance().getAllMods();
-        MutableText text = MutableText.of(Text.of("[Mod List]").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+        MutableText text = Text.literal("[Mod List]").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
 
         for (ModContainer mod: mods) {
             ModMetadata metadata = mod.getMetadata();
@@ -79,9 +129,9 @@ public class MainCommand {
                 continue;//Skip fabric apis, Minecraft and Java.
             }
 
-            MutableText modText = MutableText.of(Text.of("\n" + metadata.getName()).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN));
-            modText.append(MutableText.of(Text.of(" (" + metadata.getId() + ") ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            modText.append(MutableText.of(Text.of(metadata.getVersion().getFriendlyString()).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN)));
+            MutableText modText = Text.literal("\n" + metadata.getName()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN));
+            modText.append(Text.literal(" (" + metadata.getId() + ") ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            modText.append(Text.literal(metadata.getVersion().getFriendlyString()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GREEN)));
 
             text.append(modText);
         }
@@ -98,7 +148,7 @@ public class MainCommand {
         UnofficialMonumentaModClient.options.enableChestCountMaxError = false;
         //wouldn't want to mitigate the effect of the command.
         UnofficialMonumentaModClient.saveConfig();
-        MutableText text = MutableText.of(Text.of("[UMM] Successfully disabled warning message").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+        MutableText text = Text.literal("[UMM] Successfully disabled warning message").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
 
         return 0;
@@ -106,14 +156,14 @@ public class MainCommand {
 
     public static int runAddCount(CommandContext<FabricClientCommandSource> commandContext) {
         if (!FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            MutableText text = MutableText.of(Text.of("[UMM] nuh uh, not happening.").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+            MutableText text = Text.literal("[UMM] nuh uh, not happening.").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
             MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
             return 1;
         }
         int count = IntegerArgumentType.getInteger(commandContext, "count");
         ChestCountOverlay.INSTANCE.addCount(count);
 
-        MutableText text = MutableText.of(Text.of("[UMM] added " + count + " to chestCountOverlay").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+        MutableText text = Text.literal("[UMM] added " + count + " to chestCountOverlay").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
 
         return 0;

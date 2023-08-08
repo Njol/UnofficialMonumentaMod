@@ -52,7 +52,7 @@ public class Notifier {
 
 	private static void handleQueue() {
 		queue.removeIf(toast -> toast.getVisibility() == Toast.Visibility.HIDE);
-		if (queue.size() > 0) {
+		if (!queue.isEmpty()) {
 			if (!lastToastActive()) {
 				queue.get(0).setHideTime(getMillisHideTime());
 				lastToast = queue.get(0);

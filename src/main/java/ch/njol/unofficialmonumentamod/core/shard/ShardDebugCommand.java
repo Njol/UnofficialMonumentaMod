@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.core.shard;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -34,10 +35,10 @@ public class ShardDebugCommand {
         try {
             final HashMap<String, ShardData.Shard> shards = ShardData.getShards();
 
-            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of("Currently loaded shards:").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA).withBold(true)));
+            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal("Currently loaded shards:").setStyle(Style.EMPTY.withColor(Formatting.AQUA).withBold(true)));
 
             for (Map.Entry<String, ShardData.Shard> shardEntry : shards.entrySet()) {
-                MutableText shardText = MutableText.of(Text.of(shardEntry.getKey()).getContent());
+                MutableText shardText = Text.literal(shardEntry.getKey());
                 ShardData.Shard shard = shardEntry.getValue();
 
                 shardText.setStyle(
@@ -53,7 +54,7 @@ public class ShardDebugCommand {
             }
             return 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            UnofficialMonumentaModClient.LOGGER.error("Caught error while enumerating loaded shards", e);
             return -1;
         }
     }
@@ -63,12 +64,12 @@ public class ShardDebugCommand {
 
         ShardData.editedShard = true;
         ShardData.onShardChangeSkipChecks(shardName);
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(MutableText.of(Text.of("The Mod will now believe you are in: " + shardName).getContent()).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal("The Mod will now believe you are in: " + shardName).setStyle(Style.EMPTY.withBold(true).withColor(Formatting.AQUA)));
         return 0;
     }
 
     public static int executeDebugGet(CommandContext<FabricClientCommandSource> context) {
-        MutableText shardText = MutableText.of(Text.of("Shard: " + context.getArgument("shard", String.class)).getContent());
+        MutableText shardText = Text.literal("Shard: " + context.getArgument("shard", String.class));
         ShardData.Shard shard = ShardArgumentType.getShardFromKey(context, "shard");
 
         assert shard != null;
@@ -93,27 +94,27 @@ public class ShardDebugCommand {
             boolean loadedCorrectly = !isSearching && !Objects.equals(lastShard, currentShard);
 
             //count: (if max exists then count/max else just count) loaded shard: lastShard, current shard: currentShard
-            MutableText text = MutableText.of(Text.of("[Current Shard]\n").getContent()).setStyle(Style.EMPTY.withColor(Formatting.AQUA));
+            MutableText text = Text.literal("[Current Shard]\n").setStyle(Style.EMPTY.withColor(Formatting.AQUA));
 
-            text.append(MutableText.of(Text.of("Count: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            text.append(MutableText.of(Text.of((max != null ? count + "/" + max : count) + "\n").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+            text.append(Text.literal("Count: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal((max != null ? count + "/" + max : count) + "\n").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-            text.append(MutableText.of(Text.of("Last shard: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            text.append(MutableText.of(Text.of(lastShard).getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+            text.append(Text.literal("Last shard: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal(lastShard).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-            text.append(MutableText.of(Text.of(" | Current shard: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            text.append(MutableText.of(Text.of(currentShard + "\n").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+            text.append(Text.literal(" | Current shard: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal(currentShard + "\n").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-            text.append(MutableText.of(Text.of("Loaded correctly: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            text.append(MutableText.of(Text.of(loadedCorrectly ? "Yes" : "No").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+            text.append(Text.literal("Loaded correctly: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal(loadedCorrectly ? "Yes" : "No").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
-            text.append(MutableText.of(Text.of(" | Was edited: ").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
-            text.append(MutableText.of(Text.of(isEdited ? "Yes" : "No").getContent()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+            text.append(Text.literal(" | Was edited: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal(isEdited ? "Yes" : "No").setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
             MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
             return 0;
         } catch (Exception e) {
-            e.printStackTrace();
+            UnofficialMonumentaModClient.LOGGER.error("Caught error while enumerating current loaded shard", e);
             return -1;
         }
     }

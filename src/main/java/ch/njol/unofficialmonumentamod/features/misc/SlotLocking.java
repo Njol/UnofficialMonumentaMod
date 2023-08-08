@@ -7,7 +7,6 @@ import ch.njol.unofficialmonumentamod.mixins.KeyBindingAccessor;
 import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -15,12 +14,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
@@ -32,7 +25,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -41,7 +33,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 import static ch.njol.minecraft.uiframework.hud.HudElement.drawSprite;
@@ -195,7 +186,7 @@ public class SlotLocking {
 	}
 	
 	public void tickRender(MatrixStack matrices, int mouseX, int mouseY) {
-		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
+		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen<?> containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
 			return;
 		}
 		
@@ -323,7 +314,7 @@ public class SlotLocking {
 	}
 
 	public void onKeyboardInput(Screen screen, int code, int scancode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (!(screen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || (screen instanceof CreativeInventoryScreen)) {
+		if (!(screen instanceof HandledScreen<?> containerScreen) || MinecraftClient.getInstance().player == null || (screen instanceof CreativeInventoryScreen)) {
 			return;
 		}
 		
@@ -470,7 +461,7 @@ public class SlotLocking {
 		try (FileReader reader = new FileReader(file)) {
 			config = GSON.fromJson(reader, SlotLockData.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to reload slot locking data", e);
 		}
 	}
 	
@@ -481,14 +472,14 @@ public class SlotLocking {
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 			} catch (IOException e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to create files for slot locking data", e);
 			}
 		}
 		
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(GSON.toJson(config));
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to save slot locking data", e);
 		}
 	}
 }

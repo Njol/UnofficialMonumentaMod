@@ -41,8 +41,7 @@ public class ShardData {
 				SHARDS.putAll(hash);
 			}
 		} catch (IOException | JsonParseException e) {
-			UnofficialMonumentaModClient.LOGGER.error("Caught error while trying to reload shards");
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error while trying to reload shards", e);
 		}
 	}
 
@@ -176,7 +175,6 @@ public class ShardData {
 		public final ShardType shardType;
 		@Nullable
 		public final Integer maxChests;
-		@Nullable
 		public final boolean canBeDelveBounty;
 
 		public Shard(String officialName, ShardType shardType, @Nullable Integer maxChests, @Nullable Boolean canBeDelveBounty) {

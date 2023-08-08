@@ -59,7 +59,7 @@ public class DiscordPresence {
 				try {
 					updatePresence();
 				} catch (Exception e) {
-					e.printStackTrace();
+					UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to update Discord Rich Presence", e);
 				}
 			}
 		}, 15000, 15000);
@@ -136,7 +136,7 @@ public class DiscordPresence {
 								}
 								detail = replacer.replaceIn(detail, !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
 							}
-							case "class" -> detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
+							case "class" -> detail = replacer.replaceIn(detail, !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty() ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
 							case "location" -> {
 								if (shard.equals("unknown") || mc.player == null) {
 									continue;
