@@ -1,9 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.BakedModel;
@@ -11,8 +8,8 @@ import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.render.model.json.Transformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.world.World;
@@ -43,9 +40,12 @@ public abstract class ItemRendererMixin {
 	@ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V",
 		at = @At("HEAD"), ordinal = 0, argsOnly = true)
 	ModelTransformationMode renderItem_tridentFix_citResewnHack(ModelTransformationMode renderMode, @Nullable LivingEntity entity, ItemStack item, ModelTransformationMode renderMode2, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, @Nullable World world, int light, int overlay, int seed) {
+		Item spoofedItem = UnofficialMonumentaModClient.spoofer.getSpoofItem(item);
+
 		if (UnofficialMonumentaModClient.options.overrideTridentRendering
 			    && !item.isEmpty()
-			    && item.getItem() == Items.TRIDENT) {
+			    && item.getItem() == Items.TRIDENT &&
+				(spoofedItem != null && spoofedItem == Items.TRIDENT)) {
 			originalRenderMode = renderMode;
 			return ModelTransformationMode.GUI;
 		}
@@ -87,9 +87,14 @@ public abstract class ItemRendererMixin {
 		return edited != null ? edited : value;
 	}
 
-	@ModifyVariable(method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/render/model/BakedModel;)V", at = @At("HEAD"), argsOnly = true)
-	private ItemStack umm$editStack$renderItem(ItemStack value) {
-		//TODO fix block item rendering here (doesn't render in 3rd person/1st person)
+	@ModifyVariable(method = "renderGuiItemModel", at = @At("HEAD"), argsOnly = true)
+	private ItemStack umm$editStack$renderModel(ItemStack value) {
+		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
+		return edited != null ? edited : value;
+	}
+
+	@ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), argsOnly = true)
+	private ItemStack umm$editStack$renderItemEntity(ItemStack value) {
 		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
 		return edited != null ? edited : value;
 	}
