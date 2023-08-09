@@ -47,9 +47,7 @@ public class DiscordPresence {
 				lib.Discord_RunCallbacks();
 				try {
 					Thread.sleep(2000);
-				} catch (InterruptedException ignored) {
-
-				}
+				} catch (InterruptedException ignored) {}
 			}
 		}, "RPC-Callback-Handler").start();
 
@@ -103,10 +101,10 @@ public class DiscordPresence {
 				} else {
 					String shard = Locations.getShortShard();
 
-					presence.state = !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
+					presence.state = shard != null && !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
 					String shardName = ShardData.getOfficialName(shard);
-					if (!Objects.equals(shard, "unknown")) {
+					if (shard != null && !Objects.equals(shard, "unknown")) {
 						//set small image
 						presence.smallImageKey = shard;
 						presence.smallImageText = shardName != null ? shardName : shard;
@@ -138,7 +136,7 @@ public class DiscordPresence {
 							}
 							case "class" -> detail = replacer.replaceIn(detail, !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty() ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
 							case "location" -> {
-								if (shard.equals("unknown") || mc.player == null) {
+								if ((shard != null && Objects.equals(shard, "unknown")) || mc.player == null) {
 									continue;
 								}
 								detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));

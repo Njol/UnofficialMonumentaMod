@@ -77,14 +77,14 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			}
 		} catch (IOException | JsonParseException e) {
 			// Any issue with the config file silently reverts to the default config
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to load configuration file", e);
 		}
 
 		if (options.discordEnabled) {
 			try {
 				discordRPC.Init();
 			} catch (Exception e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to initialize DiscordRPC", e);
 			}
 		}
 
@@ -117,9 +117,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
 			Class.forName("me.shedaniel.clothconfig2.api.ConfigBuilder");
 			ConfigMenu.registerTypes();
-		} catch (ClassNotFoundException e) {
-			// ignore
-		}
+		} catch (ClassNotFoundException ignore) {}
 	}
 
 	public static void onDisconnect() {
@@ -149,9 +147,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		MinecraftClient.getInstance().execute(() -> {
 			try {
 				Config.writeJsonFile(options, OPTIONS_FILE_NAME);
-			} catch (IOException ex) {
-				// ignore
-			}
+			} catch (IOException ignore) {}
 		});
 	}
 

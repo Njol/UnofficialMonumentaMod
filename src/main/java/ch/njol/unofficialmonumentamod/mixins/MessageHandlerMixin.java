@@ -36,7 +36,7 @@ public class MessageHandlerMixin {
 
         for (Map.Entry<String, ShardData.Shard> entry: ShardData.getShards().entrySet()) {
             if (!entry.getValue().canBeDelveBounty) {
-                continue;//skip if shard cannot be delve bounty
+                continue;//skip if shard does not have an associated delve bounty.
             }
 
             MutableText translatedText = Text.translatable("unofficial-monumenta-mod.delvebounty." + entry.getKey().toLowerCase());

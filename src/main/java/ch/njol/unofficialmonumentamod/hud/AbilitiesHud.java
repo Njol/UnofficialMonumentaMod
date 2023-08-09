@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
@@ -27,6 +26,7 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 
 public class AbilitiesHud extends HudElement {
 
@@ -183,12 +183,12 @@ public class AbilitiesHud extends HudElement {
 									RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 									RenderSystem.enableBlend();
 									RenderSystem.defaultBlendFunc();
-								} else if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
-									DrawableHelper.drawCenteredTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, abilityInfo.remainingDuration + "/" + abilityInfo.initialDuration, (int) scaledX + (iconSize / 2), (int) scaledY - 4, 0xFFFFFFFF);
 								}
 							}
 						}
+
 						drawSprite(matrices, getAbilityIcon(abilityInfo), scaledX, scaledY, scaledIconSize, scaledIconSize);
+
 
 						// silenceCooldownFraction is >= 0 so this is also >= 0
 						float cooldownFraction = abilityInfo.initialCooldown <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingCooldown - tickDelta) / abilityInfo.initialCooldown, silenceCooldownFraction), 1);
@@ -205,6 +205,18 @@ public class AbilitiesHud extends HudElement {
 
 						drawSprite(matrices, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), scaledX, scaledY, scaledIconSize, scaledIconSize);
 
+						if (abilityInfo.initialDuration != null && abilityInfo.remainingDuration != null) {
+							//bar looks better on top of the border, that's why I'm checking again here
+							float durationFraction = abilityInfo.initialDuration <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingDuration - tickDelta) / abilityInfo.initialDuration, silenceCooldownFraction), 1);
+							if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
+								drawDurationBar(matrices, abilityInfo.name, (int) scaledX, (int) scaledY, abilityInfo.remainingDuration, abilityInfo.initialDuration, abilityInfo.className);
+
+								RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+								RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+								RenderSystem.enableBlend();
+								RenderSystem.defaultBlendFunc();
+							}
+						}
 					} else {
 
 						if ((abilityInfo.remainingCooldown > 0 || abilityHandler.silenceDuration > 0) && options.abilitiesDisplay_showCooldownAsText) {
@@ -232,6 +244,44 @@ public class AbilitiesHud extends HudElement {
 		}
 	}
 
+	private final Map<String, Float> easedDurations = new HashMap<>();
+
+	private void drawDurationBar(MatrixStack matrices, String abilityName, int originX, int originY, int remainingDuration, int maxDuration, String className) {
+		final int HEIGHT = 12;
+		final int MARGIN = 6;
+
+		Options options = UnofficialMonumentaModClient.options;
+		int iconSize = options.abilitiesDisplay_iconSize;
+
+		matrices.push();
+		if (options.abilitiesDisplay_horizontal) {
+			matrices.translate(originX - 4, originY + iconSize + MARGIN, 0);
+			matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(90));
+		} else {
+			matrices.translate(originX - MARGIN, originY - 4, 0);
+		}
+		
+		Sprite barSprite = getClassDuration(className, "full");
+		int width = (2 * MARGIN) + (int) (1.0 * barSprite.getContents().getWidth() * HEIGHT / barSprite.getContents().getHeight());
+		int barWidth = width - (2 * MARGIN);
+
+		int x = 0;
+		int y = 0;
+
+		drawSprite(matrices, getClassDuration(className, "background"), x, y, barWidth, HEIGHT);
+		int duration = Utils.clamp(0, remainingDuration, maxDuration);
+		float lastFrameDuration = client.getLastFrameDuration() / 20;
+		float easedDuration = easedDurations.getOrDefault(abilityName, -1.0f);
+		easedDuration = Utils.clamp(0, easedDuration < 0 ? duration : Utils.ease(duration, easedDuration, 6 * lastFrameDuration, 6 * lastFrameDuration), maxDuration);
+		easedDurations.put(abilityName, easedDuration);
+
+		//the texture is a little smol, so it doesn't have enough full pixels for when it's between full and the first change and when it's between empty and the last change.
+		//it's sad, but I'm sure it's not bad enough to cause an outrage over, if you are annoyed by it, you can fix it yourself >:).
+		drawPartialSprite(matrices, barSprite, x, y, barWidth, HEIGHT, 0, 0, easedDuration / maxDuration, 1);
+		drawSprite(matrices, getClassDuration(className, "overlay"), x - MARGIN, y, width, HEIGHT);
+		matrices.pop();
+	}
+
 	private static final Pattern IDENTIFIER_SANITATION_PATTERN = Pattern.compile("[^a-zA-Z0-9/._-]");
 
 	private static String sanitizeForIdentifier(String string) {
@@ -239,6 +289,18 @@ public class AbilitiesHud extends HudElement {
 	}
 
 	private static final Map<String, Identifier> abilityIdentifiers = new HashMap<>();
+
+	private Sprite getClassDuration(String className, String part) {
+		String id = className + "/" + className + "_bar_" + part;
+		Identifier baseIdentifier = abilityIdentifiers.computeIfAbsent(id, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+		Sprite sprite = atlas.getSprite(baseIdentifier);
+		if (!sprite.getContents().getId().equals(MissingSprite.getMissingSpriteId())) {
+			return sprite;
+		}
+
+		Identifier e = abilityIdentifiers.computeIfAbsent("shaman/shaman_bar_" + part, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+		return atlas.getSprite(e);//TODO get an unknown class duration thingy here.
+	}
 
 	private Sprite getAbilityIcon(AbilityHandler.AbilityInfo abilityInfo) {
 		String id = (abilityInfo.className == null ? "unknown" : abilityInfo.className) + "/" + abilityInfo.name + (abilityInfo.mode == null ? "" : "_" + abilityInfo.mode);

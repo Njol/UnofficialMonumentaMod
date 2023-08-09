@@ -85,7 +85,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("abilities")
 	public boolean abilitiesDisplay_tooltips = true;
 	@Category("abilities")
-	public AbilityHandler.DurationRenderMode abilitiesDisplay_durationRenderMode = AbilityHandler.DurationRenderMode.CIRCLE;
+	public AbilityHandler.DurationRenderMode abilitiesDisplay_durationRenderMode = AbilityHandler.DurationRenderMode.BAR;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_positionInfo;
