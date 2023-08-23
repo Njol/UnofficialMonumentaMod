@@ -86,6 +86,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean abilitiesDisplay_tooltips = true;
 	@Category("abilities")
 	public AbilityHandler.DurationRenderMode abilitiesDisplay_durationRenderMode = AbilityHandler.DurationRenderMode.BAR;
+	@Category("abilities")
+	public DurationBarSideMode abilitiesDisplay_durationBar_side = DurationBarSideMode.FOLLOW;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_positionInfo;
@@ -200,6 +202,12 @@ public class Options implements ch.njol.minecraft.config.Options {
 
 	public boolean categoryVisible(String category) {
 		return debugOptionsEnabled || !category.equals("debug");
+	}
+
+	public enum DurationBarSideMode {
+		FOLLOW(),
+		HORIZONTAL(),
+		VERTICAL()
 	}
 
 }

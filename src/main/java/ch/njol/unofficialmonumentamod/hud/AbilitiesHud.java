@@ -252,11 +252,13 @@ public class AbilitiesHud extends HudElement {
 		int iconSize = options.abilitiesDisplay_iconSize;
 
 		matrices.push();
-		if (options.abilitiesDisplay_horizontal) {
+
+		boolean horizontal = options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.FOLLOW ? options.abilitiesDisplay_horizontal : options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.HORIZONTAL;
+		if (horizontal) {
+			matrices.translate(originX - MARGIN, originY - 4, 0);
+		} else {
 			matrices.translate(originX - 4, originY + iconSize + MARGIN, 0);
 			matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(90));
-		} else {
-			matrices.translate(originX - MARGIN, originY - 4, 0);
 		}
 		
 		Sprite barSprite = getClassDuration(className, "full");
