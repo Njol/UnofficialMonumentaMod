@@ -2,31 +2,33 @@ package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
+import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.Text;
+import net.minecraft.network.MessageType;
+import net.minecraft.text.*;
+import net.minecraft.util.Formatting;
 import org.apache.commons.lang3.StringUtils;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
 
 	@Unique
 	private final AbilitiesHud abiltiesHud = AbilitiesHud.INSTANCE;
-
-	@Shadow
-	private int scaledWidth;
-
-	@Shadow
-	private int scaledHeight;
 
 	@Inject(method = "setOverlayMessage", at = @At("TAIL"))
 	public void onActionbar(Text message, boolean tinted, CallbackInfo ci) {
@@ -88,6 +90,38 @@ public class InGameHudMixin {
 					ci.cancel();
 					return;
 				}
+			}
+		}
+	}
+
+	@Unique
+	private final String NPCNamePattern = "\\[\\w*] ";
+
+	@Inject(method = "addChatMessage", at = @At("TAIL"))
+	private void umm$newChatMessageListener(MessageType type, Text message, UUID sender, CallbackInfo ci) {
+		if (!Locations.getShortShard().equals("isles") || !UnofficialMonumentaModClient.options.enableDelveRecognition) {
+			return;	//stop it on triggering either on another shard (outside dev environment) than a possible one or if the feature is disabled
+		}
+
+		String npcText = message.getString();
+		String npcMessage = npcText.replaceFirst(NPCNamePattern, "");
+		if (npcMessage.equals(npcText)) {
+			return;//if it's not given by an NPC, it should not be used.
+		}
+
+		for (Map.Entry<String, ShardData.Shard> entry: ShardData.getShards().entrySet()) {
+			if (!entry.getValue().canBeDelveBounty) {
+				continue;//skip if shard cannot be a delve bounty
+			}
+
+			TranslatableText translatedText = new TranslatableText("unofficial-monumenta-mod.delvebounty." + entry.getKey().toLowerCase());
+
+			if (Objects.equals(npcMessage, translatedText.getString())) {
+				MutableText text = new TranslatableText("unofficial-monumenta-mod.delvebounty.newBountyMessage")
+						.setStyle(Style.EMPTY.withColor(Formatting.GOLD))
+						.append(new LiteralText(entry.getValue().officialName).setStyle(Style.EMPTY.withColor(Formatting.RED)));
+				MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
+				break;
 			}
 		}
 	}

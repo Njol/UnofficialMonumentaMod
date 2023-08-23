@@ -1,6 +1,8 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import com.google.common.collect.Ordering;
 import net.minecraft.client.gui.hud.PlayerListHud;
+import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -12,4 +14,7 @@ public interface PlayerListHudAccessor {
 
 	@Accessor("footer")
 	Text getFooter();
+
+	@Accessor("ENTRY_ORDERING")
+	Ordering<PlayerListEntry> getOrdering();
 }

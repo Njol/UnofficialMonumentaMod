@@ -1,16 +1,21 @@
-package ch.njol.unofficialmonumentamod.features.effect;
+package ch.njol.unofficialmonumentamod.features.effects;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
+import java.util.List;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 public class EffectOverlay extends HudElement {
 
@@ -21,31 +26,31 @@ public class EffectOverlay extends HudElement {
 
 	static {
 		dummyEffects.add(new Effect(
-			"Active effects",
-			0,
-			360000
+				"Active effects",
+				0,
+				360000
 		));
 		dummyEffects.add(
-			new Effect(
-				"are shown here.",
-				0,
-				240000
-			)
+				new Effect(
+						"are shown here.",
+						0,
+						240000
+				)
 		);
 		dummyEffects.add(
-			new Effect(
-				"Bad Effect",
-				-20,
-				120000
-			)
+				new Effect(
+						"Bad Effect",
+						-20,
+						120000
+				)
 		);
 		dummyEffects.add(
-			new Effect(
-				"A very long effect that will mostly likely be trimmed to fit",
-				10,
-				60000,
-				true
-			)
+				new Effect(
+						"A very long effect that will mostly likely be trimmed to fit",
+						10,
+						60000,
+						true
+				)
 		);
 	}
 
@@ -53,13 +58,8 @@ public class EffectOverlay extends HudElement {
 	private long lastUpdate = 0;
 
 	public void update() {
-		if (client.getNetworkHandler() == null) {
-			return;
-		}
 		effects.clear();
-		Collection<PlayerListEntry> entries = client.getNetworkHandler().getPlayerList();
-
-		for (PlayerListEntry entry : entries) {
+		for (PlayerListEntry entry : getCategory("Custom Effects")) {
 			Effect effect = Effect.from(entry);
 			if (effect != null) {
 				effects.add(effect);
@@ -75,7 +75,7 @@ public class EffectOverlay extends HudElement {
 		for (Effect effect : effects) {
 			for (Effect cumulativeEffect : cumulativeEffects) {
 				if (Objects.equals(cumulativeEffect.name, effect.name)
-					    && cumulativeEffect.isPercentage == effect.isPercentage) {
+						&& cumulativeEffect.isPercentage == effect.isPercentage) {
 					cumulativeEffect.effectPower += effect.effectPower;
 					if (effect.effectTime < cumulativeEffect.effectTime) {
 						cumulativeEffect.effectTime = effect.effectTime;
@@ -85,6 +85,9 @@ public class EffectOverlay extends HudElement {
 			}
 			cumulativeEffects.add(effect.clone());
 		}
+
+		//clear effects that well... don't affect and aren't 0 power effects.
+		cumulativeEffects.removeIf((effect) -> effect.effectPower == 0 && !effect.isNonStackableEffect);
 		return cumulativeEffects;
 	}
 
@@ -159,4 +162,33 @@ public class EffectOverlay extends HudElement {
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 
+	private static List<PlayerListEntry> getCategory(String categoryName) {
+		if (MinecraftClient.getInstance().player == null) {
+			return List.of();
+		}
+		String key = categoryName.trim().toLowerCase();
+		//from gold to empty entry
+
+		//get tablist entries
+		ClientPlayNetworkHandler clientPlayNetworkHandler = MinecraftClient.getInstance().player.networkHandler;
+		List<PlayerListEntry> list = ((PlayerListHudAccessor) MinecraftClient.getInstance().inGameHud.getPlayerListHud()).getOrdering().sortedCopy(clientPlayNetworkHandler.getPlayerList());
+
+
+		List<PlayerListEntry> categoryEntries = new ArrayList<>();
+		boolean addEntries = false;
+
+		for (PlayerListEntry entry: list) {
+			if (entry.getDisplayName() == null) continue;
+
+			if (entry.getDisplayName().getString().trim().toLowerCase().equals(key)) {
+				addEntries = true;
+			} else if (entry.getDisplayName().getString().trim().equalsIgnoreCase("") && addEntries) {
+				break;
+			} else if (addEntries) {
+				categoryEntries.add(entry);
+			}
+		}
+
+		return categoryEntries;
+	}
 }

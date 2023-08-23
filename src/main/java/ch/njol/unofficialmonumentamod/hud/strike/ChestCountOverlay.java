@@ -1,27 +1,25 @@
-package ch.njol.unofficialmonumentamod.features.strike;
+package ch.njol.unofficialmonumentamod.hud.strike;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
-import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import java.awt.Rectangle;
-import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.network.MessageType;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
 
 public class ChestCountOverlay extends HudElement {
+	//TODO generalize this class to be able to create one for any actionbar based counter / maybe other sources?
 
 	public static final ChestCountOverlay INSTANCE = new ChestCountOverlay();
 
@@ -53,7 +51,7 @@ public class ChestCountOverlay extends HudElement {
 		if (isInEditMode()) {
 			text = Text.of("Chests");
 		} else {
-			text = Text.of("" + (totalChests != null && totalChests > 0 ? currentCount + "/" + totalChests : currentCount));
+			text = Text.of(String.valueOf(totalChests != null && totalChests > 0 ? currentCount + "/" + totalChests : currentCount));
 		}
 
 		// if total is 0 or the current count is under the total then render in gold if equal or higher, then render in bright green
@@ -70,14 +68,12 @@ public class ChestCountOverlay extends HudElement {
 	public void onActionbarReceived(Text text) {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
 		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
-			currentCount++;
-
-			if (currentCount > totalChests) {
-				//means that the current max count is probably not correct
-				client.inGameHud.getChatHud().addMessage(new LiteralText("Current shard's max count seems incorrect.\nIf you haven't edited the count yourself, please report to a maintainer the new count: " + currentCount).setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true)));
-			}
+			addCount(1);
 		}
-		//TODO handle miniboss added count.
+
+		if (text.getString().equals("+5 Chests added to lootroom.") || text.getString().matches("\u00a76\\+5 Chests \u00a7cadded to lootroom\\..*")) {
+			addCount(5);
+		}
 	}
 
 	public void onStrikeChestUpdatePacket(ChannelHandler.StrikeChestUpdatePacket packet) {
@@ -91,6 +87,15 @@ public class ChestCountOverlay extends HudElement {
 	public void onShardChange(String shardName) {
 		totalChests = ShardData.getMaxChests(shardName); // if null then non strike, if 0 then strike but max is unknown, > 0 means it's known so then render the max
 		currentCount = 0;
+	}
+
+	public void addCount(int num) {
+		currentCount += num;
+
+		if (currentCount > totalChests && UnofficialMonumentaModClient.options.enableChestCountMaxError) {
+			//means that the current max count is probably not correct
+			client.inGameHud.getChatHud().addMessage(new LiteralText("[UMM] Current shard's max count seems incorrect.\nPlease report the new count to a Unofficial Monumenta Mod maintainer: " + currentCount + "\nYou can disable this message by clicking on it.").setStyle(Style.EMPTY.withColor(Formatting.DARK_RED).withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/umm disableChestCountError"))));
+		}
 	}
 
 	@Override
