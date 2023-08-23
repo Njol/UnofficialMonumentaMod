@@ -25,7 +25,7 @@ public class PlayerListHudMixin {
 	}
 
 	@Inject(method = "setHeader", at = @At("TAIL"))
-	public void onPlayerListHeader(Text header, CallbackInfo ci) {
+	public void umm$onPlayerListHeader(Text header, CallbackInfo ci) {
 		ShardData.onShardChange(getShard(header));
 	}
 }

@@ -30,6 +30,8 @@ public class AbilityHandler {
 		public int charges;
 		public int maxCharges;
 		public @Nullable String mode;
+		public @Nullable Integer remainingDuration;
+		public @Nullable Integer initialDuration;
 
 		public AbilityInfo(ChannelHandler.ClassUpdatePacket.AbilityInfo info) {
 			this.name = info.name;
@@ -44,6 +46,15 @@ public class AbilityHandler {
 
 		public String getOrderId() {
 			return (className + "/" + name).toLowerCase(Locale.ROOT);
+		}
+
+		public void tick() {
+			if (remainingDuration != null && remainingDuration > 1) {
+				remainingDuration--;
+			}
+			if (remainingCooldown > 1) {
+				remainingCooldown--;
+			}
 		}
 	}
 
@@ -93,6 +104,8 @@ public class AbilityHandler {
 				}
 				abilityInfo.charges = packet.remainingCharges;
 				abilityInfo.mode = packet.mode;
+				abilityInfo.initialDuration = packet.initialDuration;
+				abilityInfo.remainingDuration = packet.remainingDuration;
 				return;
 			}
 		}
@@ -114,9 +127,7 @@ public class AbilityHandler {
 		List<AbilityInfo> data = this.abilityData;
 		for (int i = 0; i < data.size(); i++) {
 			AbilityInfo abilityInfo = data.get(i);
-			if (abilityInfo.remainingCooldown > 1) {
-				abilityInfo.remainingCooldown--;
-			}
+			abilityInfo.tick();
 			if (abilityInfo.offCooldownAnimationTicks == 0 && UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume > 0) {
 				float pitchMin = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMin;
 				float pitchMax = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMax;
@@ -135,5 +146,8 @@ public class AbilityHandler {
 		}
 	}
 
-
+	public enum DurationRenderMode {
+		CIRCLE(),
+		BAR()
+	}
 }
