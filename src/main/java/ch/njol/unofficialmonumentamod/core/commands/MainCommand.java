@@ -89,7 +89,9 @@ public class MainCommand {
         if (FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).isEmpty()) {
             return 1;
         }
-        ModMetadata thisMetadata = FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).get().getMetadata();
+        ModContainer container = FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).get();
+
+        ModMetadata thisMetadata = container.getMetadata();
         Version version = thisMetadata.getVersion();
         String name = thisMetadata.getName();
 
@@ -97,6 +99,11 @@ public class MainCommand {
 
         text.append(Text.literal("\nName: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
         text.append(Text.literal(name).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+
+        if (!FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            text.append(Text.literal("\nFile name").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal(container.getOrigin().getPaths().get(0).getFileName().toString()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
+        }
 
         text.append(Text.literal("\nVersion: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
         text.append(Text.literal(version.getFriendlyString()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));

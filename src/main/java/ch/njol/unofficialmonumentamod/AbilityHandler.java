@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -30,8 +31,6 @@ public class AbilityHandler {
 		public int charges;
 		public int maxCharges;
 		public @Nullable String mode;
-		public @Nullable Integer remainingDuration;
-		public @Nullable Integer initialDuration;
 
 		public AbilityInfo(ChannelHandler.ClassUpdatePacket.AbilityInfo info) {
 			this.name = info.name;
@@ -49,11 +48,46 @@ public class AbilityHandler {
 		}
 
 		public void tick() {
-			if (remainingDuration != null && remainingDuration > 1) {
-				remainingDuration--;
-			}
+			tickDur();
+
 			if (remainingCooldown > 1) {
 				remainingCooldown--;
+			}
+		}
+
+		void setInitialDuration(@Nullable Integer initialDuration) {
+			if (initialDuration == null) {
+				lerp = null;
+			}
+			this.initDuration = initialDuration;
+		}
+
+		void setRemainingDuration(@Nullable Integer remainingDuration) {
+			//doesn't matter you can force set it.
+			this.actualRemDuration = remainingDuration;
+			if (actualRemDuration != null) {
+				//in ms so *50 and add a small buffer so the packet arrives ~the time it reaches the end of the bar.
+				int buffer = ((actualRemDuration / 240) * 30);
+				lerp = new Utils.Lerp(actualRemDuration, (actualRemDuration + buffer) * 50);
+				lerp.setTarget(0);
+				lerp.resetTimer();
+			}
+		}
+
+		public @Nullable Integer actualRemDuration;
+		public @Nullable Integer initDuration;
+
+		public @Nullable Utils.Lerp lerp;
+
+		public void tickDur() {
+			if (actualRemDuration == null || initDuration == null) {
+				return;
+			}
+			//only tick actual duration down if it does not need to be corrected.
+			if (actualRemDuration > 1) {
+				if (lerp != null) {
+					lerp.tick();
+				}
 			}
 		}
 	}
@@ -104,8 +138,8 @@ public class AbilityHandler {
 				}
 				abilityInfo.charges = packet.remainingCharges;
 				abilityInfo.mode = packet.mode;
-				abilityInfo.initialDuration = packet.initialDuration;
-				abilityInfo.remainingDuration = packet.remainingDuration;
+				abilityInfo.setInitialDuration(packet.initialDuration);
+				abilityInfo.setRemainingDuration(packet.remainingDuration);
 				return;
 			}
 		}

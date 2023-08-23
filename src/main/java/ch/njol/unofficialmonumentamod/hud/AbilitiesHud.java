@@ -164,8 +164,8 @@ public class AbilitiesHud extends HudElement {
 						float scaledX = x - (scaledIconSize - iconSize) / 2;
 						float scaledY = y - (scaledIconSize - iconSize) / 2;
 
-						if (abilityInfo.initialDuration != null && abilityInfo.remainingDuration != null) {
-							float durationFraction = abilityInfo.initialDuration <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingDuration - tickDelta) / abilityInfo.initialDuration, silenceCooldownFraction), 1);
+						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
+							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
 							if (durationFraction > 0) {
 								if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.CIRCLE) {
 									Utils.drawPartialHollowPolygon(
@@ -205,11 +205,11 @@ public class AbilitiesHud extends HudElement {
 
 						drawSprite(matrices, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), scaledX, scaledY, scaledIconSize, scaledIconSize);
 
-						if (abilityInfo.initialDuration != null && abilityInfo.remainingDuration != null) {
+						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
 							//bar looks better on top of the border, that's why I'm checking again here
-							float durationFraction = abilityInfo.initialDuration <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingDuration - tickDelta) / abilityInfo.initialDuration, silenceCooldownFraction), 1);
+							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
 							if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
-								drawDurationBar(matrices, abilityInfo.name, (int) scaledX, (int) scaledY, abilityInfo.remainingDuration, abilityInfo.initialDuration, abilityInfo.className);
+								drawDurationBar(matrices, abilityInfo.name, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
 
 								RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 								RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -244,9 +244,7 @@ public class AbilitiesHud extends HudElement {
 		}
 	}
 
-	private final Map<String, Float> easedDurations = new HashMap<>();
-
-	private void drawDurationBar(MatrixStack matrices, String abilityName, int originX, int originY, int remainingDuration, int maxDuration, String className) {
+	private void drawDurationBar(MatrixStack matrices, String abilityName, int originX, int originY, float fraction, String className) {
 		final int HEIGHT = 12;
 		final int MARGIN = 6;
 
@@ -269,15 +267,7 @@ public class AbilitiesHud extends HudElement {
 		int y = 0;
 
 		drawSprite(matrices, getClassDuration(className, "background"), x, y, barWidth, HEIGHT);
-		int duration = Utils.clamp(0, remainingDuration, maxDuration);
-		float lastFrameDuration = client.getLastFrameDuration() / 20;
-		float easedDuration = easedDurations.getOrDefault(abilityName, -1.0f);
-		easedDuration = Utils.clamp(0, easedDuration < 0 ? duration : Utils.ease(duration, easedDuration, 6 * lastFrameDuration, 6 * lastFrameDuration), maxDuration);
-		easedDurations.put(abilityName, easedDuration);
-
-		//the texture is a little smol, so it doesn't have enough full pixels for when it's between full and the first change and when it's between empty and the last change.
-		//it's sad, but I'm sure it's not bad enough to cause an outrage over, if you are annoyed by it, you can fix it yourself >:).
-		drawPartialSprite(matrices, barSprite, x, y, barWidth, HEIGHT, 0, 0, easedDuration / maxDuration, 1);
+		drawPartialSprite(matrices, barSprite, x, y, barWidth, HEIGHT, 0, 0, fraction, 1);
 		drawSprite(matrices, getClassDuration(className, "overlay"), x - MARGIN, y, width, HEIGHT);
 		matrices.pop();
 	}
