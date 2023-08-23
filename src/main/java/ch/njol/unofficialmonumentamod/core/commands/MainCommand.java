@@ -101,7 +101,7 @@ public class MainCommand {
         text.append(Text.literal(name).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
 
         if (!FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            text.append(Text.literal("\nFile name").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
+            text.append(Text.literal("\nFile name: ").setStyle(Style.EMPTY.withColor(Formatting.DARK_GRAY)));
             text.append(Text.literal(container.getOrigin().getPaths().get(0).getFileName().toString()).setStyle(Style.EMPTY.withColor(Formatting.DARK_AQUA)));
         }
 
