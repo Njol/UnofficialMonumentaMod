@@ -38,7 +38,7 @@
   },
   "recommends": {
     "modmenu": ">=6.3.1",
-    "cloth-config-fabric": ">=10.1.105"
+    "cloth-config": ">=10.1.105"
   },
   "suggests": {
     "citresewn": "*"
