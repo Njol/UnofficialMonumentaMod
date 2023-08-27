@@ -75,24 +75,6 @@ public abstract class ItemRendererMixin {
 		return modelTransformation.getTransformation(renderMode);
 	}
 
-	@ModifyVariable(method = "renderGuiItemIcon", at = @At("HEAD"), argsOnly = true)
-	private ItemStack umm$editStack$renderGuiItemIcon(ItemStack value) {
-		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
-		return edited != null ? edited : value;
-	}
-
-	@ModifyVariable(method = "innerRenderInGui(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V", at = @At("HEAD"), argsOnly = true)
-	private ItemStack umm$editStack$innerRenderInGui(ItemStack value) {
-		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
-		return edited != null ? edited : value;
-	}
-
-	@ModifyVariable(method = "renderGuiItemModel", at = @At("HEAD"), argsOnly = true)
-	private ItemStack umm$editStack$renderModel(ItemStack value) {
-		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);
-		return edited != null ? edited : value;
-	}
-
 	@ModifyVariable(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V", at = @At("HEAD"), argsOnly = true)
 	private ItemStack umm$editStack$renderItemEntity(ItemStack value) {
 		ItemStack edited = UnofficialMonumentaModClient.spoofer.apply(value);

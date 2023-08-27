@@ -9,6 +9,7 @@
     "CapeFeatureRendererMixin",
     "ClientPlayerInteractionManagerMixin",
     "ClientPlayNetworkHandlerMixin",
+    "DrawContextMixin",
     "ElytraFeatureRendererMixin",
     "HeadFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
