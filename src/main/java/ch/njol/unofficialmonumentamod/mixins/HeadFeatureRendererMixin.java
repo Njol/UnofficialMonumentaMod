@@ -61,8 +61,8 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 		}
 
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
-		BakedModel baseModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.world, livingEntity, 0);
-		BakedModel headModel = baseModel.getOverrides().apply(baseModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);
+		BakedModel baseModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.getWorld(), livingEntity, 0);
+		BakedModel headModel = baseModel.getOverrides().apply(baseModel, itemStack, (ClientWorld) livingEntity.getWorld(), livingEntity, 0);
 		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth() || headModel instanceof BuiltinBakedModel) {
 			return;
 		}

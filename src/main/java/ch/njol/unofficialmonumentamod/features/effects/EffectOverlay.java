@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 public class EffectOverlay extends HudElement {
@@ -101,7 +100,7 @@ public class EffectOverlay extends HudElement {
 	}
 
 	@Override
-	protected void render(MatrixStack matrices, float tickDelta) {
+	protected void render(DrawContext drawContext, float tickDelta) {
 		ArrayList<Effect> visibleEffects = isInEditMode() ? dummyEffects : UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : effects;
 		TextRenderer textRenderer = client.textRenderer;
 
@@ -109,12 +108,12 @@ public class EffectOverlay extends HudElement {
 		int width = getWidth();
 		int currentY = PADDING_VERTICAL;
 
-		DrawableHelper.fill(matrices, 0, 0, width, height, client.options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
+		drawContext.fill(0, 0, width, height, client.options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
 		boolean textAlightRight = UnofficialMonumentaModClient.options.effect_textAlightRight;
 		for (Effect effect : visibleEffects) {
 			Text text = effect.toText(tickDelta, textAlightRight);
-			textRenderer.drawWithShadow(matrices, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
+			drawContext.drawTextWithShadow(textRenderer, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
 			currentY += textRenderer.fontHeight + 2;
 		}
 	}

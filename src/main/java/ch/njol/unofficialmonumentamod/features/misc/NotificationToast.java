@@ -4,7 +4,7 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -108,39 +108,34 @@ public class NotificationToast implements Toast {
 		this.hideTime = System.currentTimeMillis() + newValue;
 	}
 
-	private void bindTexture() {
-		RenderSystem.setShaderTexture(0, TEXTURE);
-	}
-
 	@Override
-	public Visibility draw(MatrixStack matrices, ToastManager manager, long startTime) {
+	public Visibility draw(DrawContext drawContext, ToastManager manager, long startTime) {
 		if (System.currentTimeMillis() < this.hideTime) {
-			bindTexture();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			DrawableHelper.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
+			drawContext.drawTexture(TEXTURE, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
 
 			int i = this.getWidth();
 			int o;
 			if (this.lines != null) {
 				if (i == 160 && this.lines.size() <= 1) {
-					DrawableHelper.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
+					drawContext.drawTexture(TEXTURE, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
 				} else {
 					o = this.getHeight() + Math.max(0, this.lines.size() - 1) * 12;
 					int m = Math.min(4, o - 28);
-					this.drawPart(matrices, manager, i, 0, 0, 28);
+					this.drawPart(drawContext, manager, i, 0, 0, 28);
 
 					for (int n = 28; n < o - m; n += 10) {
-						this.drawPart(matrices, manager, i, 16, n, Math.min(16, o - n - m));
+						this.drawPart(drawContext, manager, i, 16, n, Math.min(16, o - n - m));
 					}
 
-					this.drawPart(matrices, manager, i, 32 - m, o - m, m);
+					this.drawPart(drawContext, manager, i, 32 - m, o - m, m);
 				}
 			}
 
 			if (this.lines.isEmpty()) {
-				manager.getClient().textRenderer.drawWithShadow(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, 0xff500050);
+				drawContext.drawTextWithShadow(manager.getClient().textRenderer, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7, 0xff500050);
 			} else {
-				manager.getClient().textRenderer.drawWithShadow(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, 0xff500050);
+				drawContext.drawTextWithShadow(manager.getClient().textRenderer, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7, 0xff500050);
 				for (o = 0; o < this.lines.size(); ++o) {
 					int alignment = 0;
 
@@ -153,7 +148,7 @@ public class NotificationToast implements Toast {
 					}
 
 					if (this.lines != null && this.lines.get(o) != null) {
-						manager.getClient().textRenderer.drawWithShadow(matrices, this.lines.get(o), alignment, (float) (18 + o * 12), 0xffcccccc);
+						drawContext.drawTextWithShadow(manager.getClient().textRenderer, this.lines.get(0), alignment, 18 + o * 12, 0xffcccccc);
 					}
 				}
 			}
@@ -164,17 +159,16 @@ public class NotificationToast implements Toast {
 		}
 	}
 
-	private void drawPart(MatrixStack matrices, ToastManager manager, int width, int textureV, int y, int height) {
+	private void drawPart(DrawContext drawContext, ToastManager manager, int width, int textureV, int y, int height) {
 		int i = textureV == 0 ? 20 : 5;
 		int j = Math.min(60, width - i);
-		bindTexture();
-		DrawableHelper.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
+		drawContext.drawTexture(TEXTURE, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
 
 		for (int k = i; k < width - j; k += 64) {
-			DrawableHelper.drawTexture(matrices, k, y, 32, (this.renderType.type - 1) * 32 + textureV, Math.min(64, width - k - j), height);
+			drawContext.drawTexture(TEXTURE, k, y, 32, (this.renderType.type - 1) * 32 + textureV, Math.min(64, width - k - j), height);
 		}
 
-		DrawableHelper.drawTexture(matrices, width - j, y, 160 - j, (this.renderType.type - 1) * 32 + textureV, j, height);
+		drawContext.drawTexture(TEXTURE, width - j, y, 160 - j, (this.renderType.type - 1) * 32 + textureV, j, height);
 	}
 
 	private int center(int fontWidth) {

@@ -6,6 +6,7 @@ import java.util.List;
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
@@ -26,10 +27,10 @@ public abstract class ScreenMixin extends AbstractParentElement {
 	@Shadow @Final private List<Element> children;
 
 	@Inject(at = @At("HEAD"), method = "render")
-	void onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+	void onRender(DrawContext drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
 		//run injected calculator if exists.
 		Calculator.tick();
-		Calculator.INSTANCE.render(matrices, mouseX, mouseY, delta);
+		Calculator.INSTANCE.render(drawContext, mouseX, mouseY, delta);
 	}
 
 	@Inject(at = @At("HEAD"), method = "close")

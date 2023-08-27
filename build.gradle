@@ -23,8 +23,8 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modApi "com.terraformersmc:modmenu:6.3.1"
-    modApi("me.shedaniel.cloth:cloth-config-fabric:10.1.105") {
+    modApi "com.terraformersmc:modmenu:7.2.1"
+    modApi("me.shedaniel.cloth:cloth-config-fabric:11.1.106") {
         exclude(group: "net.fabricmc.fabric-api")
     }
     include(implementation('club.minnced:discord-rpc-release:v3.4.0'))
@@ -36,10 +36,10 @@ dependencies {
     //modApi "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
     //include "ch.njol.minecraft:config-framework-mc1_19:${project.config_framework_version}"
     //un-comment those if you want to load from jitpack (don't have both local and jitpack sources on at the same time, dunno what it'd do I never tried it)
-    modApi('com.github.Ascynx:MCConfigFramework:mc1.19.4-SNAPSHOT')
-    include('com.github.Ascynx:MCConfigFramework:mc1.19.4-SNAPSHOT')
-    modApi('com.github.Ascynx:MCUIFramework:mc1.19.4-SNAPSHOT')
-    include('com.github.Ascynx:MCUIFramework:mc1.19.4-SNAPSHOT')
+    modApi('com.github.Ascynx:MCConfigFramework:mc1.20-SNAPSHOT')
+    include('com.github.Ascynx:MCConfigFramework:mc1.20-SNAPSHOT')
+    modApi('com.github.Ascynx:MCUIFramework:mc1.20-SNAPSHOT')
+    include('com.github.Ascynx:MCUIFramework:mc1.20-SNAPSHOT')
 }
 
 repositories {

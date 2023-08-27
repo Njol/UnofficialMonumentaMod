@@ -7,8 +7,7 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.ClickEvent;
@@ -38,12 +37,12 @@ public class ChestCountOverlay extends HudElement {
 	}
 
 	@Override
-	protected void render(MatrixStack matrices, float tickDelta) {
+	protected void render(DrawContext drawContext, float tickDelta) {
 		final TextRenderer tr = MinecraftClient.getInstance().textRenderer;
 
-		DrawableHelper.fill(matrices, 0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
+		drawContext.fill(0, 0, WIDTH, HEIGHT, MinecraftClient.getInstance().options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
-		client.getItemRenderer().renderInGui(matrices, CHEST, 4, (HEIGHT - 16) / 2);
+		drawContext.drawItemWithoutEntity(CHEST, 4, (HEIGHT - 16) / 2);
 
 		Text text;
 		if (isInEditMode()) {
@@ -59,7 +58,7 @@ public class ChestCountOverlay extends HudElement {
 		int x = 20 + (WIDTH - 20) / 2 - tr.getWidth(text) / 2;
 		int y = HEIGHT / 2 - tr.fontHeight / 2;
 
-		tr.draw(matrices, text, x, y, color);
+		drawContext.drawText(tr, text, x, y, color, false);
 	}
 
 

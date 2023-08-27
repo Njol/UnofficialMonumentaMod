@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.mixins.screen;
 
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.slot.Slot;
@@ -25,24 +26,24 @@ public abstract class HandledScreenMixin {
 	}
 	
 	@Inject(method = "render", at = @At("TAIL"))
-	void umm$onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		SlotLocking.getInstance().tickRender(matrices, mouseX, mouseY);
+	void umm$onRender(DrawContext drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		SlotLocking.getInstance().tickRender(drawContext, mouseX, mouseY);
 	}
 
 	@Inject(
 			method = "render",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlot(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/screen/slot/Slot;)V",
+					target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlot(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/screen/slot/Slot;)V",
 					shift = Shift.AFTER
 			),
 			locals = LocalCapture.CAPTURE_FAILSOFT
 	)
-	private void umm$afterDrawnSlot(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, int k, Slot slot) {
+	private void umm$afterDrawnSlot(DrawContext drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, int k, Slot slot) {
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		HandledScreen<?> $this = (HandledScreen<?>) (Object) this;
-		SlotLocking.getInstance().drawSlot($this, matrices, slot);
+		SlotLocking.getInstance().drawSlot($this, drawContext, slot);
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();
 	}

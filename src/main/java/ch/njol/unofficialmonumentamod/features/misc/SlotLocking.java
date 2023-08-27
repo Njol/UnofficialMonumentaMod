@@ -9,7 +9,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
@@ -145,7 +146,7 @@ public class SlotLocking {
 		return isLockedSlot(getLockedSlot(slot));
 	}
 
-	public void drawSlot(Screen screen, MatrixStack matrices, Slot slot) {
+	public void drawSlot(Screen screen, DrawContext drawContext, Slot slot) {
 		int originX = slot.x;
 		int originY = slot.y;
 		
@@ -156,14 +157,16 @@ public class SlotLocking {
 		}
 		
 		if (isLockedSlot(locked) && LOCK != null) {
-			drawSprite(matrices, atlas.getSprite(LOCK), originX, originY, 16, 16);
+			drawContext.drawSprite(originX, originY, 0, 16, 16, atlas.getSprite(LOCK));
 		}
 		
 		//status of special locks
 		if (UnofficialMonumentaModClient.options.lock_renderDebuggingAdvancedLock) {
-			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
-			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
-			DrawableHelper.drawTextWithShadow(matrices, MinecraftClient.getInstance().textRenderer, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
+			TextRenderer tr = MinecraftClient.getInstance().textRenderer;
+
+			drawContext.drawTextWithShadow(tr, Text.of("L"), originX, originY, locked.lockPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockPickup
+			drawContext.drawTextWithShadow(tr, Text.of("D"), originX + MinecraftClient.getInstance().textRenderer.getWidth("L"), originY, locked.lockDrop ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockDrop
+			drawContext.drawTextWithShadow(tr, Text.of("H"), originX + MinecraftClient.getInstance().textRenderer.getWidth("LD"), originY, locked.lockHalfPickup ? 0xFFFFFFFF : 0xFFFF0000);//locked.lockHalfPickup
 		}
 	}
 
@@ -185,7 +188,7 @@ public class SlotLocking {
 		}
 	}
 	
-	public void tickRender(MatrixStack matrices, int mouseX, int mouseY) {
+	public void tickRender(DrawContext drawContext, int mouseX, int mouseY) {
 		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen<?> containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
 			return;
 		}
@@ -217,19 +220,21 @@ public class SlotLocking {
 			LockedSlot slot = config.lockedSlots[slotIndex];
 			//is active and being held
 			
-			Utils.drawFilledPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
-			
-			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
+			Utils.drawFilledPolygon(drawContext, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
+
+			drawContext.drawSprite(absoluteSlotX - 15, absoluteSlotY - 15, 0, 16, 16, atlas.getSprite(LEFT_CLICK_LOCK));
 			if (slot.lockPickup) {
-				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
+				drawContext.drawSprite(absoluteSlotX - 15, absoluteSlotY - 15, 0, 16, 16, atlas.getSprite(BASE_LOCK));
 			}
-			drawSprite(matrices, atlas.getSprite(RIGHT_CLICK_LOCK), absoluteSlotX + 15, absoluteSlotY - 15, 16, 16);
+
+			drawContext.drawSprite(absoluteSlotX + 15, absoluteSlotY - 15, 0, 16, 16, atlas.getSprite(RIGHT_CLICK_LOCK));
 			if (slot.lockHalfPickup) {
-				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX + 15, absoluteSlotY - 15, 16, 16);
+				drawContext.drawSprite(absoluteSlotX + 15, absoluteSlotY - 15, 0, 16, 16, atlas.getSprite(BASE_LOCK));
 			}
-			drawSprite(matrices, atlas.getSprite(DROP_LOCK), absoluteSlotX, absoluteSlotY + 15, 16, 16);
+
+			drawContext.drawSprite(absoluteSlotX, absoluteSlotY + 15, 0, 16, 16, atlas.getSprite(DROP_LOCK));
 			if (slot.lockDrop) {
-				drawSprite(matrices, atlas.getSprite(BASE_LOCK), absoluteSlotX, absoluteSlotY + 15, 16, 16);
+				drawContext.drawSprite(absoluteSlotX, absoluteSlotY + 15, 0, 16, 16, atlas.getSprite(BASE_LOCK));
 			}
 			
 		} else if (ticksSinceLastLockKeyClick <= 2) {

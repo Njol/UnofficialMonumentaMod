@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
@@ -105,7 +106,7 @@ public class AbilitiesHud extends HudElement {
 	}
 
 	@Override
-	protected void render(MatrixStack matrices, float tickDelta) {
+	protected void render(DrawContext drawContext, float tickDelta) {
 		if (client.options.hudHidden || client.player == null || client.player.isSpectator()) {
 			return;
 		}
@@ -169,7 +170,7 @@ public class AbilitiesHud extends HudElement {
 							if (durationFraction > 0) {
 								if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.CIRCLE) {
 									Utils.drawPartialHollowPolygon(
-											matrices,
+											drawContext,
 											(int) scaledX + (iconSize / 2),
 											(int) scaledY + (iconSize / 2),
 											4,
@@ -187,7 +188,7 @@ public class AbilitiesHud extends HudElement {
 							}
 						}
 
-						drawSprite(matrices, getAbilityIcon(abilityInfo), scaledX, scaledY, scaledIconSize, scaledIconSize);
+						drawContext.drawSprite((int) scaledX, (int) scaledY, 0, (int) scaledIconSize, (int) scaledIconSize, getAbilityIcon(abilityInfo));
 
 
 						// silenceCooldownFraction is >= 0 so this is also >= 0
@@ -195,21 +196,21 @@ public class AbilitiesHud extends HudElement {
 						if (cooldownFraction > 0) {
 							Sprite cooldownOverlay = atlas.getSprite(COOLDOWN_OVERLAY);
 							float yOffset = (cooldownOverlay.getContents().getWidth() - cooldownOverlay.getContents().getHeight()) / 2f;
-							drawPartialSprite(matrices, cooldownOverlay, scaledX, scaledY + yOffset, scaledIconSize, scaledIconSize - 2 * yOffset, 0, 1 - cooldownFraction, 1, 1);
+							drawPartialSprite(drawContext, cooldownOverlay, scaledX, scaledY + yOffset, scaledIconSize, scaledIconSize - 2 * yOffset, 0, 1 - cooldownFraction, 1, 1);
 						}
 						if (options.abilitiesDisplay_offCooldownFlashIntensity > 0 && animTicks < 8) {
 							RenderSystem.setShaderColor(1, 1, 1, options.abilitiesDisplay_offCooldownFlashIntensity * (1 - animTicks / 8f));
-							drawSprite(matrices, atlas.getSprite(COOLDOWN_FLASH), scaledX, scaledY, scaledIconSize, scaledIconSize);
+							drawContext.drawSprite((int) scaledX, (int) scaledY, 0, (int) scaledIconSize, (int) scaledIconSize, atlas.getSprite(COOLDOWN_FLASH));
 							RenderSystem.setShaderColor(1, 1, 1, 1);
 						}
 
-						drawSprite(matrices, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), scaledX, scaledY, scaledIconSize, scaledIconSize);
+						drawContext.drawSprite((int) scaledX, (int) scaledY, 0, (int) scaledIconSize, (int) scaledIconSize, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER));
 
 						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
 							//bar looks better on top of the border, that's why I'm checking again here
 							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
 							if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
-								drawDurationBar(matrices, abilityInfo.name, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
+								drawDurationBar(drawContext, abilityInfo.name, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
 
 								RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 								RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -221,14 +222,14 @@ public class AbilitiesHud extends HudElement {
 
 						if ((abilityInfo.remainingCooldown > 0 || abilityHandler.silenceDuration > 0) && options.abilitiesDisplay_showCooldownAsText) {
 							String cooldownString = "" + (int) Math.ceil(Math.max(Math.max(abilityInfo.remainingCooldown, abilityHandler.silenceDuration), 0) / 20f);
-							drawOutlinedText(matrices, cooldownString,
+							drawOutlinedText(drawContext, cooldownString,
 								x + iconSize - options.abilitiesDisplay_textOffset - this.client.textRenderer.getWidth(cooldownString),
 								y + iconSize - options.abilitiesDisplay_textOffset - this.client.textRenderer.fontHeight,
 								textColor);
 						}
 
 						if (abilityInfo.maxCharges > 1 || abilityInfo.maxCharges == 1 && abilityInfo.initialCooldown <= 0) {
-							drawOutlinedText(matrices, "" + abilityInfo.charges, x + options.abilitiesDisplay_textOffset, y + options.abilitiesDisplay_textOffset, textColor);
+							drawOutlinedText(drawContext, "" + abilityInfo.charges, x + options.abilitiesDisplay_textOffset, y + options.abilitiesDisplay_textOffset, textColor);
 						}
 
 					}
@@ -244,7 +245,8 @@ public class AbilitiesHud extends HudElement {
 		}
 	}
 
-	private void drawDurationBar(MatrixStack matrices, String abilityName, int originX, int originY, float fraction, String className) {
+	private void drawDurationBar(DrawContext drawContext, String abilityName, int originX, int originY, float fraction, String className) {
+		MatrixStack matrices = drawContext.getMatrices();
 		final int HEIGHT = 12;
 		final int MARGIN = 6;
 
@@ -268,9 +270,9 @@ public class AbilitiesHud extends HudElement {
 		int x = 0;
 		int y = 0;
 
-		drawSprite(matrices, getClassDuration(className, "background"), x, y, barWidth, HEIGHT);
-		drawPartialSprite(matrices, barSprite, x, y, barWidth, HEIGHT, 0, 0, fraction, 1);
-		drawSprite(matrices, getClassDuration(className, "overlay"), x - MARGIN, y, width, HEIGHT);
+		drawContext.drawSprite(x, y, 0, barWidth, HEIGHT, getClassDuration(className, "background"));
+		drawPartialSprite(drawContext, barSprite, x, y, barWidth, HEIGHT, 0, 0, fraction, 1);
+		drawContext.drawSprite(x - MARGIN, y, 0, width, HEIGHT, getClassDuration(className, "overlay"));
 		matrices.pop();
 	}
 
@@ -393,13 +395,15 @@ public class AbilitiesHud extends HudElement {
 		return closestAbilityIndex;
 	}
 
-	public void renderTooltip(Screen screen, MatrixStack matrices, int mouseX, int mouseY) {
+	public void renderTooltip(Screen screen, DrawContext drawContext, int mouseX, int mouseY) {
 		if (!UnofficialMonumentaModClient.options.abilitiesDisplay_enabled
 			    || !UnofficialMonumentaModClient.options.abilitiesDisplay_tooltips
 			    || dragging
 			    || draggedAbility != null) {
 			return;
 		}
+		MatrixStack matrices = drawContext.getMatrices();
+
 		AbilityHandler abilityHandler = UnofficialMonumentaModClient.abilityHandler;
 		List<AbilityHandler.AbilityInfo> abilityInfos = abilityHandler.abilityData;
 		if (abilityInfos.isEmpty()) {
@@ -418,7 +422,7 @@ public class AbilitiesHud extends HudElement {
 		Rectangle dimension = getDimension();
 		matrices.push();
 		matrices.translate(-dimension.x, -dimension.y, 0);
-		screen.renderTooltip(matrices, Text.of(abilityInfo.name), mouseX + dimension.x, mouseY + dimension.y);
+		drawContext.drawTooltip(client.textRenderer, Text.of(abilityInfo.name), mouseX + dimension.x, mouseY + dimension.y);
 		matrices.pop();
 		// TODO also display ability description?
 	}

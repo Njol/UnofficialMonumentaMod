@@ -3,6 +3,7 @@ package ch.njol.unofficialmonumentamod;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
@@ -66,11 +67,13 @@ public abstract class Utils {
 		return stack.getTooltip(MinecraftClient.getInstance().player, TooltipContext.BASIC);
 	}
 
-	public static void drawFilledPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
-		drawPartialFilledPolygon(matrices, originX, originY, radius, sides, color, 1.0);
+	public static void drawFilledPolygon(DrawContext drawContext, int originX, int originY, float radius, int sides, int color) {
+		drawPartialFilledPolygon(drawContext, originX, originY, radius, sides, color, 1.0);
 	}
 
-	public static void drawPartialFilledPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color, double percentage) {
+	public static void drawPartialFilledPolygon(DrawContext drawContext, int originX, int originY, float radius, int sides, int color, double percentage) {
+		MatrixStack matrices = drawContext.getMatrices();
+
 		//percentage from 0.00 to 1.00
 		float a = (float)(color >> 24 & 0xFF) / 255.0f;
 		float r = (float)(color >> 16 & 0xFF) / 255.0f;
@@ -97,11 +100,13 @@ public abstract class Utils {
 		RenderSystem.disableBlend();
 	}
 
-	public static void drawHollowPolygon(MatrixStack matrices, int originX, int originY, int borderWidth, float radius, int sides, int color) {
-		drawPartialHollowPolygon(matrices, originX, originY, borderWidth, radius, sides, color, 1.0);
+	public static void drawHollowPolygon(DrawContext drawContext, int originX, int originY, int borderWidth, float radius, int sides, int color) {
+		drawPartialHollowPolygon(drawContext, originX, originY, borderWidth, radius, sides, color, 1.0);
 	}
 
-	private static void drawPartialPartPolygon(MatrixStack matrices, int originX, int originY, int borderWidth, float radius, int sides, double percentage, float r, float g, float b, float a) {
+	private static void drawPartialPartPolygon(DrawContext drawContext, int originX, int originY, int borderWidth, float radius, int sides, double percentage, float r, float g, float b, float a) {
+		MatrixStack matrices = drawContext.getMatrices();
+
 		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
 		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.enableBlend();
@@ -122,15 +127,15 @@ public abstract class Utils {
 		RenderSystem.disableBlend();
 	}
 
-	public static void drawPartialHollowPolygon(MatrixStack matrices, int originX, int originY, int borderWidth, float radius, int sides, int color, double percentage) {
+	public static void drawPartialHollowPolygon(DrawContext drawContext, int originX, int originY, int borderWidth, float radius, int sides, int color, double percentage) {
 		float a = (float)(color >> 24 & 0xFF) / 255.0f;
 		float r = (float)(color >> 16 & 0xFF) / 255.0f;
 		float g = (float)(color >> 8 & 0xFF) / 255.0f;
 		float b = (float)(color & 0xFF) / 255.0f;
 
-		drawPartialPartPolygon(matrices, originX, originY, borderWidth, radius, sides, percentage, r, g, b, a);
-		drawPartialPartPolygon(matrices, originX, originY, borderWidth, radius + ((float) borderWidth / 2), sides*2, percentage, r, g, b, a);
-		drawPartialPartPolygon(matrices, originX, originY, borderWidth, radius - ((float) borderWidth / 2), sides*2, percentage, r, g, b, a);
+		drawPartialPartPolygon(drawContext, originX, originY, borderWidth, radius, sides, percentage, r, g, b, a);
+		drawPartialPartPolygon(drawContext, originX, originY, borderWidth, radius + ((float) borderWidth / 2), sides*2, percentage, r, g, b, a);
+		drawPartialPartPolygon(drawContext, originX, originY, borderWidth, radius - ((float) borderWidth / 2), sides*2, percentage, r, g, b, a);
 	}
 	
 	public static class Lerp {
