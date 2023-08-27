@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import org.joml.Quaternionf;
+import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,7 +37,7 @@ public abstract class HeldItemFeatureRendererMixin<T extends LivingEntity, M ext
 			    && stack.getItem() == Items.TRIDENT
 			    && entity.isUsingItem()
 			    && (entity.getActiveHand() == Hand.MAIN_HAND) == (entity.getMainArm() == arm)) {
-			matrices.multiply(new Quaternionf(0, 180, 0, 0));
+			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(180.0f));
 		}
 	}
 
