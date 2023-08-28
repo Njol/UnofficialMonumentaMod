@@ -259,9 +259,9 @@ public class AbilitiesHud extends HudElement {
 
 		boolean horizontal = options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.FOLLOW ? options.abilitiesDisplay_horizontal : options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.HORIZONTAL;
 		if (horizontal) {
-			matrices.translate(originX + 2, originY - 4, 0);
+			matrices.translate(originX + 2, originY + UnofficialMonumentaModClient.options.abilitiesDiscord_durationBar_min, 0);
 		} else {
-			matrices.translate(originX - 4, originY + iconSize - 4, 0);
+			matrices.translate(originX + UnofficialMonumentaModClient.options.abilitiesDiscord_durationBar_min, originY + iconSize - 4, 0);
 			matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(90));
 		}
 
