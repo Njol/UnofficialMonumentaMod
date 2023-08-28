@@ -60,7 +60,7 @@ public class Locations {
 		}
 
 		Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListHud()).getHeader();
-		String shard = "unknown";
+		String shard = ShardData.UNKNOWN_SHARD;
 		if (header != null) {
 			String text = header.getString();
 			Matcher matcher = shardGetterPattern.matcher(text);
@@ -136,7 +136,7 @@ public class Locations {
 		}
 	}
 
-	private ArrayList<Location> getLocs(String shard) {
+	private ArrayList<Location> getLocations(String shard) {
 		shard = shard.replaceFirst("-\\d+$", "");
 		shard = shard.toLowerCase(Locale.ROOT);
 
@@ -144,7 +144,7 @@ public class Locations {
 	}
 
 	public String getLocation(double x, double z, String shard) {
-		ArrayList<Location> locations = getLocs(shard);
+		ArrayList<Location> locations = getLocations(shard);
 		if (locations == null) {
 			return shard;
 		}
@@ -174,9 +174,9 @@ public class Locations {
 			this.name = name;
 		}
 
-		public boolean isInBounds(double playerX, double playerZ) {
-			return ((playerX >= east && playerX <= west) || (playerX <= east && playerX >= west))
-				       && ((playerZ >= north && playerZ <= south) || (playerZ <= north && playerZ >= south));
+		public boolean isInBounds(double x, double z) {
+			return ((x >= east && x <= west) || (x <= east && x >= west))
+				       && ((z >= north && z <= south) || (z <= north && z >= south));
 		}
 	}
 }

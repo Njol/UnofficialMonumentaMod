@@ -21,10 +21,9 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 public class ShardData {
-	public static boolean loadedAtLeastOnce = false;
+	public static final String UNKNOWN_SHARD = "unknown";
 
 	private static final HashMap<String, Shard> SHARDS = new HashMap<>();
-
 	private static final Identifier FILE_IDENTIFIER = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "override/shards.json");
 
 
@@ -51,6 +50,7 @@ public class ShardData {
 	private static TabShard currentShard = TabShard.UNKNOWN;
 
 	protected static boolean editedShard = false;
+	public static boolean loadedAtLeastOnce = false;
 
 	public static boolean isEditedShard() {
 		return editedShard;
@@ -115,19 +115,19 @@ public class ShardData {
 
 	public static void onShardChange(String shardName) {
 		if (shardName == null) {
-			shardName = "unknown";
+			shardName = UNKNOWN_SHARD;
 		}
 
 		if (!searchingForShard) {
 			//if not unknown and not last shard
 			//if the new shard is not unknown and the last shard exists.
-			if (UnofficialMonumentaModClient.options.shardDebug && !editedShard && !loadedFromWorldName && (!Objects.equals(shardName, "unknown") && !Objects.equals(currentShard.shardString, "unknown")) && (!Objects.equals(lastShard.shardString, shardName) && !Objects.equals(currentShard.shardString, shardName))) {
+			if (UnofficialMonumentaModClient.options.shardDebug && !editedShard && !loadedFromWorldName && (!Objects.equals(shardName, UNKNOWN_SHARD) && !Objects.equals(currentShard.shardString, UNKNOWN_SHARD)) && (!Objects.equals(lastShard.shardString, shardName) && !Objects.equals(currentShard.shardString, shardName))) {
 				UnofficialMonumentaModClient.LOGGER.warn("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard + " Currently loaded: " + currentShard);
 			}
 			return;
 		}
 
-		currentShard = shardName.equals("unknown") ? TabShard.UNKNOWN : new TabShard(shardName);
+		currentShard = shardName.equals(UNKNOWN_SHARD) ? TabShard.UNKNOWN : new TabShard(shardName);
 
 		if (!Objects.equals(currentShard, lastShard) && currentShard != TabShard.UNKNOWN) {//shard changed and new shard is not unknown.
 			Locations.resetCache();
@@ -204,7 +204,7 @@ public class ShardData {
 			this.shard = getShard(shortShard);
 		}
 
-		protected static TabShard UNKNOWN = new TabShard("unknown");
+		protected static TabShard UNKNOWN = new TabShard(UNKNOWN_SHARD);
 
 		@Override
 		public String toString() {

@@ -158,6 +158,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	 */
 	@Category("discord")
 	public String discordDetails = "{player} is in {shard}";
+	@Category("discord")
+	public boolean hideShardMode = false;
 
 	@Category("effectOverlay")
 	public boolean effect_enabled = true;
@@ -196,7 +198,23 @@ public class Options implements ch.njol.minecraft.config.Options {
 			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
-		UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
+
+		try {
+			if (UnofficialMonumentaModClient.options.discordEnabled) {
+				if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
+					UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
+				} else {
+					UnofficialMonumentaModClient.discordRPC.Init();
+				}
+			} else {
+				if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
+					UnofficialMonumentaModClient.discordRPC.shutdown();
+				}
+			}
+		} catch (Exception e) {
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to update Discord Presence data: ", e);
+		}
+
 		UnofficialMonumentaModClient.saveConfig();
 	}
 
