@@ -1,7 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.locations;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
-import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.MinecraftClient;
@@ -41,12 +40,27 @@ public class Locations {
 	}
 	//endregion
 
+	public static void setShard(String shard) {
+		cachedShard = shard;
+		cachedShortShard = shard;
+		lastUpdateTimeShortShard = lastUpdateTimeShard = System.currentTimeMillis();
+	}
+
 	public static String getShard() {
 		if (cachedShard != null && lastUpdateTimeShard + 2000 > System.currentTimeMillis()) {
 			return cachedShard;
 		}
+
+		if (ShardData.getCurrentShard() != null) {
+			ShardData.TabShard shard = ShardData.getCurrentShard();
+
+			cachedShard = shard.shardString;
+			lastUpdateTimeShard = System.currentTimeMillis();
+			return shard.shardString;
+		}
+
 		Text header = ((PlayerListHudAccessor) mc.inGameHud.getPlayerListHud()).getHeader();
-		String shard = "unknown";
+		String shard = ShardData.UNKNOWN_SHARD;
 		if (header != null) {
 			String text = header.getString();
 			Matcher matcher = shardGetterPattern.matcher(text);
@@ -57,6 +71,20 @@ public class Locations {
 
 		cachedShard = shard;
 		lastUpdateTimeShard = System.currentTimeMillis();
+		return shard;
+	}
+
+	public static String getShortShard() {
+		if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
+			return cachedShortShard;
+		}
+
+		String shard = getShard();
+		shard = shard.replaceFirst("-\\d+$", "");
+
+		cachedShortShard = shard;
+		lastUpdateTimeShortShard = System.currentTimeMillis();
+
 		return shard;
 	}
 
@@ -83,20 +111,6 @@ public class Locations {
 
 		return fullShard.replaceFirst("-\\d+$", "");
 	}
-
-	public static String getShortShard() {
-		if (cachedShortShard != null && lastUpdateTimeShortShard + 2000 > System.currentTimeMillis()) {
-			return cachedShortShard;
-		}
-
-		String shard = getShard();
-		shard = shard.replaceFirst("-\\d+$", "");
-
-		cachedShortShard = shard;
-		lastUpdateTimeShortShard = System.currentTimeMillis();
-
-		return shard;
-	}
 	//endregion
 
 	@Expose
@@ -118,11 +132,11 @@ public class Locations {
 			locations = GSON.fromJson(reader, new TypeToken<HashMap<String, ArrayList<Location>>>() {
 			}.getType());
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to reload locations from resource pack", e);
 		}
 	}
 
-	private ArrayList<Location> getLocs(String shard) {
+	private ArrayList<Location> getLocations(String shard) {
 		shard = shard.replaceFirst("-\\d+$", "");
 		shard = shard.toLowerCase(Locale.ROOT);
 
@@ -130,7 +144,7 @@ public class Locations {
 	}
 
 	public String getLocation(double x, double z, String shard) {
-		ArrayList<Location> locations = getLocs(shard);
+		ArrayList<Location> locations = getLocations(shard);
 		if (locations == null) {
 			return shard;
 		}
@@ -160,9 +174,9 @@ public class Locations {
 			this.name = name;
 		}
 
-		public boolean isInBounds(double playerX, double playerZ) {
-			return ((playerX >= east && playerX <= west) || (playerX <= east && playerX >= west))
-				       && ((playerZ >= north && playerZ <= south) || (playerZ <= north && playerZ >= south));
+		public boolean isInBounds(double x, double z) {
+			return ((x >= east && x <= west) || (x <= east && x >= west))
+				       && ((z >= north && z <= south) || (z <= north && z >= south));
 		}
 	}
 }

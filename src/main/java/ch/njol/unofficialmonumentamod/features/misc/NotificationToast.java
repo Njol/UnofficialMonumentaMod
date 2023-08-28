@@ -4,6 +4,7 @@ import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.ArrayList;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -116,13 +117,13 @@ public class NotificationToast implements Toast {
 		if (System.currentTimeMillis() < this.hideTime) {
 			bindTexture();
 			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-			manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
+			DrawableHelper.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, this.getWidth(), this.getHeight());
 
 			int i = this.getWidth();
 			int o;
 			if (this.lines != null) {
 				if (i == 160 && this.lines.size() <= 1) {
-					manager.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
+					DrawableHelper.drawTexture(matrices, 0, 0, 0, (this.renderType.type - 1) * 32, i, this.getHeight());
 				} else {
 					o = this.getHeight() + Math.max(0, this.lines.size() - 1) * 12;
 					int m = Math.min(4, o - 28);
@@ -136,7 +137,7 @@ public class NotificationToast implements Toast {
 				}
 			}
 
-			if (this.lines.size() == 0) {
+			if (this.lines.isEmpty()) {
 				manager.getClient().textRenderer.drawWithShadow(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, 0xff500050);
 			} else {
 				manager.getClient().textRenderer.drawWithShadow(matrices, this.title, center(manager.getClient().textRenderer.getWidth(this.title)), 7.0F, 0xff500050);
@@ -151,7 +152,9 @@ public class NotificationToast implements Toast {
 						alignment = align_right(manager.getClient().textRenderer.getWidth(this.lines.get(o)));
 					}
 
-					manager.getClient().textRenderer.drawWithShadow(matrices, this.lines.get(o), alignment, (float) (18 + o * 12), 0xffcccccc);
+					if (this.lines != null && this.lines.get(o) != null) {
+						manager.getClient().textRenderer.drawWithShadow(matrices, this.lines.get(o), alignment, (float) (18 + o * 12), 0xffcccccc);
+					}
 				}
 			}
 
@@ -165,13 +168,13 @@ public class NotificationToast implements Toast {
 		int i = textureV == 0 ? 20 : 5;
 		int j = Math.min(60, width - i);
 		bindTexture();
-		manager.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
+		DrawableHelper.drawTexture(matrices, 0, y, 0, (this.renderType.type - 1) * 32 + textureV, i, height);
 
 		for (int k = i; k < width - j; k += 64) {
-			manager.drawTexture(matrices, k, y, 32, (this.renderType.type - 1) * 32 + textureV, Math.min(64, width - k - j), height);
+			DrawableHelper.drawTexture(matrices, k, y, 32, (this.renderType.type - 1) * 32 + textureV, Math.min(64, width - k - j), height);
 		}
 
-		manager.drawTexture(matrices, width - j, y, 160 - j, (this.renderType.type - 1) * 32 + textureV, j, height);
+		DrawableHelper.drawTexture(matrices, width - j, y, 160 - j, (this.renderType.type - 1) * 32 + textureV, j, height);
 	}
 
 	private int center(int fontWidth) {

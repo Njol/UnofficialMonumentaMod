@@ -24,11 +24,16 @@ public class DiscordPresence {
 	MinecraftClient mc = MinecraftClient.getInstance();
 
 	Integer times = 0;
-	Timer t = new Timer();
+	Timer updateTimer = new Timer();
+	Thread callbackThread;
 
 	public static DiscordPresence INSTANCE = new DiscordPresence();
 
 	private boolean initialized = false;
+	public boolean isInitialized() {
+		return initialized;
+	}
+
 	public void Init() {
 		if (initialized) {
 			return;
@@ -42,29 +47,39 @@ public class DiscordPresence {
 
 		startPresence();
 
-		new Thread(() -> {
+		callbackThread = new Thread(() -> {
 			while (!Thread.currentThread().isInterrupted()) {
 				lib.Discord_RunCallbacks();
 				try {
 					Thread.sleep(2000);
-				} catch (InterruptedException ignored) {
-
-				}
+				} catch (InterruptedException ignored) {}
 			}
-		}, "RPC-Callback-Handler").start();
+		}, "RPC-Callback-Handler");
 
-		t.scheduleAtFixedRate(new TimerTask() {
+		callbackThread.start();
+
+		updateTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				try {
 					updatePresence();
 				} catch (Exception e) {
-					e.printStackTrace();
+					UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to update Discord Rich Presence", e);
 				}
 			}
 		}, 15000, 15000);
 
 		initialized = true;
+	}
+
+	public void shutdown() {
+		lib.Discord_Shutdown();
+		callbackThread.interrupt();
+		//kill old timer and setup new one
+		updateTimer.cancel();
+		updateTimer = new Timer();
+		//enable the ability to re-load discord.
+		initialized = false;
 	}
 
 	private void startPresence() {
@@ -80,36 +95,36 @@ public class DiscordPresence {
 	}
 
 	private String getLargeImageText() {
-		return FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Development Instance" : "Unofficial Monumenta Mod";
+		return FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Dev" : "Unofficial Monumenta Mod";
 	}
 
 	private void updatePresence() {
 		if (mc.world != null) {
 			times++;
 			final boolean isSinglePlayer = mc.isInSingleplayer();
-			final boolean isOnMonumenta = UnofficialMonumentaModClient.isOnMonumenta();
+			final boolean userOnMonumenta = UnofficialMonumentaModClient.isOnMonumenta();
 
 			DiscordRichPresence presence = new DiscordRichPresence();
 			presence.startTimestamp = start_time;
-			presence.largeImageKey = isOnMonumenta ? "monumenta" : "minecraft512";
+			presence.largeImageKey = userOnMonumenta ? "monumenta" : "minecraft512";
 			presence.largeImageText = getLargeImageText();
 			presence.instance = 1;
 
 			if (isSinglePlayer) {
 				presence.state = "Playing Singleplayer";
 			} else {
-				if (!isOnMonumenta) {
+				if (!userOnMonumenta) {
 					presence.state = "Playing Multiplayer - " + (mc.getCurrentServerEntry() != null ? mc.getCurrentServerEntry().name.toUpperCase() : "Unknown");
 				} else {
-					String shard = Locations.getShortShard();
+					String shard = getActiveShard();
 
-					presence.state = !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
+					presence.state = !Objects.equals(shard, ShardData.UNKNOWN_SHARD) ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
-					String coolName = ShardData.getOfficialName(shard);
-					if (!shard.equals("unknown")) {
+					String shardName = getShardOfficialName(shard);
+					if (!Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
 						//set small image
 						presence.smallImageKey = shard;
-						presence.smallImageText = coolName != null ? coolName : shard;
+						presence.smallImageText = shardName;
 					}
 
 					//set details
@@ -125,10 +140,10 @@ public class DiscordPresence {
 								detail = replacer.replaceIn(detail, mc.player.getName().getString());
 							}
 							case "shard" -> {
-								if (shard.equals("unknown")) {
+								if (Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
 									continue;
 								}
-								detail = replacer.replaceIn(detail, coolName != null ? coolName : shard);
+								detail = replacer.replaceIn(detail, shardName);
 							}
 							case "holding" -> {
 								if (mc.player == null) {
@@ -136,9 +151,9 @@ public class DiscordPresence {
 								}
 								detail = replacer.replaceIn(detail, !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
 							}
-							case "class" -> detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.abilityHandler.abilityData.size() > 0 ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
+							case "class" -> detail = replacer.replaceIn(detail, !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty() ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
 							case "location" -> {
-								if (shard.equals("unknown") || mc.player == null) {
+								if ((Objects.equals(shard, ShardData.UNKNOWN_SHARD)) || mc.player == null) {
 									continue;
 								}
 								detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
@@ -156,11 +171,46 @@ public class DiscordPresence {
 		}
 	}
 
+	private String getActiveShard() {
+		if (UnofficialMonumentaModClient.options.hideShardMode) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+		String shard = Locations.getShortShard();
+
+		if (shard == null) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+
+		return shard;
+	}
+
+	private String getShardOfficialName(String shard) {
+		if (shard == null || shard.equals(ShardData.UNKNOWN_SHARD)) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+		String shardOfficialName = ShardData.getOfficialName(shard);
+		if (shardOfficialName == null) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+		return shardOfficialName;
+	}
+
+	public void updateDiscordRPCDetails() {
+		shouldUpdate = true;
+		getDetectedDetails(UnofficialMonumentaModClient.options.discordDetails);
+	}
+
+	private final ArrayList<Match> cachedReplacers = new ArrayList<>();
+	private boolean shouldUpdate = true;
+
 	private ArrayList<Match> getDetectedDetails(String detailString) {
+		if (!cachedReplacers.isEmpty() && shouldUpdate) {
+			return cachedReplacers;
+		}
+
+		cachedReplacers.clear();
 		int lastOpenBracketFound = -1;
 		StringBuilder currentReplacerString = new StringBuilder();
-
-		ArrayList<Match> matches = new ArrayList<>();
 
 		for (int i = 0; i < detailString.length(); i++) {
 			char c = detailString.charAt(i);
@@ -169,7 +219,7 @@ public class DiscordPresence {
 				lastOpenBracketFound = i;
 			} else if (c == '}' && lastOpenBracketFound != -1) {
 				//add the replacer to the matches
-				matches.add(new Match(currentReplacerString.toString()));
+				cachedReplacers.add(new Match(currentReplacerString.toString()));
 				//reset the string builder and open bracket index
 				currentReplacerString = new StringBuilder();
 				lastOpenBracketFound = -1;
@@ -178,7 +228,8 @@ public class DiscordPresence {
 			}
 		}
 
-		return matches;
+		shouldUpdate = false;
+		return cachedReplacers;
 	}
 
 	private static class Match {

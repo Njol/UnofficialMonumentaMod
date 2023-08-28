@@ -7,7 +7,6 @@ import ch.njol.unofficialmonumentamod.mixins.KeyBindingAccessor;
 import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -15,12 +14,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
@@ -32,7 +25,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.random.Random;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -41,7 +33,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 import static ch.njol.minecraft.uiframework.hud.HudElement.drawSprite;
@@ -194,36 +185,8 @@ public class SlotLocking {
 		}
 	}
 	
-	public void drawPolygon(MatrixStack matrices, int originX, int originY, float radius, int sides, int color) {
-		float a = (float)(color >> 24 & 0xFF) / 255.0f;
-		float r = (float)(color >> 16 & 0xFF) / 255.0f;
-		float g = (float)(color >> 8 & 0xFF) / 255.0f;
-		float b = (float)(color & 0xFF) / 255.0f;
-		
-		Matrix4f positionMatrix = matrices.peek().getPositionMatrix();
-		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		RenderSystem.defaultBlendFunc();
-		
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		
-		bufferBuilder.begin(VertexFormat.DrawMode.TRIANGLE_FAN, VertexFormats.POSITION_COLOR);
-		bufferBuilder.vertex(positionMatrix, originX, originY, 0.0f).color(a, r, g, b).next();
-		
-		//very optimised (trust)
-		for (int i = 0; i <= sides; i++) {
-			double angle = ((Math.PI * 2) * i / sides) + Math.toRadians(180);
-			bufferBuilder.vertex(originX + Math.sin(angle) * radius, originY + Math.cos(angle) * radius, 0.0f).color(a, r, g, b).next();
-		}
-		
-		BufferRenderer.draw(bufferBuilder.end());
-		RenderSystem.enableTexture();
-		RenderSystem.disableBlend();
-	}
-	
 	public void tickRender(MatrixStack matrices, int mouseX, int mouseY) {
-		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
+		if (!(MinecraftClient.getInstance().currentScreen instanceof HandledScreen<?> containerScreen) || MinecraftClient.getInstance().player == null || activeSlot == null) {
 			return;
 		}
 		
@@ -254,7 +217,7 @@ public class SlotLocking {
 			LockedSlot slot = config.lockedSlots[slotIndex];
 			//is active and being held
 			
-			drawPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
+			Utils.drawFilledPolygon(matrices, absoluteSlotX + 8, absoluteSlotY + 8, circleSize.getValue(), 360, 0x404040a0);
 			
 			drawSprite(matrices, atlas.getSprite(LEFT_CLICK_LOCK), absoluteSlotX - 15, absoluteSlotY - 15, 16, 16);
 			if (slot.lockPickup) {
@@ -351,7 +314,7 @@ public class SlotLocking {
 	}
 
 	public void onKeyboardInput(Screen screen, int code, int scancode, int modifiers, CallbackInfoReturnable<Boolean> cir) {
-		if (!(screen instanceof HandledScreen containerScreen) || MinecraftClient.getInstance().player == null || (screen instanceof CreativeInventoryScreen)) {
+		if (!(screen instanceof HandledScreen<?> containerScreen) || MinecraftClient.getInstance().player == null || (screen instanceof CreativeInventoryScreen)) {
 			return;
 		}
 		
@@ -498,7 +461,7 @@ public class SlotLocking {
 		try (FileReader reader = new FileReader(file)) {
 			config = GSON.fromJson(reader, SlotLockData.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to reload slot locking data", e);
 		}
 	}
 	
@@ -509,14 +472,14 @@ public class SlotLocking {
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 			} catch (IOException e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to create files for slot locking data", e);
 			}
 		}
 		
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(GSON.toJson(config));
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to save slot locking data", e);
 		}
 	}
 }

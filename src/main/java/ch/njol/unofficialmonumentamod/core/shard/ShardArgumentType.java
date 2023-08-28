@@ -1,9 +1,12 @@
 package ch.njol.unofficialmonumentamod.core.shard;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
@@ -25,13 +28,13 @@ public class ShardArgumentType implements ArgumentType<String> {
         try {
             return ShardData.getShards().get(context.getArgument(name, String.class));
         } catch (Exception e) {
-            e.printStackTrace();
+            UnofficialMonumentaModClient.LOGGER.error("Caught error whilst parsing shard key", e);
         }
         return null;
     }
 
     @Override
-    public String parse(StringReader reader) {
+    public String parse(StringReader reader) throws CommandSyntaxException {
         try {
             String readString = reader.getRemaining();
             reader.readString();
@@ -42,9 +45,9 @@ public class ShardArgumentType implements ArgumentType<String> {
                 return entry.getKey();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            UnofficialMonumentaModClient.LOGGER.error("Caught error whilst parsing shard argument", e);
         }
-        return null;
+        throw new CommandSyntaxException(new SimpleCommandExceptionType(new LiteralMessage("ShardNotFoundException")), new LiteralMessage("ShardNotFoundException: could not find shard."));
     }
 
     @Override

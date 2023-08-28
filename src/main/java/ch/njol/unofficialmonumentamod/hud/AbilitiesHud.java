@@ -26,6 +26,7 @@ import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 
 public class AbilitiesHud extends HudElement {
 
@@ -163,7 +164,31 @@ public class AbilitiesHud extends HudElement {
 						float scaledX = x - (scaledIconSize - iconSize) / 2;
 						float scaledY = y - (scaledIconSize - iconSize) / 2;
 
+						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
+							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
+							if (durationFraction > 0) {
+								if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.CIRCLE) {
+									Utils.drawPartialHollowPolygon(
+											matrices,
+											(int) scaledX + (iconSize / 2),
+											(int) scaledY + (iconSize / 2),
+											4,
+											((float) iconSize / 2),
+											360,
+											durationFraction > 0.10 ? 0x00FF00FF : 0xFF0000FF,//If above 10% then green else red
+											durationFraction
+									);
+									//as RenderSystem settings are changed during the circle drawing, need to re-set them.
+									RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+									RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+									RenderSystem.enableBlend();
+									RenderSystem.defaultBlendFunc();
+								}
+							}
+						}
+
 						drawSprite(matrices, getAbilityIcon(abilityInfo), scaledX, scaledY, scaledIconSize, scaledIconSize);
+
 
 						// silenceCooldownFraction is >= 0 so this is also >= 0
 						float cooldownFraction = abilityInfo.initialCooldown <= 0 ? 0 : Math.min(Math.max((abilityInfo.remainingCooldown - tickDelta) / abilityInfo.initialCooldown, silenceCooldownFraction), 1);
@@ -180,6 +205,18 @@ public class AbilitiesHud extends HudElement {
 
 						drawSprite(matrices, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER), scaledX, scaledY, scaledIconSize, scaledIconSize);
 
+						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
+							//bar looks better on top of the border, that's why I'm checking again here
+							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
+							if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
+								drawDurationBar(matrices, abilityInfo.name, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
+
+								RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+								RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+								RenderSystem.enableBlend();
+								RenderSystem.defaultBlendFunc();
+							}
+						}
 					} else {
 
 						if ((abilityInfo.remainingCooldown > 0 || abilityHandler.silenceDuration > 0) && options.abilitiesDisplay_showCooldownAsText) {
@@ -207,6 +244,36 @@ public class AbilitiesHud extends HudElement {
 		}
 	}
 
+	private void drawDurationBar(MatrixStack matrices, String abilityName, int originX, int originY, float fraction, String className) {
+		final int HEIGHT = 12;
+		final int MARGIN = 6;
+
+		Options options = UnofficialMonumentaModClient.options;
+		int iconSize = options.abilitiesDisplay_iconSize;
+
+		matrices.push();
+
+		boolean horizontal = options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.FOLLOW ? options.abilitiesDisplay_horizontal : options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.HORIZONTAL;
+		if (horizontal) {
+			matrices.translate(originX - MARGIN, originY - 4, 0);
+		} else {
+			matrices.translate(originX - 4, originY + iconSize + MARGIN, 0);
+			matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(90));
+		}
+		
+		Sprite barSprite = getClassDuration(className, "full");
+		int width = (2 * MARGIN) + (int) (1.0 * barSprite.getContents().getWidth() * HEIGHT / barSprite.getContents().getHeight());
+		int barWidth = width - (2 * MARGIN);
+
+		int x = 0;
+		int y = 0;
+
+		drawSprite(matrices, getClassDuration(className, "background"), x, y, barWidth, HEIGHT);
+		drawPartialSprite(matrices, barSprite, x, y, barWidth, HEIGHT, 0, 0, fraction, 1);
+		drawSprite(matrices, getClassDuration(className, "overlay"), x - MARGIN, y, width, HEIGHT);
+		matrices.pop();
+	}
+
 	private static final Pattern IDENTIFIER_SANITATION_PATTERN = Pattern.compile("[^a-zA-Z0-9/._-]");
 
 	private static String sanitizeForIdentifier(String string) {
@@ -214,6 +281,18 @@ public class AbilitiesHud extends HudElement {
 	}
 
 	private static final Map<String, Identifier> abilityIdentifiers = new HashMap<>();
+
+	private Sprite getClassDuration(String className, String part) {
+		String id = className + "/" + className + "_bar_" + part;
+		Identifier baseIdentifier = abilityIdentifiers.computeIfAbsent(id, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+		Sprite sprite = atlas.getSprite(baseIdentifier);
+		if (!sprite.getContents().getId().equals(MissingSprite.getMissingSpriteId())) {
+			return sprite;
+		}
+
+		Identifier e = abilityIdentifiers.computeIfAbsent("shaman/shaman_bar_" + part, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
+		return atlas.getSprite(e);//TODO get an unknown class duration thingy here.
+	}
 
 	private Sprite getAbilityIcon(AbilityHandler.AbilityInfo abilityInfo) {
 		String id = (abilityInfo.className == null ? "unknown" : abilityInfo.className) + "/" + abilityInfo.name + (abilityInfo.mode == null ? "" : "_" + abilityInfo.mode);
