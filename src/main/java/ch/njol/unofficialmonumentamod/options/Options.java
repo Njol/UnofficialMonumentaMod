@@ -88,6 +88,9 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public AbilityHandler.DurationRenderMode abilitiesDisplay_durationRenderMode = AbilityHandler.DurationRenderMode.BAR;
 	@Category("abilities")
 	public DurationBarSideMode abilitiesDisplay_durationBar_side = DurationBarSideMode.FOLLOW;
+	@Category("abilities")
+	@IntSlider(min = -4, max = 24, unit = " pixels", minText = "normal", maxText = "mirrored")
+	public int abilitiesDiscord_durationBar_min = -4;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_positionInfo;
