@@ -2,7 +2,6 @@ package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;

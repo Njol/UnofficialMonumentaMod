@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -44,6 +45,50 @@ public class AbilityHandler {
 
 		public String getOrderId() {
 			return (className + "/" + name).toLowerCase(Locale.ROOT);
+		}
+
+		public void tick() {
+			tickDur();
+
+			if (remainingCooldown > 1) {
+				remainingCooldown--;
+			}
+		}
+
+		void setInitialDuration(@Nullable Integer initialDuration) {
+			if (initialDuration == null) {
+				lerp = null;
+			}
+			this.initDuration = initialDuration;
+		}
+
+		void setRemainingDuration(@Nullable Integer remainingDuration) {
+			//doesn't matter you can force set it.
+			this.actualRemDuration = remainingDuration;
+			if (actualRemDuration != null) {
+				//in ms so *50 and add a small buffer so the packet arrives ~the time it reaches the end of the bar.
+				int buffer = ((actualRemDuration / 240) * 30);
+				lerp = new Utils.Lerp(actualRemDuration, (actualRemDuration + buffer) * 50);
+				lerp.setTarget(0);
+				lerp.resetTimer();
+			}
+		}
+
+		public @Nullable Integer actualRemDuration;
+		public @Nullable Integer initDuration;
+
+		public @Nullable Utils.Lerp lerp;
+
+		public void tickDur() {
+			if (actualRemDuration == null || initDuration == null) {
+				return;
+			}
+			//only tick actual duration down if it does not need to be corrected.
+			if (actualRemDuration > 1) {
+				if (lerp != null) {
+					lerp.tick();
+				}
+			}
 		}
 	}
 
@@ -93,6 +138,8 @@ public class AbilityHandler {
 				}
 				abilityInfo.charges = packet.remainingCharges;
 				abilityInfo.mode = packet.mode;
+				abilityInfo.setInitialDuration(packet.initialDuration);
+				abilityInfo.setRemainingDuration(packet.remainingDuration);
 				return;
 			}
 		}
@@ -114,9 +161,7 @@ public class AbilityHandler {
 		List<AbilityInfo> data = this.abilityData;
 		for (int i = 0; i < data.size(); i++) {
 			AbilityInfo abilityInfo = data.get(i);
-			if (abilityInfo.remainingCooldown > 1) {
-				abilityInfo.remainingCooldown--;
-			}
+			abilityInfo.tick();
 			if (abilityInfo.offCooldownAnimationTicks == 0 && UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundVolume > 0) {
 				float pitchMin = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMin;
 				float pitchMax = UnofficialMonumentaModClient.options.abilitiesDisplay_offCooldownSoundPitchMax;
@@ -135,5 +180,8 @@ public class AbilityHandler {
 		}
 	}
 
-
+	public enum DurationRenderMode {
+		CIRCLE(),
+		BAR()
+	}
 }

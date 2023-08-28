@@ -2,17 +2,18 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.unofficialmonumentamod.core.commands.MainCommand;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
-import ch.njol.unofficialmonumentamod.features.effect.EffectOverlay;
+import ch.njol.unofficialmonumentamod.features.effects.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import ch.njol.unofficialmonumentamod.options.ConfigMenu;
 import ch.njol.unofficialmonumentamod.options.Options;
@@ -76,14 +77,14 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			}
 		} catch (IOException | JsonParseException e) {
 			// Any issue with the config file silently reverts to the default config
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to load configuration file", e);
 		}
 
 		if (options.discordEnabled) {
 			try {
 				discordRPC.Init();
 			} catch (Exception e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to initialize DiscordRPC", e);
 			}
 		}
 
@@ -107,16 +108,17 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
 
-		ClientCommandRegistrationCallback.EVENT.register(
-				((dispatcher, registryAccess) -> dispatcher.register(new ShardDebugCommand().register()))
-		);
+		ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) -> {
+					dispatcher.register(new ShardDebugCommand().register());
+					dispatcher.register(new MainCommand().register());
+		}));
 
 		try {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
 			Class.forName("me.shedaniel.clothconfig2.api.ConfigBuilder");
 			ConfigMenu.registerTypes();
 		} catch (ClassNotFoundException e) {
-			// ignore
+			LOGGER.warn("Could not lad modmenu or cloth-config, disabling ConfigMenu.");
 		}
 	}
 
@@ -147,9 +149,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		MinecraftClient.getInstance().execute(() -> {
 			try {
 				Config.writeJsonFile(options, OPTIONS_FILE_NAME);
-			} catch (IOException ex) {
-				// ignore
-			}
+			} catch (IOException ignore) {}
 		});
 	}
 

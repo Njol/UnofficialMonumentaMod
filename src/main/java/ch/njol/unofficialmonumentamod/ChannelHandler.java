@@ -1,6 +1,6 @@
 package ch.njol.unofficialmonumentamod;
 
-import ch.njol.unofficialmonumentamod.features.strike.ChestCountOverlay;
+import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -49,6 +49,8 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 			int maxCharges;
 
 			@Nullable String mode;
+			@Nullable Integer remainingDuration;
+			@Nullable Integer initialDuration;
 
 		}
 
@@ -68,6 +70,8 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 		int remainingCharges;
 
 		@Nullable String mode;
+		@Nullable Integer remainingDuration;
+		@Nullable Integer initialDuration;
 
 	}
 

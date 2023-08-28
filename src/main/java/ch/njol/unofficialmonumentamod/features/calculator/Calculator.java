@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.ShulkerBoxScreen;
@@ -18,7 +18,7 @@ import net.minecraft.text.Text;
 
 import static java.lang.Integer.parseInt;
 
-public class Calculator extends DrawableHelper {
+public class Calculator {
 	public static final Calculator INSTANCE = new Calculator();
 
 	private static final MinecraftClient mc = MinecraftClient.getInstance();
@@ -93,7 +93,7 @@ public class Calculator extends DrawableHelper {
 					values.add(e);
 				}
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst parsing integer input", e);
 			}
 		}
 
@@ -262,20 +262,20 @@ public class Calculator extends DrawableHelper {
 		return false;
 	}
 
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+	public void render(DrawContext drawContext, int mouseX, int mouseY, float delta) {
 		if (!shouldRender()) {
 			return;
 		}
 
-		fill(matrices, x, y, x + 160, y + 140, mc.options.getTextBackgroundColor(0.3f));
+		drawContext.fill(x, y, x + 160, y + 140, mc.options.getTextBackgroundColor(0.3f));
 
-		changeMode.render(matrices, mouseX, mouseY, delta);
+		changeMode.render(drawContext, mouseX, mouseY, delta);
 		for (TextFieldWidget widget : children) {
-			mc.textRenderer.drawWithShadow(matrices, widget.getMessage(), widget.getX(), widget.getY() - 15, 0xffcccccc);
-			widget.render(matrices, mouseX, mouseY, delta);
+			drawContext.drawTextWithShadow(mc.textRenderer, widget.getMessage(), widget.getX(), widget.getY() - 15, 0xffcccccc);
+			widget.render(drawContext, mouseX, mouseY, delta);
 		}
 
-		mc.textRenderer.drawWithShadow(matrices, Objects.requireNonNullElse(output, "***"), x + 10, y + 105, 0xffcccccc);
+		drawContext.drawTextWithShadow(mc.textRenderer, Objects.requireNonNullElse(output, "***"), x + 10, y + 105, 0xffcccccc);
 	}
 	//endregion
 

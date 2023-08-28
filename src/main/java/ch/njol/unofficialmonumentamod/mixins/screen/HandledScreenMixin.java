@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.mixins.screen;
 
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.slot.Slot;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 public abstract class HandledScreenMixin {
 	@Inject(method = "onMouseClick(Lnet/minecraft/screen/slot/Slot;IILnet/minecraft/screen/slot/SlotActionType;)V", at = @At("HEAD"), cancellable = true)
 	void umm$onSlotClicked(Slot slot, int slotId, int button, SlotActionType actionType, CallbackInfo ci) {
-		HandledScreen $this = (HandledScreen) (Object) this;
+		HandledScreen<?> $this = (HandledScreen<?>) (Object) this;
 		
 		if (SlotLocking.getInstance().onSlotClicked($this, slot, slotId, button, actionType)) {
 			ci.cancel();
@@ -25,24 +26,24 @@ public abstract class HandledScreenMixin {
 	}
 	
 	@Inject(method = "render", at = @At("TAIL"))
-	void umm$onRender(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci) {
-		SlotLocking.getInstance().tickRender(matrices, mouseX, mouseY);
+	void umm$onRender(DrawContext drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+		SlotLocking.getInstance().tickRender(drawContext, mouseX, mouseY);
 	}
 
 	@Inject(
 			method = "render",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;isPointOverSlot(Lnet/minecraft/screen/slot/Slot;DD)Z",
-					shift = Shift.BEFORE
+					target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlot(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/screen/slot/Slot;)V",
+					shift = Shift.AFTER
 			),
 			locals = LocalCapture.CAPTURE_FAILSOFT
 	)
-	private void umm$afterDrawnSlot(MatrixStack matrices, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, MatrixStack matrixStack, int k, Slot slot) {
+	private void umm$afterDrawnSlot(DrawContext drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci, int i, int j, int k, Slot slot) {
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
-		HandledScreen $this = (HandledScreen) (Object) this;
-		SlotLocking.getInstance().drawSlot($this, matrices, slot);
+		HandledScreen<?> $this = (HandledScreen<?>) (Object) this;
+		SlotLocking.getInstance().drawSlot($this, drawContext, slot);
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();
 	}

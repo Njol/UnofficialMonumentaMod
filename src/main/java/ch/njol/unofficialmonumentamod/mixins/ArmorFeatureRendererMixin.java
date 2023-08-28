@@ -11,7 +11,7 @@ import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedModelManager;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
@@ -19,8 +19,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieVillagerEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.Equipment;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Wearable;
 import net.minecraft.registry.Registries;
 import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
@@ -58,8 +58,8 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		}
 
 		BakedModelManager bakedModelManager = MinecraftClient.getInstance().getBakedModelManager();
-		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.world, livingEntity, 0);
-		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.world, livingEntity, 0);
+		BakedModel headModel = MinecraftClient.getInstance().getItemRenderer().getModel(itemStack, livingEntity.getWorld(), livingEntity, 0);
+		headModel = headModel.getOverrides().apply(headModel, itemStack, (ClientWorld) livingEntity.getWorld(), livingEntity, 0);
 		if (headModel == null || headModel == bakedModelManager.getMissingModel() || !headModel.hasDepth()) {
 			return;
 		}
@@ -80,7 +80,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 		if (!UnofficialMonumentaModClient.options.lowerVillagerHelmets && (livingEntity instanceof VillagerEntity || livingEntity instanceof ZombieVillagerEntity)) {
 			matrices.translate(0.0D, 0.1875D, 0.0D);
 		}
-		MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformation.Mode.HEAD,
+		MinecraftClient.getInstance().getItemRenderer().renderItem(itemStack, ModelTransformationMode.HEAD,
 			false, matrices, vertexConsumers, i, OverlayTexture.DEFAULT_UV, headModel);
 		matrices.pop();
 	}
@@ -92,7 +92,7 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
 			    UnofficialMonumentaModClient.spoofer.spoofedItems.containsKey(TextureSpoofer.getKeyOf(value)) &&
 			    !(Registries.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).getItemIdentifier()) instanceof ArmorItem)) {
 			if (UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).override &&
-					((Registries.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).getItemIdentifier()) instanceof Wearable) ||
+					((Registries.ITEM.get(UnofficialMonumentaModClient.spoofer.spoofedItems.get(TextureSpoofer.getKeyOf(value)).getItemIdentifier()) instanceof Equipment) ||
 				    (contextSlot == EquipmentSlot.HEAD))) {
 				return ItemStack.EMPTY;
 			}

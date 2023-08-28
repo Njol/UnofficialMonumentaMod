@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.options;
 
 import ch.njol.minecraft.config.annotations.*;
 import ch.njol.minecraft.uiframework.ElementPosition;
+import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.AbilityOptionPreset;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Dropdown("chestsort")
 	@Category("misc")
 	public boolean chestsortDisabledEverywhereElse = false;
+
+	@Category("misc")
+	public boolean enableDelveRecognition = true;
 
 	@Dropdown("location")
 	@Category("misc")
@@ -80,6 +84,10 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean abilitiesDisplay_inFrontOfChat = false;
 	@Category("abilities")
 	public boolean abilitiesDisplay_tooltips = true;
+	@Category("abilities")
+	public AbilityHandler.DurationRenderMode abilitiesDisplay_durationRenderMode = AbilityHandler.DurationRenderMode.BAR;
+	@Category("abilities")
+	public DurationBarSideMode abilitiesDisplay_durationBar_side = DurationBarSideMode.FOLLOW;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_positionInfo;
@@ -150,6 +158,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	 */
 	@Category("discord")
 	public String discordDetails = "{player} is in {shard}";
+	@Category("discord")
+	public boolean hideShardMode = false;
 
 	@Category("effectOverlay")
 	public boolean effect_enabled = true;
@@ -173,6 +183,10 @@ public class Options implements ch.njol.minecraft.config.Options {
 	public boolean debugOptionsEnabled = false;
 	@Category("debug")
 	public boolean logPackets = false;
+	@Category("debug")
+	public boolean shardDebug = false;
+	@Category("debug")
+	public boolean enableChestCountMaxError = true;
 
 	@Dropdown("lock")
 	@Category("debug")
@@ -184,11 +198,33 @@ public class Options implements ch.njol.minecraft.config.Options {
 			abilitiesDisplay_position = abilitiesDisplay_preset.position.clone();
 			abilitiesDisplay_preset = AbilityOptionPreset.CUSTOM;
 		}
+		try {
+			if (UnofficialMonumentaModClient.options.discordEnabled) {
+				if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
+					UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
+				} else {
+					UnofficialMonumentaModClient.discordRPC.Init();
+				}
+			} else {
+				if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
+					UnofficialMonumentaModClient.discordRPC.shutdown();
+				}
+			}
+		} catch (Exception e) {
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to update Discord Presence data: ", e);
+		}
+
 		UnofficialMonumentaModClient.saveConfig();
 	}
 
 	public boolean categoryVisible(String category) {
 		return debugOptionsEnabled || !category.equals("debug");
+	}
+
+	public enum DurationBarSideMode {
+		FOLLOW(),
+		HORIZONTAL(),
+		VERTICAL()
 	}
 
 }

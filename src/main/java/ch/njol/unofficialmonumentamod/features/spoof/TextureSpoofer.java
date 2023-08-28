@@ -86,11 +86,10 @@ public class TextureSpoofer {
 						UUID uuid = UUID.fromString(item.hope);
 						newItemStack.getNbt().put("Monumenta", setHoped(newItemStack.getNbt(), item.hope));
 					} catch (IllegalArgumentException e) {
-						UnofficialMonumentaModClient.LOGGER.error("invalid Hope skin uuid, removing entry.");
+						UnofficialMonumentaModClient.LOGGER.error("invalid Hope skin uuid, removing entry.", e);
 						SpoofItem newSpoof = spoofedItems.get(key);
 						newSpoof.invalid = true;
 						spoofedItems.replace(key, newSpoof);
-						e.printStackTrace();
 						return stack;
 					}
 					
@@ -147,11 +146,10 @@ public class TextureSpoofer {
 						UUID uuid = UUID.fromString(item.hope);
 						stack.getNbt().put("Monumenta", setHoped(stack.getNbt(), item.hope));
 					} catch (IllegalArgumentException e) {
-						UnofficialMonumentaModClient.LOGGER.error("invalid Hope skin uuid, removing entry.");
+						UnofficialMonumentaModClient.LOGGER.error("invalid Hope skin uuid, removing entry.", e);
 						SpoofItem newSpoof = spoofedItems.get(key);
 						newSpoof.invalid = true;
 						spoofedItems.replace(key, newSpoof);
-						e.printStackTrace();
 						return;
 					}
 				
@@ -197,7 +195,7 @@ public class TextureSpoofer {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to obtain the display name of an item", e);
 		}
 
 		return null;
@@ -240,7 +238,7 @@ public class TextureSpoofer {
 				spoofedItems.putAll(loadedItems);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to reload texture spoofing data", e);
 		}
 	}
 
@@ -252,14 +250,14 @@ public class TextureSpoofer {
 				file.getParentFile().mkdirs();
 				file.createNewFile();
 			} catch (IOException e) {
-				e.printStackTrace();
+				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to create files for texture spoofing", e);
 			}
 		}
 
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(GSON.toJson(spoofedItems));
 		} catch (Exception e) {
-			e.printStackTrace();
+			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to save texture spoofing data", e);
 		}
 	}
 

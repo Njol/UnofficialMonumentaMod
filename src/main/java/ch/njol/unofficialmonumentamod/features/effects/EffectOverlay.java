@@ -1,15 +1,17 @@
-package ch.njol.unofficialmonumentamod.features.effect;
+package ch.njol.unofficialmonumentamod.features.effects;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 
 public class EffectOverlay extends HudElement {
@@ -53,13 +55,8 @@ public class EffectOverlay extends HudElement {
 	private long lastUpdate = 0;
 
 	public void update() {
-		if (client.getNetworkHandler() == null) {
-			return;
-		}
 		effects.clear();
-		Collection<PlayerListEntry> entries = client.getNetworkHandler().getPlayerList();
-
-		for (PlayerListEntry entry : entries) {
+		for (PlayerListEntry entry : getCategory("Custom Effects")) {
 			Effect effect = Effect.from(entry);
 			if (effect != null) {
 				effects.add(effect);
@@ -85,6 +82,8 @@ public class EffectOverlay extends HudElement {
 			}
 			cumulativeEffects.add(effect.clone());
 		}
+		//clear effects that well... don't affect and aren't 0 power effects.
+		cumulativeEffects.removeIf((effect) -> effect.effectPower == 0 && !effect.isNonStackableEffect);
 		return cumulativeEffects;
 	}
 
@@ -101,7 +100,7 @@ public class EffectOverlay extends HudElement {
 	}
 
 	@Override
-	protected void render(MatrixStack matrices, float tickDelta) {
+	protected void render(DrawContext drawContext, float tickDelta) {
 		ArrayList<Effect> visibleEffects = isInEditMode() ? dummyEffects : UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : effects;
 		TextRenderer textRenderer = client.textRenderer;
 
@@ -109,12 +108,12 @@ public class EffectOverlay extends HudElement {
 		int width = getWidth();
 		int currentY = PADDING_VERTICAL;
 
-		DrawableHelper.fill(matrices, 0, 0, width, height, client.options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
+		drawContext.fill(0, 0, width, height, client.options.getTextBackgroundColor(UnofficialMonumentaModClient.options.overlay_opacity));
 
 		boolean textAlightRight = UnofficialMonumentaModClient.options.effect_textAlightRight;
 		for (Effect effect : visibleEffects) {
 			Text text = effect.toText(tickDelta, textAlightRight);
-			textRenderer.drawWithShadow(matrices, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
+			drawContext.drawTextWithShadow(textRenderer, text, textAlightRight ? width - PADDING_HORIZONTAL - textRenderer.getWidth(text) : PADDING_HORIZONTAL, currentY, 0xFFFFFFFF);
 			currentY += textRenderer.fontHeight + 2;
 		}
 	}
@@ -159,4 +158,33 @@ public class EffectOverlay extends HudElement {
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 
+	private static List<PlayerListEntry> getCategory(String categoryName) {
+		if (MinecraftClient.getInstance().player == null) {
+			return List.of();
+		}
+		String key = categoryName.trim().toLowerCase();
+		//from gold to empty entry
+
+		//get tablist entries
+		ClientPlayNetworkHandler clientPlayNetworkHandler = MinecraftClient.getInstance().player.networkHandler;
+		List<PlayerListEntry> list = clientPlayNetworkHandler.getListedPlayerListEntries().stream().sorted(((PlayerListHudAccessor) MinecraftClient.getInstance().inGameHud.getPlayerListHud()).getOrdering()).limit(80L).toList();
+
+
+		List<PlayerListEntry> categoryEntries = new ArrayList<>();
+		boolean addEntries = false;
+
+		for (PlayerListEntry entry: list) {
+			if (entry.getDisplayName() == null) continue;
+
+			if (entry.getDisplayName().getString().trim().toLowerCase().equals(key)) {
+				addEntries = true;
+			} else if (entry.getDisplayName().getString().trim().equalsIgnoreCase("") && addEntries) {
+				break;
+			} else if (addEntries) {
+				categoryEntries.add(entry);
+			}
+		}
+
+		return categoryEntries;
+	}
 }
