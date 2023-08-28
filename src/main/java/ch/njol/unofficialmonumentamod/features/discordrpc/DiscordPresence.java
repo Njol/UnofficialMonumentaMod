@@ -24,11 +24,16 @@ public class DiscordPresence {
 	MinecraftClient mc = MinecraftClient.getInstance();
 
 	Integer times = 0;
-	Timer t = new Timer();
+	Timer updateTimer = new Timer();
+	Thread callbackThread;
 
 	public static DiscordPresence INSTANCE = new DiscordPresence();
 
 	private boolean initialized = false;
+	public boolean isInitialized() {
+		return initialized;
+	}
+
 	public void Init() {
 		if (initialized) {
 			return;
@@ -42,16 +47,17 @@ public class DiscordPresence {
 
 		startPresence();
 
-		new Thread(() -> {
+		callbackThread = new Thread(() -> {
 			while (!Thread.currentThread().isInterrupted()) {
 				lib.Discord_RunCallbacks();
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException ignored) {}
 			}
-		}, "RPC-Callback-Handler").start();
+		}, "RPC-Callback-Handler");
+		callbackThread.start();
 
-		t.scheduleAtFixedRate(new TimerTask() {
+		updateTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				try {
@@ -63,6 +69,16 @@ public class DiscordPresence {
 		}, 15000, 15000);
 
 		initialized = true;
+	}
+
+	public void shutdown() {
+		lib.Discord_Shutdown();
+		callbackThread.interrupt();
+		//kill old timer and setup new one
+		updateTimer.cancel();
+		updateTimer = new Timer();
+		//enable the ability to re-load discord.
+		initialized = false;
 	}
 
 	private void startPresence() {
@@ -78,7 +94,7 @@ public class DiscordPresence {
 	}
 
 	private String getLargeImageText() {
-		return FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Development Instance" : "Unofficial Monumenta Mod";
+		return FabricLoader.getInstance().isDevelopmentEnvironment() ? "Unofficial Monumenta Mod - Dev" : "Unofficial Monumenta Mod";
 	}
 
 	private void updatePresence() {
@@ -99,15 +115,15 @@ public class DiscordPresence {
 				if (!userOnMonumenta) {
 					presence.state = "Playing Multiplayer - " + (mc.getCurrentServerEntry() != null ? mc.getCurrentServerEntry().name.toUpperCase() : "Unknown");
 				} else {
-					String shard = Locations.getShortShard();
+					String shard = getActiveShard();
 
-					presence.state = shard != null && !Objects.equals(shard, "unknown") ? "Playing Monumenta - " + shard : "Playing Monumenta";
+					presence.state = !Objects.equals(shard, ShardData.UNKNOWN_SHARD) ? "Playing Monumenta - " + shard : "Playing Monumenta";
 
-					String shardName = ShardData.getOfficialName(shard);
-					if (shard != null && !Objects.equals(shard, "unknown")) {
+					String shardName = getShardOfficialName(shard);
+					if (!Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
 						//set small image
 						presence.smallImageKey = shard;
-						presence.smallImageText = shardName != null ? shardName : shard;
+						presence.smallImageText = shardName;
 					}
 
 					//set details
@@ -123,7 +139,7 @@ public class DiscordPresence {
 								detail = replacer.replaceIn(detail, mc.player.getName().getString());
 							}
 							case "shard" -> {
-								if (shard == null || Objects.equals(shard, "unknown")) {
+								if (shard == null || Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
 									continue;
 								}
 								detail = replacer.replaceIn(detail, shardName != null ? shardName : shard);
@@ -136,7 +152,7 @@ public class DiscordPresence {
 							}
 							case "class" -> detail = replacer.replaceIn(detail, !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty() ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
 							case "location" -> {
-								if ((shard != null && Objects.equals(shard, "unknown")) || mc.player == null) {
+								if ((shard != null && Objects.equals(shard, ShardData.UNKNOWN_SHARD)) || mc.player == null) {
 									continue;
 								}
 								detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
@@ -152,6 +168,30 @@ public class DiscordPresence {
 		} else {
 			startPresence();
 		}
+	}
+
+	private String getActiveShard() {
+		if (UnofficialMonumentaModClient.options.hideShardMode) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+		String shard = Locations.getShortShard();
+
+		if (shard == null) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+
+		return shard;
+	}
+
+	private String getShardOfficialName(String shard) {
+		if (shard == null || shard.equals(ShardData.UNKNOWN_SHARD)) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+		String shardOfficialName = ShardData.getOfficialName(shard);
+		if (shardOfficialName == null) {
+			return ShardData.UNKNOWN_SHARD;
+		}
+		return shardOfficialName;
 	}
 
 	public void updateDiscordRPCDetails() {

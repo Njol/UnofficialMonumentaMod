@@ -117,7 +117,9 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			Class.forName("com.terraformersmc.modmenu.api.ModMenuApi");
 			Class.forName("me.shedaniel.clothconfig2.api.ConfigBuilder");
 			ConfigMenu.registerTypes();
-		} catch (ClassNotFoundException ignore) {}
+		} catch (ClassNotFoundException e) {
+			LOGGER.warn("Could not lad modmenu or cloth-config, disabling ConfigMenu.");
+		}
 	}
 
 	public static void onDisconnect() {
