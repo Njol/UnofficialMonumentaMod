@@ -91,6 +91,8 @@
   "njols-config-framework.enum.DurationBarSideMode.VERTICAL": "Vertical",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_side": "Bar side: ",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_side.tooltip": "Follows parent overlay, horizontal or vertical",
+  "unofficial-monumenta-mod.config.option.abilitiesDiscord_durationBar_min": "Minimum position",
+  "unofficial-monumenta-mod.config.option.abilitiesDiscord_durationBar_min.tooltip" : "-4 is the original position\n24 mirrors the original position.",
   "njols-config-framework.enum.AbilityOptionPreset.CUSTOM": "Custom",
   "njols-config-framework.enum.AbilityOptionPreset.ABOVE_HOTBAR": "Above Hotbar",
   "njols-config-framework.enum.AbilityOptionPreset.RIGHT_OF_HOTBAR": "Right of Hotbar",
