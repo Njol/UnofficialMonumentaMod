@@ -210,7 +210,7 @@ public class AbilitiesHud extends HudElement {
 							//bar looks better on top of the border, that's why I'm checking again here
 							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
 							if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
-								drawDurationBar(drawContext, abilityInfo.name, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
+								drawDurationBar(drawContext, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
 
 								RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 								RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -245,10 +245,15 @@ public class AbilitiesHud extends HudElement {
 		}
 	}
 
-	private void drawDurationBar(DrawContext drawContext, String abilityName, int originX, int originY, float fraction, String className) {
+	private void drawDurationBar(DrawContext drawContext, int originX, int originY, float fraction, String className) {
+		Sprite barSprite = getClassDuration(className, "full");
+		Sprite overlaySprite = getClassDuration(className, "overlay");
+		int overlayUnderflow = overlaySprite.getContents().getWidth() / 2;
+
+		int overlayHeight = overlaySprite.getContents().getHeight();
+		int barHeight = overlaySprite.getContents().getHeight();
+
 		MatrixStack matrices = drawContext.getMatrices();
-		final int HEIGHT = 12;
-		final int MARGIN = 6;
 
 		Options options = UnofficialMonumentaModClient.options;
 		int iconSize = options.abilitiesDisplay_iconSize;
@@ -257,22 +262,21 @@ public class AbilitiesHud extends HudElement {
 
 		boolean horizontal = options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.FOLLOW ? options.abilitiesDisplay_horizontal : options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.HORIZONTAL;
 		if (horizontal) {
-			matrices.translate(originX - MARGIN, originY - 4, 0);
+			matrices.translate(originX + 2, originY + UnofficialMonumentaModClient.options.abilitiesDiscord_durationBar_min, 0);
 		} else {
-			matrices.translate(originX - 4, originY + iconSize + MARGIN, 0);
+			matrices.translate(originX + UnofficialMonumentaModClient.options.abilitiesDiscord_durationBar_min, originY + iconSize - 4, 0);
 			matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(90));
 		}
-		
-		Sprite barSprite = getClassDuration(className, "full");
-		int width = (2 * MARGIN) + (int) (1.0 * barSprite.getContents().getWidth() * HEIGHT / barSprite.getContents().getHeight());
-		int barWidth = width - (2 * MARGIN);
+
+		int width = barSprite.getContents().getWidth() + overlayUnderflow;
+		int barWidth = width - overlayUnderflow;
 
 		int x = 0;
 		int y = 0;
 
-		drawContext.drawSprite(x, y, 0, barWidth, HEIGHT, getClassDuration(className, "background"));
-		drawPartialSprite(drawContext, barSprite, x, y, barWidth, HEIGHT, 0, 0, fraction, 1);
-		drawContext.drawSprite(x - MARGIN, y, 0, width, HEIGHT, getClassDuration(className, "overlay"));
+		drawContext.drawSprite(x, y, 0, barWidth, barHeight, getClassDuration(className, "background"));
+		drawPartialSprite(drawContext, barSprite, x, y, barWidth, barHeight, 0, 0, fraction, 1);
+		drawContext.drawSprite(x, y, 0, width, overlayHeight, getClassDuration(className, "overlay"));
 		matrices.pop();
 	}
 
@@ -293,7 +297,7 @@ public class AbilitiesHud extends HudElement {
 		}
 
 		Identifier e = abilityIdentifiers.computeIfAbsent("shaman/shaman_bar_" + part, key -> new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, sanitizeForIdentifier(key)));
-		return atlas.getSprite(e);//TODO get an unknown class duration thingy here.
+		return atlas.getSprite(e);
 	}
 
 	private Sprite getAbilityIcon(AbilityHandler.AbilityInfo abilityInfo) {
