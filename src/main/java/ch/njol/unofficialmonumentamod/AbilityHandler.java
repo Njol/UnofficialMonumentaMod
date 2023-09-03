@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
@@ -30,6 +29,8 @@ public class AbilityHandler {
 		public int offCooldownAnimationTicks;
 		public int charges;
 		public int maxCharges;
+		public int initialDuration;
+		public int remainingDuration;
 		public @Nullable String mode;
 
 		public AbilityInfo(ChannelHandler.ClassUpdatePacket.AbilityInfo info) {
@@ -39,6 +40,8 @@ public class AbilityHandler {
 			this.remainingCooldown = info.remainingCooldown;
 			this.charges = info.remainingCharges;
 			this.maxCharges = info.maxCharges;
+			this.initialDuration = info.initialDuration == null ? 0 : info.initialDuration;
+			this.remainingDuration = info.remainingDuration == null ? 0 : info.remainingDuration;
 			this.mode = info.mode;
 			offCooldownAnimationTicks = MAX_ANIMATION_TICKS;
 		}
@@ -48,48 +51,14 @@ public class AbilityHandler {
 		}
 
 		public void tick() {
-			tickDur();
-
 			if (remainingCooldown > 1) {
 				remainingCooldown--;
 			}
-		}
-
-		void setInitialDuration(@Nullable Integer initialDuration) {
-			if (initialDuration == null) {
-				lerp = null;
-			}
-			this.initDuration = initialDuration;
-		}
-
-		void setRemainingDuration(@Nullable Integer remainingDuration) {
-			//doesn't matter you can force set it.
-			this.actualRemDuration = remainingDuration;
-			if (actualRemDuration != null) {
-				//in ms so *50 and add a small buffer so the packet arrives ~the time it reaches the end of the bar.
-				int buffer = ((actualRemDuration / 240) * 30);
-				lerp = new Utils.Lerp(actualRemDuration, (actualRemDuration + buffer) * 50);
-				lerp.setTarget(0);
-				lerp.resetTimer();
+			if (remainingDuration > 1) {
+				remainingDuration--;
 			}
 		}
 
-		public @Nullable Integer actualRemDuration;
-		public @Nullable Integer initDuration;
-
-		public @Nullable Utils.Lerp lerp;
-
-		public void tickDur() {
-			if (actualRemDuration == null || initDuration == null) {
-				return;
-			}
-			//only tick actual duration down if it does not need to be corrected.
-			if (actualRemDuration > 1) {
-				if (lerp != null) {
-					lerp.tick();
-				}
-			}
-		}
 	}
 
 	// accesses must be synchronized on the AbilityHandler
@@ -138,8 +107,8 @@ public class AbilityHandler {
 				}
 				abilityInfo.charges = packet.remainingCharges;
 				abilityInfo.mode = packet.mode;
-				abilityInfo.setInitialDuration(packet.initialDuration);
-				abilityInfo.setRemainingDuration(packet.remainingDuration);
+				abilityInfo.initialDuration = packet.initialDuration == null ? 0 : packet.initialDuration;
+				abilityInfo.remainingDuration = packet.remainingDuration == null ? 0 : packet.remainingDuration;
 				return;
 			}
 		}

@@ -1,6 +1,11 @@
 package ch.njol.unofficialmonumentamod.options;
 
-import ch.njol.minecraft.config.annotations.*;
+import ch.njol.minecraft.config.annotations.Category;
+import ch.njol.minecraft.config.annotations.Color;
+import ch.njol.minecraft.config.annotations.DescriptionLine;
+import ch.njol.minecraft.config.annotations.Dropdown;
+import ch.njol.minecraft.config.annotations.FloatSlider;
+import ch.njol.minecraft.config.annotations.IntSlider;
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.AbilityOptionPreset;
@@ -60,7 +65,7 @@ public class Options implements ch.njol.minecraft.config.Options {
 
 	@Category("misc")
 	public boolean enableTextureSpoofing = true;
-	
+
 	@Category("misc")
 	public transient DescriptionLine overlay_misc;
 	@Category("misc")
@@ -89,8 +94,11 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("abilities")
 	public DurationBarSideMode abilitiesDisplay_durationBar_side = DurationBarSideMode.FOLLOW;
 	@Category("abilities")
-	@IntSlider(min = -4, max = 24, unit = " pixels", minText = "normal", maxText = "mirrored")
-	public int abilitiesDiscord_durationBar_min = -4;
+	@IntSlider(min = -32, max = 32, unit = " pixels")
+	public int abilitiesDisplay_durationBar_offsetY = -20;
+	@Category("abilities")
+	@IntSlider(min = -32, max = 32, unit = " pixels")
+	public int abilitiesDisplay_durationBar_offsetX = 2;
 
 	@Category("abilities")
 	public transient DescriptionLine abilitiesDisplay_positionInfo;

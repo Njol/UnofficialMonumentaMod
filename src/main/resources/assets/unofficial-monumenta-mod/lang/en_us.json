@@ -66,7 +66,6 @@
   "unofficial-monumenta-mod.config.option.lock_textCooldown": "Lock blocked messages cooldown",
   "unofficial-monumenta-mod.config.option.lock_textCooldown.tooltip": "Will determine how often the mod can spam the player's chat with messages like \"Stopped dropping of locked item\"",
 
-
   "unofficial-monumenta-mod.config.category.abilities": "Ability Display",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_info": "Abilities can be reordered by opening the chat and then dragging them around with the mouse.\nTo move the whole ability display instead, hold ctrl while clicking & dragging.\nAlternatively, press the 'Edit HUD' button to move abilities and the display (assign this key in the Minecraft settings).",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_enabled": "Show abilities",
@@ -89,10 +88,12 @@
   "njols-config-framework.enum.DurationBarSideMode.FOLLOW": "Follows",
   "njols-config-framework.enum.DurationBarSideMode.HORIZONTAL": "Horizontal",
   "njols-config-framework.enum.DurationBarSideMode.VERTICAL": "Vertical",
-  "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_side": "Bar side: ",
+  "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_side": "Bar side",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_side.tooltip": "Follows parent overlay, horizontal or vertical",
-  "unofficial-monumenta-mod.config.option.abilitiesDiscord_durationBar_min": "Minimum position",
-  "unofficial-monumenta-mod.config.option.abilitiesDiscord_durationBar_min.tooltip" : "-4 is the original position\n24 mirrors the original position.",
+  "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_offsetY": "Bar distance",
+  "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_offsetY.tooltip": "Distance of the duration bar to the ability icon's center.\n-20 is the original position\n20 mirrors the original position",
+  "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_offsetX": "Bar offset",
+  "unofficial-monumenta-mod.config.option.abilitiesDisplay_durationBar_offsetX.tooltip": "Offset off the duration bar, in the direction of the bar.",
   "njols-config-framework.enum.AbilityOptionPreset.CUSTOM": "Custom",
   "njols-config-framework.enum.AbilityOptionPreset.ABOVE_HOTBAR": "Above Hotbar",
   "njols-config-framework.enum.AbilityOptionPreset.RIGHT_OF_HOTBAR": "Right of Hotbar",
@@ -143,9 +144,8 @@
   "unofficial-monumenta-mod.config.option.shardDebug.tooltip": "Sends information on when shard was changed, errors and other related stuff.",
   "unofficial-monumenta-mod.config.option.enableChestCountMaxError": "Will show an error in chat when the the max chest value is wrong",
   "unofficial-monumenta-mod.config.option.enableChestCountMaxError.tooltip": "BTW it can be disabled through the /umm disableChestCountError command",
-  "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock":  "Render special locks",
-  "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock.tooltip":  "When slots are rendered will also render letters that shows that state of every special locks.",
-
+  "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock": "Render special locks",
+  "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock.tooltip": "When slots are rendered will also render letters that shows that state of every special locks.",
 
   "unofficial-monumenta-mod.config.category.discord": "Discord Rich Presence",
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence",
@@ -195,7 +195,7 @@
   "unofficial-monumenta-mod.delvebounty.forum": "The researchers' magnum opus freed, a power now unchained. It must be stamped out, lest we all fall to the nothing from whence it came.",
   "unofficial-monumenta-mod.delvebounty.shiftingcity": "In attempt to keep away outsiders, the denizens of this city doomed themselves to their own shifting hell. They must be freed, one way or another.",
 
-  "unofficial-monumenta-mod.delvebounty.blue":  "A great upheaval is errupting within the Tree of Life. The great heads of this band of witches must be cut down, lest they unleash a powerful ritual, the consequences of which cannot be undone.",
-  "unofficial-monumenta-mod.delvebounty.brown":  "Tales of the Ashkii speak of the Shades, husks of their kin that have been reduced to naught but mindless flesh, and doppelgangers that infiltrate their ranks. These threats must be stamped out by removing the god that lies in the heart of Pelias’ folly."
+  "unofficial-monumenta-mod.delvebounty.blue": "A great upheaval is errupting within the Tree of Life. The great heads of this band of witches must be cut down, lest they unleash a powerful ritual, the consequences of which cannot be undone.",
+  "unofficial-monumenta-mod.delvebounty.brown": "Tales of the Ashkii speak of the Shades, husks of their kin that have been reduced to naught but mindless flesh, and doppelgangers that infiltrate their ranks. These threats must be stamped out by removing the god that lies in the heart of Pelias’ folly."
 
 }
