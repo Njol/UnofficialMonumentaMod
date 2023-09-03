@@ -165,27 +165,23 @@ public class AbilitiesHud extends HudElement {
 						float scaledX = x - (scaledIconSize - iconSize) / 2;
 						float scaledY = y - (scaledIconSize - iconSize) / 2;
 
-						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
-							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
-							if (durationFraction > 0) {
-								if (options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.CIRCLE) {
-									Utils.drawPartialHollowPolygon(
-											drawContext,
-											(int) scaledX + (iconSize / 2),
-											(int) scaledY + (iconSize / 2),
-											4,
-											((float) iconSize / 2),
-											360,
-											durationFraction > 0.10 ? 0x00FF00FF : 0xFF0000FF,//If above 10% then green else red
-											durationFraction
-									);
-									//as RenderSystem settings are changed during the circle drawing, need to re-set them.
-									RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-									RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-									RenderSystem.enableBlend();
-									RenderSystem.defaultBlendFunc();
-								}
-							}
+						float durationFraction = abilityInfo.initialDuration > 0 && abilityInfo.remainingDuration > 0 ? (abilityInfo.remainingDuration - tickDelta) / abilityInfo.initialDuration : 0;
+						if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.CIRCLE) {
+							Utils.drawPartialHollowPolygon(
+								drawContext,
+								(int) scaledX + (iconSize / 2),
+								(int) scaledY + (iconSize / 2),
+								4,
+								((float) iconSize / 2),
+								360,
+								durationFraction > 0.10 ? 0x00FF00FF : 0xFF0000FF,//If above 10% then green else red
+								durationFraction
+							);
+							//as RenderSystem settings are changed during the circle drawing, need to re-set them.
+							RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+							RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+							RenderSystem.enableBlend();
+							RenderSystem.defaultBlendFunc();
 						}
 
 						drawContext.drawSprite((int) scaledX, (int) scaledY, 0, (int) scaledIconSize, (int) scaledIconSize, getAbilityIcon(abilityInfo));
@@ -206,17 +202,9 @@ public class AbilitiesHud extends HudElement {
 
 						drawContext.drawSprite((int) scaledX, (int) scaledY, 0, (int) scaledIconSize, (int) scaledIconSize, getSpriteOrDefault(getBorderFileIdentifier(abilityInfo.className, abilityHandler.silenceDuration > 0), UNKNOWN_CLASS_BORDER));
 
-						if (abilityInfo.initDuration != null && abilityInfo.actualRemDuration != null) {
-							//bar looks better on top of the border, that's why I'm checking again here
-							float durationFraction = abilityInfo.initDuration <= 0 ? 0 : abilityInfo.lerp.getValue() / abilityInfo.initDuration;
-							if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
-								drawDurationBar(drawContext, (int) scaledX, (int) scaledY, durationFraction, abilityInfo.className);
-
-								RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-								RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-								RenderSystem.enableBlend();
-								RenderSystem.defaultBlendFunc();
-							}
+						//bar looks better on top of the border, that's why we're checking again here
+						if (durationFraction > 0 && options.abilitiesDisplay_durationRenderMode == AbilityHandler.DurationRenderMode.BAR) {
+							drawDurationBar(drawContext, scaledX, scaledY, durationFraction, abilityInfo.className);
 						}
 					} else {
 
@@ -245,38 +233,36 @@ public class AbilitiesHud extends HudElement {
 		}
 	}
 
-	private void drawDurationBar(DrawContext drawContext, int originX, int originY, float fraction, String className) {
-		Sprite barSprite = getClassDuration(className, "full");
-		Sprite overlaySprite = getClassDuration(className, "overlay");
-		int overlayUnderflow = overlaySprite.getContents().getWidth() / 2;
-
-		int overlayHeight = overlaySprite.getContents().getHeight();
-		int barHeight = overlaySprite.getContents().getHeight();
+	private void drawDurationBar(DrawContext drawContext, float originX, float originY, float fraction, String className) {
 
 		MatrixStack matrices = drawContext.getMatrices();
 
 		Options options = UnofficialMonumentaModClient.options;
 		int iconSize = options.abilitiesDisplay_iconSize;
+		float barHeight = 8 * iconSize / 32f;
 
 		matrices.push();
 
-		boolean horizontal = options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.FOLLOW ? options.abilitiesDisplay_horizontal : options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.HORIZONTAL;
-		if (horizontal) {
-			matrices.translate(originX + 2, originY + UnofficialMonumentaModClient.options.abilitiesDiscord_durationBar_min, 0);
-		} else {
-			matrices.translate(originX + UnofficialMonumentaModClient.options.abilitiesDiscord_durationBar_min, originY + iconSize - 4, 0);
+		boolean horizontal = options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.FOLLOW ? options.abilitiesDisplay_horizontal
+			                     : options.abilitiesDisplay_durationBar_side == Options.DurationBarSideMode.HORIZONTAL;
+		matrices.translate(originX + iconSize / 2f, originY + iconSize / 2f, 0);
+		if (!horizontal) {
 			matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(90));
 		}
+		matrices.translate(iconSize / 32f * options.abilitiesDisplay_durationBar_offsetX, iconSize / 32f * options.abilitiesDisplay_durationBar_offsetY - barHeight / 2f, 0);
 
-		int width = barSprite.getContents().getWidth() + overlayUnderflow;
-		int barWidth = width - overlayUnderflow;
+		Sprite backgroundSprite = getClassDuration(className, "background");
+		Sprite barSprite = getClassDuration(className, "full");
+		Sprite overlaySprite = getClassDuration(className, "overlay");
 
-		int x = 0;
-		int y = 0;
+		float backgroundWidth = iconSize;
+		float barWidth = 1f * barSprite.getContents().getWidth() / backgroundSprite.getContents().getWidth() * backgroundWidth;
+		float overlayWidth = 1f * overlaySprite.getContents().getWidth() / backgroundSprite.getContents().getWidth() * backgroundWidth;
 
-		drawContext.drawSprite(x, y, 0, barWidth, barHeight, getClassDuration(className, "background"));
-		drawPartialSprite(drawContext, barSprite, x, y, barWidth, barHeight, 0, 0, fraction, 1);
-		drawContext.drawSprite(x, y, 0, width, overlayHeight, getClassDuration(className, "overlay"));
+		drawSprite(drawContext, backgroundSprite, -backgroundWidth / 2, 0, backgroundWidth, barHeight);
+		drawPartialSprite(drawContext, barSprite, -barWidth / 2, 0, barWidth, barHeight, 0, 0, fraction, 1);
+		drawSprite(drawContext, overlaySprite, -overlayWidth / 2, 0, overlayWidth, barHeight);
+
 		matrices.pop();
 	}
 
