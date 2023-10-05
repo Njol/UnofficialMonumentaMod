@@ -37,6 +37,7 @@ import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.Platform;
 
 @Environment(EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
@@ -81,10 +82,19 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		}
 
 		if (options.discordEnabled) {
-			try {
-				discordRPC.Init();
-			} catch (Exception e) {
-				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to initialize DiscordRPC", e);
+			if (canInitializeDiscord()) {
+				try {
+					discordRPC.Init();
+				} catch (Exception e) {
+					UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to initialize DiscordRPC", e);
+				}
+			} else {
+				UnofficialMonumentaModClient.LOGGER.error("I don't remember having a MacOsX discord rpc jar soooo, sorry bout that.");
+
+				//since it is most likely going to crash, just make sure it doesn't nearly cause it to happen again.
+				options.discordEnabled = false;
+				options.onUpdate();
+				MinecraftClient.getInstance().submit(UnofficialMonumentaModClient::saveConfig);
 			}
 		}
 
@@ -153,4 +163,9 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		});
 	}
 
+	public static boolean canInitializeDiscord() {
+		Platform.Architecture currentArch = Platform.getArchitecture();
+
+		return currentArch != Platform.Architecture.ARM64 && currentArch != Platform.Architecture.ARM32;
+	}
 }

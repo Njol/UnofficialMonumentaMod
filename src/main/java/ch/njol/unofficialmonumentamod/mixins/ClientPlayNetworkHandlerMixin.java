@@ -1,8 +1,11 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,6 +25,32 @@ public class ClientPlayNetworkHandlerMixin {
             //skip 1st "teleport" as it is synchronization after world join.
             lastUpdate = System.currentTimeMillis();
             ShardData.onPlayerSynchronizePosition();
+        }
+    }
+
+    @Inject(method = "onPlayerRespawn", at = @At("HEAD"))
+    public void umm$onPlayerRespawnPacket(PlayerRespawnS2CPacket packet, CallbackInfo ci) {
+        String shard = ShardData.extractShardFromDimensionKey(packet.getDimension());
+
+        System.out.println(shard != null ? shard : "no shard");
+        if (shard != null && !shard.equals(ShardData.getCurrentShard().shardString)) {
+            if (UnofficialMonumentaModClient.options.shardDebug) {
+                UnofficialMonumentaModClient.LOGGER.info("Loading shard from respawn packet");
+            }
+            ShardData.onShardChangeSkipChecks(shard);
+        }
+    }
+
+    @Inject(method = "onGameJoin", at = @At("HEAD"))
+    public void umm$onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
+        String shard = ShardData.extractShardFromDimensionKey(packet.dimensionId());
+
+        System.out.println(shard != null ? shard : "no shard");
+        if (shard != null && !shard.equals(ShardData.getCurrentShard().shardString)) {
+            if (UnofficialMonumentaModClient.options.shardDebug) {
+                UnofficialMonumentaModClient.LOGGER.info("Loading shard from Game Join packet");
+                ShardData.onShardChangeSkipChecks(shard);
+            }
         }
     }
 }
