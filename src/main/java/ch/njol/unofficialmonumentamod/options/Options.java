@@ -211,15 +211,17 @@ public class Options implements ch.njol.minecraft.config.Options {
 		}
 
 		try {
-			if (UnofficialMonumentaModClient.options.discordEnabled) {
-				if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
-					UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
+			if (UnofficialMonumentaModClient.canInitializeDiscord()) {
+				if (UnofficialMonumentaModClient.options.discordEnabled) {
+					if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
+						UnofficialMonumentaModClient.discordRPC.updateDiscordRPCDetails();
+					} else {
+						UnofficialMonumentaModClient.discordRPC.Init();
+					}
 				} else {
-					UnofficialMonumentaModClient.discordRPC.Init();
-				}
-			} else {
-				if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
-					UnofficialMonumentaModClient.discordRPC.shutdown();
+					if (UnofficialMonumentaModClient.discordRPC.isInitialized()) {
+						UnofficialMonumentaModClient.discordRPC.shutdown();
+					}
 				}
 			}
 		} catch (Exception e) {

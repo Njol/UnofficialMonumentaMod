@@ -16,8 +16,10 @@ import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
 public class ShardData {
@@ -26,6 +28,14 @@ public class ShardData {
 	private static final HashMap<String, Shard> SHARDS = new HashMap<>();
 	private static final Identifier FILE_IDENTIFIER = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "override/shards.json");
 
+	public static String extractShardFromDimensionKey(RegistryKey<World> dimensionKey) {
+		Identifier worldName = dimensionKey.getValue();
+		if (ShardData.isExistingShard(worldName.getPath())) {
+			return worldName.getPath();
+		}
+
+		return null;
+	}
 
 	public static void reload() {
 		SHARDS.clear();
@@ -85,9 +95,8 @@ public class ShardData {
 
 		//If player has world name spoofing on in the PEB
 		if (MinecraftClient.getInstance().world != null) {
-			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
-			if (ShardData.isExistingShard(worldName.getPath())) {
-				String shard = worldName.getPath();
+			String shard = extractShardFromDimensionKey(MinecraftClient.getInstance().world.getRegistryKey());
+			if (shard != null) {
 				loadedFromWorldName = true;
 
 				onShardChange(shard);
@@ -108,7 +117,7 @@ public class ShardData {
 		onWorldLoad();
 	}
 
-	protected static void onShardChangeSkipChecks(String shardName) {
+	public static void onShardChangeSkipChecks(String shardName) {
 		searchingForShard = true;
 		onShardChange(shardName);
 	}
