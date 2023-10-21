@@ -1,7 +1,12 @@
 package ch.njol.unofficialmonumentamod;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.BufferBuilder;
@@ -201,4 +206,51 @@ public abstract class Utils {
 		}
 	}
 
+	public static long getNextDailyResetOf(long millis) {
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+		//set to chosen time.
+		calendar.setTimeInMillis(millis);
+
+		calendar.set(Calendar.HOUR, 5);
+		calendar.set(Calendar.AM_PM, Calendar.PM);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Instant instant = calendar.toInstant();
+
+		if (instant.isBefore(Instant.now())) {
+			//today's reset has already passed, switching to next day.
+			return instant.plus(86400, ChronoUnit.SECONDS).toEpochMilli();
+		} else {
+			//next reset is later today
+			return instant.toEpochMilli();
+		}
+	}
+
+	public static long getNextWeeklyResetOf(long millis) {
+		Calendar calendar = Calendar.getInstance();
+
+		//get calendar with time of day already corrected.
+		calendar.setTimeInMillis(getNextDailyResetOf(millis));
+
+		calendar.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+		Instant instant = calendar.toInstant();
+
+		if (instant.isBefore(Instant.now())) {
+			//friday was before current time -> get next week
+			return instant.plus(604800, ChronoUnit.SECONDS).toEpochMilli();
+		} else {
+			//friday is after, current date
+			return instant.toEpochMilli();
+		}
+	}
+
+	public static long getNextDailyReset() {
+		return getNextDailyResetOf(System.currentTimeMillis());
+	}
+
+	public static long getNextWeeklyReset() {
+		return getNextWeeklyResetOf(System.currentTimeMillis());
+	}
 }

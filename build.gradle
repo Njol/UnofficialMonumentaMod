@@ -10,7 +10,13 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
-archivesBaseName = project.archives_base_name + "-mc" + project.minecraft_version
+
+if (project.hasProperty("mod_extradata")) {
+    archivesBaseName = project.archives_base_name + "-mc" + project.minecraft_version + "-" + project.mod_extradata;
+} else {
+    archivesBaseName = project.archives_base_name + "-mc" + project.minecraft_version
+}
+
 version = project.mod_version
 group = project.maven_group
 
@@ -113,11 +119,27 @@ def changeLog = '''
 
 '''
 
+String getReleaseType() {
+    if (!project.hasProperty("mod_extradata")) {
+        return "release"
+    }
+
+    switch (project.mod_extradata.toLowerCase()) {
+        case "pre":
+        case "beta":
+            return "beta"
+        case "alpha":
+            return "alpha"
+        default:
+            return "release"
+    }
+}
+
 modrinth {
     token = System.getenv("MODRINTH_TOKEN")
     projectId = "unofficial-monumenta-mod"
     versionNumber = project.mod_version
-    versionType = "release"
+    versionType = getReleaseType()
     uploadFile = remapJar
     gameVersions = [project.minecraft_version]
     loaders = ["fabric"]
@@ -131,13 +153,15 @@ modrinth {
 }
 
 curseforge {
+    String releaseString = getReleaseType()
+
     if (System.getenv("CURSEFORGE_TOKEN") != null) {
         apiKey = System.getenv("CURSEFORGE_TOKEN")
     }
     project {
         id = '509666'
         changelog = changeLog
-        releaseType = 'release'
+        releaseType = releaseString
         addGameVersion project.minecraft_version
         addGameVersion 'Fabric'
 

@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod.mixins;
 
 import ch.njol.unofficialmonumentamod.AbilityHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.features.misc.managers.MessageNotifier;
 import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import ch.njol.unofficialmonumentamod.hud.AbilitiesHud;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -32,6 +33,7 @@ public class InGameHudMixin {
 		if (!abilitiesHud.renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);
 			ChestCountOverlay.INSTANCE.renderAbsolute(matrices, tickDelta);
+			MessageNotifier.getInstance().renderAbsolute(matrices, tickDelta);
 			abilitiesHud.renderAbsolute(matrices, tickDelta);
 		}
 	}
@@ -43,6 +45,7 @@ public class InGameHudMixin {
 		if (abilitiesHud.renderInFrontOfChat()) {
 			UnofficialMonumentaModClient.effectOverlay.renderAbsolute(matrices, tickDelta);
 			ChestCountOverlay.INSTANCE.renderAbsolute(matrices, tickDelta);
+			MessageNotifier.getInstance().renderAbsolute(matrices, tickDelta);
 			abilitiesHud.renderAbsolute(matrices, tickDelta);
 		}
 	}

@@ -43,8 +43,16 @@
   "unofficial-monumenta-mod.config.subcategory.location": "Location notification options",
   "unofficial-monumenta-mod.config.option.notifyLocation": "Enable Location notifications",
   "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Toggle whether to show a notification when joining or leaving an area.",
-  "unofficial-monumenta-mod.config.option.notifierShowTime": "The time it will take to dissipate",
-  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "",
+
+  "unofficial-monumenta-mod.config.subcategory.notifier": "Notifications",
+  "unofficial-monumenta-mod.config.option.notifierShowTime": "Dismissal time",
+  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "How long a message takes to be dismissed.",
+  "unofficial-monumenta-mod.config.option.notifierEarlyDismiss": "Early dismissal",
+  "unofficial-monumenta-mod.config.option.notifierEarlyDismiss.tooltip": "Whether it will be dismissed early if the max rendered amount is reached.",
+  "unofficial-monumenta-mod.config.option.notifierScaleFactor": "Scale factor",
+  "unofficial-monumenta-mod.config.option.notifierScaleFactor.tooltip": "How much bigger the notifications are",
+  "unofficial-monumenta-mod.config.option.notifierPosition": "Overlay position",
+  "unofficial-monumenta-mod.config.option.notifierPosition.tooltip": "",
 
   "unofficial-monumenta-mod.config.option.enableTextureSpoofing": "Enable texture spoofing",
   "unofficial-monumenta-mod.config.option.enableTextureSpoofing.tooltip": "Allows the ability to change the rendered texture of an item by tricking Minecraft into believing that the item is another item.",

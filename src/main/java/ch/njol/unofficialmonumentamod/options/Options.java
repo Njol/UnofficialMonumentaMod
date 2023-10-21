@@ -41,10 +41,23 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Dropdown("location")
 	@Category("misc")
 	public boolean notifyLocation = false;
-	@Dropdown("location")
+
+	@Dropdown("notifier")
 	@Category("misc")
 	@FloatSlider(min = 1.5F, max = 20F, step = 0.1F, unit = " seconds")
-	public float notifierShowTime = 5F;
+	public float notifierShowTime = 10F;
+	@Dropdown("notifier")
+	@Category("misc")
+	public boolean notifierEarlyDismiss = false;
+
+	@Dropdown("notifier")
+	@Category("misc")
+	@FloatSlider(min = 0.5F, max = 3F, step = 0.5F, unit = "x bigger")
+	public float notifierScaleFactor = 1.5F;
+	@Dropdown("notifier")
+	@Category("misc")
+	public ElementPosition notifierPosition = new ElementPosition(1.0F, -10, 1.0F, -10, 1.0F, 1.0F);
+
 
 	// TODO implement item cooldown display
 	// requires sever-side adaptions to send the cooldown (on use and on connect)

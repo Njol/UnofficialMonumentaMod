@@ -12,7 +12,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +41,12 @@ public class Locations {
 		getShortShard();
 	}
 	//endregion
+
+	public static void registerListeners() {
+		ShardData.ShardChangedEventCallback.EVENT.register((currentShard, lastShard) -> {
+			resetCache();
+		});
+	}
 
 	public static void setShard(String shard) {
 		cachedShard = shard;
@@ -114,7 +122,7 @@ public class Locations {
 	//endregion
 
 	@Expose
-	public static HashMap<String, ArrayList<Location>> locations = new java.util.HashMap<>();
+	public static Map<String, List<Location>> locations = new HashMap<>();
 
 	private static final Gson GSON = new GsonBuilder()
 		                                 .setPrettyPrinting()
@@ -129,14 +137,14 @@ public class Locations {
 		}
 		try (InputStream stream = resource.get().getInputStream();
 		     InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-			locations = GSON.fromJson(reader, new TypeToken<HashMap<String, ArrayList<Location>>>() {
+			locations = GSON.fromJson(reader, new TypeToken<HashMap<String, List<Location>>>() {
 			}.getType());
 		} catch (Exception e) {
 			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to reload locations from resource pack", e);
 		}
 	}
 
-	private ArrayList<Location> getLocations(String shard) {
+	private List<Location> getLocations(String shard) {
 		shard = shard.replaceFirst("-\\d+$", "");
 		shard = shard.toLowerCase(Locale.ROOT);
 
@@ -144,7 +152,7 @@ public class Locations {
 	}
 
 	public String getLocation(double x, double z, String shard) {
-		ArrayList<Location> locations = getLocations(shard);
+		List<Location> locations = getLocations(shard);
 		if (locations == null) {
 			return shard;
 		}
@@ -177,6 +185,11 @@ public class Locations {
 		public boolean isInBounds(double x, double z) {
 			return ((x >= east && x <= west) || (x <= east && x >= west))
 				       && ((z >= north && z <= south) || (z <= north && z >= south));
+		}
+
+		@Override
+		public String toString() {
+			return String.format("[%d->%d;%d->%d];%s", east, west, north, south, name);
 		}
 	}
 }
