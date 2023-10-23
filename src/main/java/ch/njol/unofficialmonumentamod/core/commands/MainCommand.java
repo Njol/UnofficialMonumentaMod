@@ -1,6 +1,8 @@
 package ch.njol.unofficialmonumentamod.core.commands;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.Utils;
+import ch.njol.unofficialmonumentamod.core.PersistentData;
 import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -36,14 +38,63 @@ public class MainCommand extends Constants {
         builder.then(ClientCommandManager.literal("info").executes(ctx -> runSelfInfo()));
         builder.then(ClientCommandManager.literal("info")
                 .then(ClientCommandManager.literal("modlist")
-                        .then(ClientCommandManager.literal("clip").executes(ctw -> runCopyInfo()))
+                        .then(ClientCommandManager.literal("clip").executes(ctx -> runCopyInfo()))
                         .executes(ctx -> runModList())));
+
+        builder.then(ClientCommandManager.literal("persistence")
+                .then(ClientCommandManager.literal("list").executes(ctx -> runListPersistentData())));
 
         return builder;
     }
 
     public String getName() {
         return MainCommand.class.getSimpleName();
+    }
+
+    private static int runListPersistentData() {
+        MutableText text = Text.literal("Persistent data:");
+        text.setStyle(Constants.MAIN_INFO_STYLE);
+
+        PersistentData persistence = PersistentData.getInstance();
+
+        if (persistence.chestCount != null && !persistence.chestCount.isEmpty()) {
+            MutableText chestCountText = Text.literal("\nChest Count:\n%s".formatted(persistence.chestCount.toString()));
+            chestCountText.setStyle(Constants.VALUE_STYLE);
+            text.append(chestCountText);
+        }
+
+
+        if (persistence.delveBounty != null && !persistence.delveBounty.isEmpty()) {
+            MutableText delveBountyText = Text.literal("\nDelve bounty:\n%s".formatted(persistence.delveBounty.toString()));
+            delveBountyText.setStyle(Constants.VALUE_STYLE);
+            text.append(delveBountyText);
+        }
+
+        long weekly = Utils.getNextWeeklyReset();
+        long currentTime = System.currentTimeMillis();
+
+        long timeTillWeekly = (weekly - currentTime) / 1000;
+        //get days
+        int daysTW = (int) (timeTillWeekly / 86400);
+        timeTillWeekly %= 86400;
+        //get hours
+        int hoursTW = (int) (timeTillWeekly / 3600);
+        timeTillWeekly %= 3600;
+        //get minutes
+        int minutesTW = (int) (timeTillWeekly / 60);
+        timeTillWeekly %= 60;
+
+        String timeTillDailyDate = "%02dH:%02dM:%02dS".formatted(hoursTW, minutesTW, timeTillWeekly);
+        String timeTillWeeklyDate = "%2d days %02dH:%02dM:%02dS".formatted(daysTW, hoursTW, minutesTW, timeTillWeekly);
+
+        MutableText serverInfo = Text.literal("\nServer Info: ").setStyle(Constants.MAIN_INFO_STYLE);
+        serverInfo.append(Text.literal("\nTime till next daily reset: ").setStyle(Constants.KEY_INFO_STYLE).append(Text.literal(timeTillDailyDate).setStyle(Constants.VALUE_STYLE)));
+        serverInfo.append(Text.literal("\nTime till next weekly reset: ").setStyle(Constants.KEY_INFO_STYLE).append(Text.literal(timeTillWeeklyDate).setStyle(Constants.VALUE_STYLE)));
+
+        text.append(serverInfo);
+
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
+        return 0;
     }
 
     private static int switchStreamerMode(boolean enable) {

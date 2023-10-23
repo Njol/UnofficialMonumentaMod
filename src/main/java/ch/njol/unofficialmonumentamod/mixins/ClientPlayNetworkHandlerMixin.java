@@ -30,27 +30,17 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "onPlayerRespawn", at = @At("HEAD"))
     public void umm$onPlayerRespawnPacket(PlayerRespawnS2CPacket packet, CallbackInfo ci) {
-        String shard = ShardData.extractShardFromDimensionKey(packet.getDimension());
-
-        System.out.println(shard != null ? shard : "no shard");
-        if (shard != null && !shard.equals(ShardData.getCurrentShard().shardString)) {
-            if (UnofficialMonumentaModClient.options.shardDebug) {
-                UnofficialMonumentaModClient.LOGGER.info("Loading shard from respawn packet");
-            }
-            ShardData.onShardChangeSkipChecks(shard);
+        ShardData.pebWorldSpoofingShardDetected(packet.getDimension());
+        if (UnofficialMonumentaModClient.options.shardDebug) {
+            UnofficialMonumentaModClient.LOGGER.info("Loading shard from Player Respawn packet");
         }
     }
 
     @Inject(method = "onGameJoin", at = @At("HEAD"))
     public void umm$onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
-        String shard = ShardData.extractShardFromDimensionKey(packet.dimensionId());
-
-        System.out.println(shard != null ? shard : "no shard");
-        if (shard != null && !shard.equals(ShardData.getCurrentShard().shardString)) {
-            if (UnofficialMonumentaModClient.options.shardDebug) {
-                UnofficialMonumentaModClient.LOGGER.info("Loading shard from Game Join packet");
-                ShardData.onShardChangeSkipChecks(shard);
-            }
+        ShardData.pebWorldSpoofingShardDetected(packet.dimensionId());
+        if (UnofficialMonumentaModClient.options.shardDebug) {
+            UnofficialMonumentaModClient.LOGGER.info("Loading shard from Game Join packet");
         }
     }
 }
