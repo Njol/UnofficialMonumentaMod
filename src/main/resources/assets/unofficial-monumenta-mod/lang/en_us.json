@@ -64,6 +64,8 @@
   "unofficial-monumenta-mod.config.option.showCalculator.tooltip": "Allows the injection of the calculator when in a chest container in the plots.",
   "unofficial-monumenta-mod.config.option.enableKeybindOutsidePlots": "Toggle whether the calculator can be opened when outside plots",
   "unofficial-monumenta-mod.config.option.enableKeybindOutsidePlots.tooltip": "When this is toggled on, the player is able to open the calculator on any shard.\nThe calculator is disabled by default outside of Plots.",
+  "unofficial-monumenta-mod.config.option.calculatorPersistOnClosed": "Toggle whether the values persist in the calculator",
+  "unofficial-monumenta-mod.config.option.calculatorPersistOnClosed.tooltip": "Whether the values persist when the calculator is closed. (does not persist in between sessions)",
 
   "unofficial-monumenta-mod.config.option.overlay_misc": "Miscellaneous Overlay options",
   "unofficial-monumenta-mod.config.option.overlay_misc.tooltip": "",

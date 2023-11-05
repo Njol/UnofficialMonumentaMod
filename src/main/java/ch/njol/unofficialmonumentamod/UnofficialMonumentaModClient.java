@@ -107,7 +107,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			effectOverlay.tick();
 			LocationNotifier.tick();
 			MessageNotifier.getInstance().tick();
-			Calculator.tick();
 			SlotLocking.getInstance().onEndTick();
 		});
 

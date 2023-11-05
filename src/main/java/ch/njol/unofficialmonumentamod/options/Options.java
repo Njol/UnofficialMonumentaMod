@@ -75,6 +75,9 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Dropdown("calculator")
 	@Category("misc")
 	public boolean enableKeybindOutsidePlots = false;
+	@Dropdown("calculator")
+	@Category("misc")
+	public boolean calculatorPersistOnClosed = false;
 
 	@Category("misc")
 	public boolean enableTextureSpoofing = true;
