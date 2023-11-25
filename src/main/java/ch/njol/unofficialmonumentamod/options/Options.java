@@ -215,6 +215,9 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("debug")
 	public boolean enableChestCountMaxError = true;
 
+	@Category("debug")
+	public boolean logEffectPackets = false;
+
 	@Dropdown("lock")
 	@Category("debug")
 	public boolean lock_renderDebuggingAdvancedLock = false;

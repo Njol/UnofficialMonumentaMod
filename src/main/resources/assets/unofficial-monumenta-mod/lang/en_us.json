@@ -156,6 +156,8 @@
   "unofficial-monumenta-mod.config.option.enableChestCountMaxError.tooltip": "BTW it can be disabled through the /umm disableChestCountError command",
   "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock": "Render special locks",
   "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock.tooltip": "When slots are rendered will also render letters that shows that state of every special locks.",
+  "unofficial-monumenta-mod.config.option.logEffectPackets": "Log Effect packets",
+  "unofficial-monumenta-mod.config.option.logEffectPackets.tooltip": "Show more informations on received effect packets",
 
   "unofficial-monumenta-mod.config.category.discord": "Discord Rich Presence",
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence",
