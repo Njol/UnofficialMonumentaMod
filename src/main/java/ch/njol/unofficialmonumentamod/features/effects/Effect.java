@@ -39,6 +39,8 @@ public class Effect {
 	@Expose
 	public boolean positiveEffect = true;
 	@Expose
+	public int displayPriority = 0;
+	@Expose
 	public boolean isNonStackableEffect;
 
 	public Effect(String name, float effectPower, int effectTime) {
@@ -154,6 +156,7 @@ public class Effect {
 		Effect effect = new Effect(effectInfo.name, (float) effectInfo.power, tickDuration == -1 ? -1 : millisDuration, UUID.fromString(effectInfo.UUID));
 		effect.isPercentage = effectInfo.percentage;
 		effect.positiveEffect = effectInfo.positive;
+		effect.displayPriority = effectInfo.displayPriority;
 
 		return effect;
 	}
@@ -168,9 +171,11 @@ public class Effect {
 		int millisDuration = tickDuration * 50;
 
 		effectPower = (float) info.power;
+		name = info.name;
 		effectTime = tickDuration != -1 ? millisDuration : -1;
 		isPercentage = info.percentage;
 		positiveEffect = info.positive;
+		displayPriority = info.displayPriority;
 
 		isNonStackableEffect = effectPower == 0;
 	}
