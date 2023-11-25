@@ -76,6 +76,11 @@
   "unofficial-monumenta-mod.config.option.lock_textCooldown": "Lock blocked messages cooldown",
   "unofficial-monumenta-mod.config.option.lock_textCooldown.tooltip": "Will determine how often the mod can spam the player's chat with messages like \"Stopped dropping of locked item\"",
 
+  "unofficial-monumenta-mod.config.option.overlay_misc": "Options affecting multiple overlays",
+  "unofficial-monumenta-mod.config.option.overlay_misc.tooltip": "",
+  "unofficial-monumenta-mod.config.option.overlay_opacity": "Overlay opacity",
+  "unofficial-monumenta-mod.config.option.overlay_opacity.tooltip": "(Won't be used if the Text Background setting is set to Everywhere in Accessibility Settings)",
+
   "unofficial-monumenta-mod.config.category.abilities": "Ability Display",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_info": "Abilities can be reordered by opening the chat and then dragging them around with the mouse.\nTo move the whole ability display instead, hold ctrl while clicking & dragging.\nAlternatively, press the 'Edit HUD' button to move abilities and the display (assign this key in the Minecraft settings).",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_enabled": "Show abilities",

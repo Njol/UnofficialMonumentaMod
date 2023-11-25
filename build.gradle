@@ -49,12 +49,28 @@ dependencies {
 }
 
 repositories {
-    mavenLocal()
+   mavenLocal()
     mavenCentral()
     maven { url = "https://maven.terraformersmc.com" }
     maven { url = "https://maven.shedaniel.me/" }
     jcenter()
     maven { url = "https://jitpack.io/" }
+    maven {
+        name = "GithubPackages-ConfigFramework"
+        url = uri("https://maven.pkg.github.com/Ascynx/MCUIFramework")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+    maven {
+        name = "GithubPackages-ConfigFramework"
+        url = uri("https://maven.pkg.github.com/Ascynx/MCConfigFramework")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 processResources {
