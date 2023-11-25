@@ -90,6 +90,7 @@ public class EffectOverlay extends HudElement {
         }
 		lastUpdate = System.currentTimeMillis();
 		if (!updatingFromPackets) updatingFromPackets();
+		sortEffects();
 	}
 
 	public void onEffectUpdatePacket(ChannelHandler.EffectUpdatePacket packet) {
@@ -98,7 +99,7 @@ public class EffectOverlay extends HudElement {
 
 		boolean foundMatching = false;
 		for (Effect effect: effects) {
-			if (effect.uuid == UUID.fromString(packet.effect.UUID)) {
+			if (effect.uuid.equals(UUID.fromString(packet.effect.UUID))){
 				foundMatching = true;
 
 				if (packet.effect.duration == 0) {
@@ -119,6 +120,11 @@ public class EffectOverlay extends HudElement {
 			effects.add(effect);
 			logIfDebug("found no effect with that uuid, adding new effect: " + effect);
 		}
+		sortEffects();
+	}
+
+	public void sortEffects() {
+		effects.sort((effect1, effect2) -> effect2.displayPriority - effect1.displayPriority);
 	}
 
 	public ArrayList<Effect> getCumulativeEffects() {

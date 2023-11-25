@@ -151,7 +151,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			Class.forName("me.shedaniel.clothconfig2.api.ConfigBuilder");
 			ConfigMenu.registerTypes();
 		} catch (ClassNotFoundException e) {
-			LOGGER.warn("Could not lad modmenu or cloth-config, disabling ConfigMenu.");
+			LOGGER.warn("Could not load modmenu or cloth-config, disabling ConfigMenu.");
 		}
 	}
 
