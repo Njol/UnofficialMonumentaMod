@@ -119,18 +119,24 @@ def changeLog = '''
 
 String getReleaseType() {
     if (!project.hasProperty("mod_extradata")) {
-        return "release";
+        return "release"
     }
 
-    switch (project.mod_extradata.toLowerCase()) {
-        case "pre":
-        case "beta":
-            return "beta"
-        case "alpha":
-            return "alpha"
-        default:
-            return "release"
+    for (String prefix in new String[]{"pre", "beta", "alpha"}) {
+        if (project.mod_extradata.startsWithIgnoreCase(prefix)) {
+            switch(prefix) {
+                case "pre":
+                case "beta":
+                    return "beta"
+                case "alpha":
+                    return "alpha"
+                default:
+                    return "release"
+            }
+        }
     }
+
+    return "release";
 }
 
 modrinth {
