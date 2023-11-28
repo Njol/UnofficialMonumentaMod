@@ -99,7 +99,7 @@ public class PersistentData {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(GSON.toJson(INSTANCE));
         } catch (IOException e) {
-            UnofficialMonumentaModClient.LOGGER.error("Caught IO error whilst tryint to save persistent data", e);
+            UnofficialMonumentaModClient.LOGGER.error("Caught IO error whilst trying to save persistent data", e);
         }
     }
 
