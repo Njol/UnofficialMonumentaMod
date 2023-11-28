@@ -92,14 +92,14 @@ public class PersistentData {
                 file.getParentFile().mkdirs();
                 file.createNewFile();
             } catch (IOException e) {
-                UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to create files for slot locking data", e);
+                UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to create files for persistent data", e);
             }
         }
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(GSON.toJson(INSTANCE));
         } catch (Exception e) {
-            UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to save slot locking data", e);
+            UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to save persistent data", e);
         }
     }
 
