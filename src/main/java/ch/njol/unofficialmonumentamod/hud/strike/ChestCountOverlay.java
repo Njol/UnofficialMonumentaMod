@@ -4,6 +4,7 @@ import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
 import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.core.PersistentData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -66,11 +67,27 @@ public class ChestCountOverlay extends HudElement {
 		//first one is non-edited the second one is for edited by vlado's counter mod.
 		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
 			addCount(1);
+			return;
 		}
 
 		if (text.getString().equals("+5 Chests added to lootroom.") || text.getString().matches("\u00a76\\+5 Chests \u00a7cadded to lootroom\\..*")) {
 			addCount(5);
 		}
+	}
+
+	public void initializeListeners() {
+		PersistentData.PersistentDataLoadedCallback.EVENT.register((persistentData) -> {
+			if (persistentData.chestCount.value.shard.equals(ShardData.getCurrentShard().shortShard)) {
+				currentCount = Integer.valueOf(persistentData.chestCount.value.value);
+			}
+		});
+		PersistentData.PersistentDataSavingCallback.EVENT.register((persistentData) -> persistentData.chestCount = new PersistentData.DatedHolder<>(System.currentTimeMillis(), new PersistentData.ShardedHolder<>(ShardData.getCurrentShard().shortShard, currentCount != null ? currentCount.shortValue() : 0)));
+
+		ShardData.ShardChangedEventCallback.EVENT.register((currentShard, lastShard) -> {
+			if (!currentShard.equals(lastShard)) {
+				onShardChange(currentShard.shortShard);
+			}
+		});
 	}
 
 	public void onStrikeChestUpdatePacket(ChannelHandler.StrikeChestUpdatePacket packet) {

@@ -1,8 +1,13 @@
 package ch.njol.unofficialmonumentamod.features.effects;
 
+import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import java.text.DecimalFormat;
 import java.time.Duration;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.minecraft.client.MinecraftClient;
@@ -20,19 +25,30 @@ public class Effect {
 	private static final DecimalFormat POWER_FORMAT = new DecimalFormat("+0.##;-#");
 	private static final Pattern EFFECT_PATTERN = Pattern.compile("(?:(?<effectPower>[+-]?\\d+(?:\\.\\d+)?)(?<percentage>%)? )?(?<effectName>.*) (?<timeRemaining>\\d*:\\d*)");
 
+	@Expose
+	public final UUID uuid;
 
-	String name;
-	int effectTime;
-	float effectPower;
-	boolean isPercentage = false;
-	boolean positiveEffect = true;
-	final boolean isNonStackableEffect;
+	@Expose
+	public String name;
+	@Expose
+	public int effectTime;
+	@Expose
+	public float effectPower;
+	@Expose
+	public boolean isPercentage = false;
+	@Expose
+	public boolean positiveEffect = true;
+	@Expose
+	public int displayPriority = 0;
+	@Expose
+	public boolean isNonStackableEffect;
 
 	public Effect(String name, float effectPower, int effectTime) {
 		isNonStackableEffect = effectPower == 0;
 		this.name = name;
 		this.effectPower = effectPower;
 		this.effectTime = effectTime;
+		this.uuid = UUID.randomUUID();
 	}
 
 	public Effect(String name, float effectPower, int effectTime, boolean isPercentage) {
@@ -41,6 +57,24 @@ public class Effect {
 		this.effectPower = effectPower;
 		this.effectTime = effectTime;
 		this.isPercentage = isPercentage;
+		this.uuid = UUID.randomUUID();
+	}
+
+	public Effect(String name, float effectPower, int effectTime, UUID uuid) {
+		isNonStackableEffect = effectPower == 0;
+		this.name = name;
+		this.effectPower = effectPower;
+		this.effectTime = effectTime;
+		this.uuid = uuid;
+	}
+
+	public Effect(String name, float effectPower, int effectTime, boolean isPercentage, UUID uuid) {
+		isNonStackableEffect = effectPower == 0;
+		this.name = name;
+		this.effectPower = effectPower;
+		this.effectTime = effectTime;
+		this.isPercentage = isPercentage;
+		this.uuid = uuid;
 	}
 
 	public boolean isPositive() {
@@ -115,6 +149,37 @@ public class Effect {
 		return effect;
 	}
 
+	public static Effect from(ChannelHandler.EffectInfo effectInfo) {
+		int tickDuration = effectInfo.duration;
+		int millisDuration = tickDuration * 50;
+
+		Effect effect = new Effect(effectInfo.name, (float) effectInfo.power, tickDuration == -1 ? -1 : millisDuration, UUID.fromString(effectInfo.UUID));
+		effect.isPercentage = effectInfo.percentage;
+		effect.positiveEffect = effectInfo.positive;
+		effect.displayPriority = effectInfo.displayPriority;
+
+		return effect;
+	}
+
+	public void updateFrom(ChannelHandler.EffectUpdatePacket packet) {
+		ChannelHandler.EffectInfo info = packet.effect;
+		if (info.duration == 0) {
+			return;
+		}
+
+		int tickDuration = info.duration;
+		int millisDuration = tickDuration * 50;
+
+		effectPower = (float) info.power;
+		name = info.name;
+		effectTime = tickDuration != -1 ? millisDuration : -1;
+		isPercentage = info.percentage;
+		positiveEffect = info.positive;
+		displayPriority = info.displayPriority;
+
+		isNonStackableEffect = effectPower == 0;
+	}
+
 	public String getTimeRemainingAsString(float tickDelta) {
 		if (isInfiniteDuration()) {
 			return "";
@@ -128,5 +193,12 @@ public class Effect {
 		long SS = seconds % 60;
 
 		return String.format("%02d:%02d", MM, SS);
+	}
+
+	Gson GSON = new GsonBuilder().setPrettyPrinting().excludeFieldsWithoutExposeAnnotation().create();
+
+	@Override
+	public String toString() {
+		return GSON.toJson(this);
 	}
 }

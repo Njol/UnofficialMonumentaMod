@@ -1,8 +1,11 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerRespawnS2CPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,6 +25,22 @@ public class ClientPlayNetworkHandlerMixin {
             //skip 1st "teleport" as it is synchronization after world join.
             lastUpdate = System.currentTimeMillis();
             ShardData.onPlayerSynchronizePosition();
+        }
+    }
+
+    @Inject(method = "onPlayerRespawn", at = @At("HEAD"))
+    public void umm$onPlayerRespawnPacket(PlayerRespawnS2CPacket packet, CallbackInfo ci) {
+        ShardData.pebWorldSpoofingShardDetected(packet.getDimension());
+        if (UnofficialMonumentaModClient.options.shardDebug) {
+            UnofficialMonumentaModClient.LOGGER.info("Loading shard from Player Respawn packet");
+        }
+    }
+
+    @Inject(method = "onGameJoin", at = @At("HEAD"))
+    public void umm$onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
+        ShardData.pebWorldSpoofingShardDetected(packet.dimensionId());
+        if (UnofficialMonumentaModClient.options.shardDebug) {
+            UnofficialMonumentaModClient.LOGGER.info("Loading shard from Game Join packet");
         }
     }
 }

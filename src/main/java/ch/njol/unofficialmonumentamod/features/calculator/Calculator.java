@@ -1,6 +1,7 @@
 package ch.njol.unofficialmonumentamod.features.calculator;
 
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
+import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
 import ch.njol.unofficialmonumentamod.mixins.screen.HandledScreenAccessor;
 import java.util.ArrayList;
@@ -279,8 +280,10 @@ public class Calculator {
 	}
 	//endregion
 
-	public static void onChangeShardListener(String shortShard) {
-		state = (shortShard.equals("plots") || !UnofficialMonumentaModClient.options.enableKeybindOutsidePlots) ? CalculatorState.OPEN : CalculatorState.CLOSED;
+	public static void registerListeners() {
+		ShardData.ShardChangedEventCallback.EVENT.register((currentShard, previousShard) -> {
+			state = (currentShard.shortShard.equals("plots") || !UnofficialMonumentaModClient.options.enableKeybindOutsidePlots) ? CalculatorState.OPEN : CalculatorState.CLOSED;
+		});
 	}
 
 

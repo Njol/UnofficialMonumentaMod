@@ -15,18 +15,29 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
 
-public class ShardData {
+public class ShardData {//TODO clean up this class
 	public static final String UNKNOWN_SHARD = "unknown";
 
 	private static final HashMap<String, Shard> SHARDS = new HashMap<>();
 
 	private static final Identifier FILE_IDENTIFIER = new Identifier(UnofficialMonumentaModClient.MOD_IDENTIFIER, "override/shards.json");
 
+	public static String extractShardFromDimensionKey(RegistryKey<World> dimensionKey) {
+		Identifier worldName = dimensionKey.getValue();
+		if (ShardData.isExistingShard(worldName.getPath())) {
+			return worldName.getPath();
+		}
+		return null;
+	}
 
 	public static void reload() {
 		SHARDS.clear();
@@ -52,6 +63,8 @@ public class ShardData {
 
 	protected static boolean editedShard = false;
 	public static boolean loadedAtLeastOnce = false;
+
+	private static boolean pebWorldSpoofingEnabled = false;
 
 	public static boolean isEditedShard() {
 		return editedShard;
@@ -86,15 +99,9 @@ public class ShardData {
 
 		//If player has world name spoofing on in the PEB
 		if (MinecraftClient.getInstance().world != null) {
-			Identifier worldName = MinecraftClient.getInstance().world.getRegistryKey().getValue();
-			if (ShardData.isExistingShard(worldName.getPath())) {
-				String shard = worldName.getPath();
-				loadedFromWorldName = true;
-
-				onShardChange(shard);
-				if (UnofficialMonumentaModClient.options.shardDebug) {
-					UnofficialMonumentaModClient.LOGGER.info("Inferred shard data from world name.");
-				}
+			pebWorldSpoofingShardDetected(MinecraftClient.getInstance().world.getRegistryKey());
+			if (UnofficialMonumentaModClient.options.shardDebug) {
+				UnofficialMonumentaModClient.LOGGER.info("Inferred shard data from world name.");
 			}
 		}
 	}
@@ -109,7 +116,27 @@ public class ShardData {
 		onWorldLoad();
 	}
 
-	protected static void onShardChangeSkipChecks(String shardName) {
+	public static void pebWorldSpoofingShardDetected(RegistryKey<World> dimensionKey) {
+		String shard = extractShardFromDimensionKey(dimensionKey);
+		if (shard == null) {
+			return;
+		}
+
+		pebWorldSpoofingEnabled = true;
+		currentShard = new TabShard(shard);
+
+		if (!Objects.equals(currentShard, lastShard)) {
+			if (UnofficialMonumentaModClient.options.shardDebug) {
+				UnofficialMonumentaModClient.LOGGER.info("Shard changed, dispatching event");
+			}
+			ShardChangedEventCallback.EVENT.invoker().invoke(currentShard, lastShard);
+			loadedFromWorldName = true;
+		}
+		//continue search if shard is unknown.
+		stopSearch();
+	}
+
+	public static void onShardChangeSkipChecks(String shardName) {
 		searchingForShard = true;
 		onShardChange(shardName);
 	}
@@ -119,27 +146,32 @@ public class ShardData {
 			shardName = UNKNOWN_SHARD;
 		}
 
+		TabShard shard = shardName.equals(UNKNOWN_SHARD) ? TabShard.UNKNOWN : new TabShard(shardName);
+
 		if (!searchingForShard) {
-			//if not unknown and not last shard
-			//if the new shard is not unknown and the last shard exists.
-			if (UnofficialMonumentaModClient.options.shardDebug && !editedShard && !loadedFromWorldName && (!Objects.equals(shardName, UNKNOWN_SHARD) && !Objects.equals(currentShard.shardString, UNKNOWN_SHARD)) && (!Objects.equals(lastShard.shardString, shardName) && !Objects.equals(currentShard.shardString, shardName))) {
-				UnofficialMonumentaModClient.LOGGER.warn("Unexpected shard change.\nNew shard: " + shardName + " Old shard: " + lastShard + " Currently loaded: " + currentShard);
+			if (UnofficialMonumentaModClient.options.shardDebug && !editedShard) {
+				//only if shard debugging messages are enabled and the shard was not manually edited.
+				if (currentShard != TabShard.UNKNOWN && lastShard != TabShard.UNKNOWN && shard != TabShard.UNKNOWN) {
+					//only if no shards are unknown.
+					if (lastShard != shard && currentShard != shard) {
+						//only if the shard given is different from previous shards.
+						UnofficialMonumentaModClient.LOGGER.warn("Shard change was not expected.\nReceived: {}\nPrevious: {}\nCurrent: {}", shard, lastShard, currentShard);
+					}
+				}
 			}
+
 			return;
 		}
 
-		currentShard = shardName.equals(UNKNOWN_SHARD) ? TabShard.UNKNOWN : new TabShard(shardName);
+		currentShard = shard;
 
-		if (!Objects.equals(currentShard, lastShard) && currentShard != TabShard.UNKNOWN) {//shard changed and new shard is not unknown.
-			Locations.resetCache();
-			ChestCountOverlay.INSTANCE.onShardChange(shardName);
-			Calculator.onChangeShardListener(shardName);
-
-			if (UnofficialMonumentaModClient.options.shardDebug) {
-				UnofficialMonumentaModClient.LOGGER.info("Shard changed.");
+		if  (currentShard != TabShard.UNKNOWN) {
+			if (!Objects.equals(currentShard, lastShard)) {//shard changed and new shard is not unknown.
+				if (UnofficialMonumentaModClient.options.shardDebug) {
+					UnofficialMonumentaModClient.LOGGER.info("Shard changed, dispatching event");
+				}
+				ShardChangedEventCallback.EVENT.invoker().invoke(currentShard, lastShard);
 			}
-		}
-		if (currentShard != TabShard.UNKNOWN) {
 			//continue search if shard is unknown.
 			stopSearch();
 		}
@@ -231,5 +263,18 @@ public class ShardData {
 		OVERWORLD,
 		DUNGEON,
 		MINIGAME
+	}
+
+	@FunctionalInterface
+	public interface ShardChangedEventCallback {
+		Event<ShardChangedEventCallback> EVENT = EventFactory.createArrayBacked(ShardChangedEventCallback.class,
+				(listeners) -> (currentShard, previousShard) -> {
+					for (ShardChangedEventCallback listener: listeners) {
+						//Invoke all event listeners
+						listener.invoke(currentShard, previousShard);
+					}
+				});
+
+		void invoke(TabShard currentShard, TabShard previousShard);
 	}
 }

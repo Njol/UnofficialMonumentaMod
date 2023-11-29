@@ -28,6 +28,31 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 		chestCountOverlay = ChestCountOverlay.INSTANCE;
 	}
 
+	public static class EffectInfo {
+		public String UUID;
+		public int displayPriority;
+
+		public String name;
+		public Integer duration;
+		public double power;
+
+		public boolean positive;
+		public boolean percentage;
+	}
+
+	public static class MassEffectUpdatePacket {
+		String _type = "MassEffectUpdatePacket";
+
+		//when received, will clear stored effects.
+		public EffectInfo[] effects;
+	}
+
+	public static class EffectUpdatePacket {
+		String _type = "EffectUpdatePacket";
+
+		public EffectInfo effect;
+	}
+
 	/**
 	 * Sent whenever a player's class is updated.
 	 */
@@ -125,6 +150,15 @@ public class ChannelHandler implements ClientPlayNetworking.PlayChannelHandler {
 				case "StrikeChestUpdatePacket" -> {
 					StrikeChestUpdatePacket packet = gson.fromJson(json, StrikeChestUpdatePacket.class);
 					chestCountOverlay.onStrikeChestUpdatePacket(packet);
+				}
+
+				case "MassEffectUpdatePacket" -> {
+					MassEffectUpdatePacket packet = gson.fromJson(json, MassEffectUpdatePacket.class);
+					UnofficialMonumentaModClient.effectOverlay.onMassEffectUpdatePacket(packet);
+				}
+				case "EffectUpdatePacket" -> {
+					EffectUpdatePacket packet = gson.fromJson(json, EffectUpdatePacket.class);
+					UnofficialMonumentaModClient.effectOverlay.onEffectUpdatePacket(packet);
 				}
 			}
 		});
