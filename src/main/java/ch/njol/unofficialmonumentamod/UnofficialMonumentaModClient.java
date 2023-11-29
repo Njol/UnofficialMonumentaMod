@@ -23,6 +23,8 @@ import com.google.gson.JsonParseException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -116,8 +118,16 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
 			ShardData.onWorldLoad();
-			//TODO if false, re-schedule loading
-			PersistentData.getInstance().onLogin();
+
+			if (!PersistentData.getInstance().onLogin()) {
+				new Timer().schedule(new TimerTask() {
+					@Override
+					public void run() {
+						//if it fails here, then let it fail
+						PersistentData.getInstance().onLogin();
+					}
+				}, 5000);
+			}
 		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
@@ -158,8 +168,19 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		abilityHandler.onDisconnect();
 		LocationNotifier.onDisconnect();
 		spoofer.onDisconnect();
-		//TODO if false, re-schedule unload.
-		PersistentData.getInstance().onDisconnect();
+		if (PersistentData.isLoaded()) {
+			if (!PersistentData.getInstance().onDisconnect()) {
+				new Timer().schedule(new TimerTask() {
+					@Override
+					public void run() {
+						if (PersistentData.isLoaded()) {
+							//if it fails here, then let it fail
+							PersistentData.getInstance().onDisconnect();
+						}
+					}
+				}, 5000);
+			}
+		}
 		SlotLocking.getInstance().save();
 	}
 

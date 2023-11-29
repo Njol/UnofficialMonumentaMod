@@ -33,6 +33,11 @@ public class PersistentData {
     }
 
     private static boolean loaded = false;
+
+    public static boolean isLoaded() {
+        return loaded;
+    }
+
     private CompletableFuture<?> IoFuture = null;
 
     private boolean canNewTaskBeSubmitted() {
