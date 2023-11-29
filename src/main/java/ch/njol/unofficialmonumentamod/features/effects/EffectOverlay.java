@@ -2,11 +2,13 @@ package ch.njol.unofficialmonumentamod.features.effects;
 
 import ch.njol.minecraft.uiframework.ElementPosition;
 import ch.njol.minecraft.uiframework.hud.HudElement;
+import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.mixins.PlayerListHudAccessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -55,6 +57,18 @@ public class EffectOverlay extends HudElement {
 	private final ArrayList<Effect> effects = new ArrayList<>();
 	private long lastUpdate = 0;
 
+	private boolean updatingFromPackets = false;
+
+	private void logIfDebug(String msg) {
+		if (UnofficialMonumentaModClient.options.logEffectPackets) {
+			System.out.println(msg);
+		}
+	}
+
+	public void updatingFromPackets() {
+		updatingFromPackets = true;
+	}
+
 	public void update() {
 		effects.clear();
 		for (PlayerListEntry entry : getCategory("Custom Effects")) {
@@ -65,6 +79,53 @@ public class EffectOverlay extends HudElement {
 		}
 
 		lastUpdate = System.currentTimeMillis();
+	}
+
+	public void onMassEffectUpdatePacket(ChannelHandler.MassEffectUpdatePacket packet) {
+		logIfDebug("Received onMassEffectUpdatePacket");
+		effects.clear();
+		for (ChannelHandler.EffectInfo effectInfo: packet.effects) {
+			Effect effect = Effect.from(effectInfo);
+			effects.add(effect);
+			logIfDebug("Added: " + effect);
+		}
+		lastUpdate = System.currentTimeMillis();
+		if (!updatingFromPackets) updatingFromPackets();
+		sortEffects();
+	}
+
+	public void onEffectUpdatePacket(ChannelHandler.EffectUpdatePacket packet) {
+		logIfDebug("Received onEffectUpdatePacket");
+		if (!updatingFromPackets) updatingFromPackets();
+
+		boolean foundMatching = false;
+		for (Effect effect: effects) {
+			if (effect.uuid.equals(UUID.fromString(packet.effect.UUID))){
+				foundMatching = true;
+
+				if (packet.effect.duration == 0) {
+					logIfDebug("Found effect with uuid & new duration is 0, clearing effect: " + effect);
+					effects.remove(effect);
+					break;
+				}
+				//found effect to update.
+				logIfDebug("Found effect with uuid, updating from new packet");
+				effect.updateFrom(packet);
+				logIfDebug("Updated to: " + effect);
+				break;
+			}
+		}
+
+		if (!foundMatching) {
+			Effect effect = Effect.from(packet.effect);
+			effects.add(effect);
+			logIfDebug("found no effect with that uuid, adding new effect: " + effect);
+		}
+		sortEffects();
+	}
+
+	public void sortEffects() {
+		effects.sort((effect1, effect2) -> effect2.displayPriority - effect1.displayPriority);
 	}
 
 	public ArrayList<Effect> getCumulativeEffects() {
@@ -89,7 +150,7 @@ public class EffectOverlay extends HudElement {
 	}
 
 	public void tick() {
-		if (lastUpdate + 1000 < System.currentTimeMillis()) {
+		if (lastUpdate + 1000 < System.currentTimeMillis() && !updatingFromPackets) {
 			// update every second
 			update();
 			return;

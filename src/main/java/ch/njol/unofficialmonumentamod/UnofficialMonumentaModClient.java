@@ -2,6 +2,7 @@ package ch.njol.unofficialmonumentamod;
 
 import ch.njol.minecraft.config.Config;
 import ch.njol.minecraft.uiframework.hud.Hud;
+import ch.njol.unofficialmonumentamod.core.PersistentData;
 import ch.njol.unofficialmonumentamod.core.commands.MainCommand;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
@@ -9,8 +10,9 @@ import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
 import ch.njol.unofficialmonumentamod.features.effects.EffectOverlay;
 import ch.njol.unofficialmonumentamod.features.locations.Locations;
+import ch.njol.unofficialmonumentamod.features.misc.DelveBounty;
 import ch.njol.unofficialmonumentamod.features.misc.SlotLocking;
-import ch.njol.unofficialmonumentamod.features.misc.managers.Notifier;
+import ch.njol.unofficialmonumentamod.features.misc.managers.MessageNotifier;
 import ch.njol.unofficialmonumentamod.features.misc.notifications.LocationNotifier;
 import ch.njol.unofficialmonumentamod.features.spoof.TextureSpoofer;
 import ch.njol.unofficialmonumentamod.hud.strike.ChestCountOverlay;
@@ -21,6 +23,8 @@ import com.google.gson.JsonParseException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,6 +41,7 @@ import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.Platform;
 
 @Environment(EnvType.CLIENT)
 public class UnofficialMonumentaModClient implements ClientModInitializer {
@@ -80,24 +85,50 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 			UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to load configuration file", e);
 		}
 
+		PersistentData.getInstance().initialize();
+
 		if (options.discordEnabled) {
-			try {
-				discordRPC.Init();
-			} catch (Exception e) {
-				UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to initialize DiscordRPC", e);
+			if (canInitializeDiscord()) {
+				try {
+					discordRPC.Init();
+				} catch (Exception e) {
+					UnofficialMonumentaModClient.LOGGER.error("Caught error whilst trying to initialize DiscordRPC", e);
+				}
+			} else {
+				UnofficialMonumentaModClient.LOGGER.error("Disabled DiscordRPC as architecture is not compatible.");
+
+				//since it is most likely going to crash, just make sure it doesn't nearly cause it to happen again.
+				options.discordEnabled = false;
+				options.onUpdate();
+				MinecraftClient.getInstance().submit(UnofficialMonumentaModClient::saveConfig);
 			}
 		}
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			abilityHandler.tick();
 			effectOverlay.tick();
-			Calculator.tick();
+			LocationNotifier.tick();
+			MessageNotifier.getInstance().tick();
 			SlotLocking.getInstance().onEndTick();
 		});
 
-		ClientTickEvents.END_WORLD_TICK.register(world -> Notifier.tick());
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			onDisconnect();
+		});
 
-		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> ShardData.onWorldLoad()));
+		ClientPlayConnectionEvents.JOIN.register(((handler, sender, client) -> {
+			ShardData.onWorldLoad();
+
+			if (!PersistentData.getInstance().onLogin()) {
+				new Timer().schedule(new TimerTask() {
+					@Override
+					public void run() {
+						//if it fails here, then let it fail
+						PersistentData.getInstance().onLogin();
+					}
+				}, 5000);
+			}
+		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
 
@@ -107,6 +138,17 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		Hud.INSTANCE.addElement(AbilitiesHud.INSTANCE);
 		Hud.INSTANCE.addElement(ChestCountOverlay.INSTANCE);
 		Hud.INSTANCE.addElement(effectOverlay);
+		Hud.INSTANCE.addElement(MessageNotifier.getInstance());
+
+		DelveBounty.initializeListeners();
+		ChestCountOverlay.INSTANCE.initializeListeners();
+		Locations.registerListeners();
+		Calculator.registerListeners();
+		ShardData.ShardChangedEventCallback.EVENT.register((currentShard, previousShard) -> {
+			if (options.shardDebug) {
+				LOGGER.info("Received shard update: " + previousShard + " -> " + currentShard);
+			}
+		});
 
 		ClientCommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess) -> {
 					dispatcher.register(new ShardDebugCommand().register());
@@ -124,9 +166,21 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static void onDisconnect() {
 		abilityHandler.onDisconnect();
-		Notifier.onDisconnect();
 		LocationNotifier.onDisconnect();
 		spoofer.onDisconnect();
+		if (PersistentData.isLoaded()) {
+			if (!PersistentData.getInstance().onDisconnect()) {
+				new Timer().schedule(new TimerTask() {
+					@Override
+					public void run() {
+						if (PersistentData.isLoaded()) {
+							//if it fails here, then let it fail
+							PersistentData.getInstance().onDisconnect();
+						}
+					}
+				}, 5000);
+			}
+		}
 		SlotLocking.getInstance().save();
 	}
 
@@ -153,4 +207,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		});
 	}
 
+	public static boolean canInitializeDiscord() {
+		Platform.Architecture currentArch = Platform.getArchitecture();
+		return currentArch != Platform.Architecture.ARM64 && currentArch != Platform.Architecture.ARM32;
+	}
 }

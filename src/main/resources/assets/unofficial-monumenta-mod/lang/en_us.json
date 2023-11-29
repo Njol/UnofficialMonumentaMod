@@ -43,8 +43,16 @@
   "unofficial-monumenta-mod.config.subcategory.location": "Location notification options",
   "unofficial-monumenta-mod.config.option.notifyLocation": "Enable Location notifications",
   "unofficial-monumenta-mod.config.option.notifyLocation.tooltip": "Toggle whether to show a notification when joining or leaving an area.",
-  "unofficial-monumenta-mod.config.option.notifierShowTime": "The time it will take to dissipate",
-  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "",
+
+  "unofficial-monumenta-mod.config.subcategory.notifier": "Notifications",
+  "unofficial-monumenta-mod.config.option.notifierShowTime": "Dismissal time",
+  "unofficial-monumenta-mod.config.option.notifierShowTime.tooltip": "How long a message takes to be dismissed.",
+  "unofficial-monumenta-mod.config.option.notifierEarlyDismiss": "Early dismissal",
+  "unofficial-monumenta-mod.config.option.notifierEarlyDismiss.tooltip": "Whether it will be dismissed early if the max rendered amount is reached.",
+  "unofficial-monumenta-mod.config.option.notifierScaleFactor": "Scale factor",
+  "unofficial-monumenta-mod.config.option.notifierScaleFactor.tooltip": "How much bigger the notifications are",
+  "unofficial-monumenta-mod.config.option.notifierPosition": "Overlay position",
+  "unofficial-monumenta-mod.config.option.notifierPosition.tooltip": "",
 
   "unofficial-monumenta-mod.config.option.enableTextureSpoofing": "Enable texture spoofing",
   "unofficial-monumenta-mod.config.option.enableTextureSpoofing.tooltip": "Allows the ability to change the rendered texture of an item by tricking Minecraft into believing that the item is another item.",
@@ -56,6 +64,8 @@
   "unofficial-monumenta-mod.config.option.showCalculator.tooltip": "Allows the injection of the calculator when in a chest container in the plots.",
   "unofficial-monumenta-mod.config.option.enableKeybindOutsidePlots": "Toggle whether the calculator can be opened when outside plots",
   "unofficial-monumenta-mod.config.option.enableKeybindOutsidePlots.tooltip": "When this is toggled on, the player is able to open the calculator on any shard.\nThe calculator is disabled by default outside of Plots.",
+  "unofficial-monumenta-mod.config.option.calculatorPersistOnClosed": "Toggle whether the values persist in the calculator",
+  "unofficial-monumenta-mod.config.option.calculatorPersistOnClosed.tooltip": "Whether the values persist when the calculator is closed. (does not persist in between sessions)",
 
   "unofficial-monumenta-mod.config.option.overlay_misc": "Miscellaneous Overlay options",
   "unofficial-monumenta-mod.config.option.overlay_misc.tooltip": "",
@@ -146,6 +156,8 @@
   "unofficial-monumenta-mod.config.option.enableChestCountMaxError.tooltip": "BTW it can be disabled through the /umm disableChestCountError command",
   "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock": "Render special locks",
   "unofficial-monumenta-mod.config.option.lock_renderDebuggingAdvancedLock.tooltip": "When slots are rendered will also render letters that shows that state of every special locks.",
+  "unofficial-monumenta-mod.config.option.logEffectPackets": "Log Effect packets",
+  "unofficial-monumenta-mod.config.option.logEffectPackets.tooltip": "Show more informations on received effect packets",
 
   "unofficial-monumenta-mod.config.category.discord": "Discord Rich Presence",
   "unofficial-monumenta-mod.config.option.discordEnabled": "Enable discord rich presence",
