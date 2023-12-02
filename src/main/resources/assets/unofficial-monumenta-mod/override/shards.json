@@ -153,7 +153,7 @@
   },
   "depths": {
     "officialName": "Darkest Depths",
-      "shardType": "STRIKE",
+    "shardType": "STRIKE",
     "maxChests": null
   },
   "mist": {
@@ -217,6 +217,11 @@
   "gallery": {
     "officialName": "The Gallery of Fear",
     "shardType": "MINIGAME",
+    "maxChests": null
+  },
+  "zenith": {
+    "officialName": "Celestial Zenith",
+    "shardType": "STRIKE",
     "maxChests": null
   }
 }
