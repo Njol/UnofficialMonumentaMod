@@ -44,6 +44,9 @@ dependencies {
     include('com.github.Ascynx:MCConfigFramework:mc1.20-SNAPSHOT')
     modApi('com.github.Ascynx:MCUIFramework:mc1.20-SNAPSHOT')
     include('com.github.Ascynx:MCUIFramework:mc1.20-SNAPSHOT')
+
+    // Optional Mod Integrations
+    modCompileOnly "com.github.Provismet:ProviHealth:1.2.1-mc1.20.1"
 }
 
 repositories {
