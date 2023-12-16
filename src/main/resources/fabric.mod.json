@@ -28,6 +28,9 @@
       "ch.njol.unofficialmonumentamod.options.ConfigMenu"
     ]
   },
+  "custom" : {
+    "mod_extradata": "${mod_extradata}"
+  },
   "mixins": [
     "unofficial-monumenta-mod.mixins.json"
   ],

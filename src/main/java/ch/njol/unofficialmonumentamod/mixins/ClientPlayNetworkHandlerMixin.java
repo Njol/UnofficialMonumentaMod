@@ -30,7 +30,7 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "onPlayerRespawn", at = @At("HEAD"))
     public void umm$onPlayerRespawnPacket(PlayerRespawnS2CPacket packet, CallbackInfo ci) {
-        ShardData.pebWorldSpoofingShardDetected(packet.getDimension());
+        ShardData.loadShardFromDimensionKey(packet.getDimension());
         if (UnofficialMonumentaModClient.options.shardDebug) {
             UnofficialMonumentaModClient.LOGGER.info("Loading shard from Player Respawn packet");
         }
@@ -38,7 +38,7 @@ public class ClientPlayNetworkHandlerMixin {
 
     @Inject(method = "onGameJoin", at = @At("HEAD"))
     public void umm$onGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
-        ShardData.pebWorldSpoofingShardDetected(packet.dimensionId());
+        ShardData.loadShardFromDimensionKey(packet.dimensionId());
         if (UnofficialMonumentaModClient.options.shardDebug) {
             UnofficialMonumentaModClient.LOGGER.info("Loading shard from Game Join packet");
         }

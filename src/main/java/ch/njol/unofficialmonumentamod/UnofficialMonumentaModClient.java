@@ -23,6 +23,7 @@ import com.google.gson.JsonParseException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import net.fabricmc.api.ClientModInitializer;
@@ -33,6 +34,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.client.option.KeyBinding;
@@ -40,6 +45,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.Platform;
 
@@ -162,6 +168,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		} catch (ClassNotFoundException e) {
 			LOGGER.warn("Could not load modmenu or cloth-config, disabling ConfigMenu.");
 		}
+
+		ModInfo.initialize();
 	}
 
 	public static void onDisconnect() {
@@ -209,6 +217,58 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 
 	public static boolean canInitializeDiscord() {
 		Platform.Architecture currentArch = Platform.getArchitecture();
-		return currentArch != Platform.Architecture.ARM64 && currentArch != Platform.Architecture.ARM32;
+		return !(currentArch == Platform.Architecture.ARM64 || currentArch == Platform.Architecture.ARM32);
+	}
+
+	public static class ModInfo {
+		@MonotonicNonNull
+		public static Version version;
+		@MonotonicNonNull
+		public static String name;
+		@MonotonicNonNull
+		public static String fileName;
+		@MonotonicNonNull
+		public static String extraData;
+
+		public static boolean inDevEnvironment;
+
+		private static boolean initialized = false;
+
+		public static void initialize() {
+			if (initialized) {
+				return;
+			}
+			final FabricLoader loader = FabricLoader.getInstance();
+			inDevEnvironment = loader.isDevelopmentEnvironment();
+
+			if (!loader.isModLoaded(MOD_IDENTIFIER)) {
+				throw new IllegalStateException("Unofficial Monumenta Mod is incorrectly loaded,\n proceeding to throw a wrench into the mod loader.");
+			}
+
+			Optional<ModContainer> selfContainer = loader.getModContainer(MOD_IDENTIFIER);
+			if (selfContainer.isEmpty()) {
+				//Same as above
+				throw new IllegalStateException("Unofficial Monumenta Mod is incorrectly loaded,\n proceeding to throw a wrench into the mod loader.");
+			}
+			ModMetadata selfMeta = selfContainer.get().getMetadata();
+			version = selfMeta.getVersion();
+			name = selfMeta.getName();
+			fileName = !inDevEnvironment ? selfContainer.get().getOrigin().getPaths().get(0).getFileName().toString() : "Unknown";
+
+			if (selfMeta.containsCustomValue("mod_extradata")) {
+				extraData = selfMeta.getCustomValue("mod_extradata").getAsString();
+			}
+
+			initialized = true;
+		}
+
+		public static String getVersion() {
+			String version = ModInfo.version.getFriendlyString();
+			if (extraData != null) {
+				version += "-" + ModInfo.extraData;
+			}
+
+			return version;
+		}
 	}
 }

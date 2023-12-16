@@ -13,7 +13,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Hand;
 
-
+//TODO RPC Gui?
 public class DiscordPresence {
 	private DiscordRPC lib = null;
 	String applicationId = "989262014562070619";
@@ -121,46 +121,22 @@ public class DiscordPresence {
 
 					String shardName = getShardOfficialName(shard);
 					if (!Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
+						ShardData.Shard localShard = ShardData.getShard(shard);
+
+						String shardSmallLink;
+						if (localShard == null) {
+							shardSmallLink = shard;
+						} else {
+							shardSmallLink = !Objects.equals(localShard.smallImageOverride, ShardData.DEFAULT_KEY_OVERRIDE) ? shard : localShard.smallImageOverride;
+						}
+
 						//set small image
-						presence.smallImageKey = shard;
+						presence.smallImageKey = shardSmallLink;
 						presence.smallImageText = shardName;
 					}
 
 					//set details
-					String detail = UnofficialMonumentaModClient.options.discordDetails;
-					ArrayList<Match> replacers = getDetectedDetails(detail);
-
-					for (Match replacer: replacers) {
-						switch (replacer.match) {
-							case "player" -> {
-								if (mc.player == null) {
-									continue;
-								}
-								detail = replacer.replaceIn(detail, mc.player.getName().getString());
-							}
-							case "shard" -> {
-								if (shard == null || Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
-									continue;
-								}
-								detail = replacer.replaceIn(detail, shardName != null ? shardName : shard);
-							}
-							case "holding" -> {
-								if (mc.player == null) {
-									continue;
-								}
-								detail = replacer.replaceIn(detail, !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
-							}
-							case "class" -> detail = replacer.replaceIn(detail, !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty() ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
-							case "location" -> {
-								if ((shard != null && Objects.equals(shard, ShardData.UNKNOWN_SHARD)) || mc.player == null) {
-									continue;
-								}
-								detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
-							}
-						}
-					}
-
-					presence.details = detail;
+					presence.details = getDetailString(shard, shardName);
 				}
 			}
 
@@ -229,6 +205,47 @@ public class DiscordPresence {
 
 		shouldUpdate = false;
 		return cachedReplacers;
+	}
+
+	public String getDetailString(String shard, String shardName) {
+		//set details
+		String detail = UnofficialMonumentaModClient.options.discordDetails;
+		ArrayList<Match> replacers = getDetectedDetails(detail);
+
+		for (Match replacer: replacers) {
+			switch (replacer.match) {
+				case "player" -> {
+					if (mc.player == null) {
+						continue;
+					}
+					detail = replacer.replaceIn(detail, mc.player.getName().getString());
+				}
+				case "shard" -> {
+					if (Objects.equals(shard, ShardData.UNKNOWN_SHARD)) {
+						continue;
+					}
+					detail = replacer.replaceIn(detail, shardName);
+				}
+				case "holding" -> {
+					if (mc.player == null) {
+						continue;
+					}
+					detail = replacer.replaceIn(detail, !Objects.equals(mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString(), "Air") ? mc.player.getStackInHand(Hand.MAIN_HAND).getName().getString() : "Nothing");
+				}
+				case "class" -> detail = replacer.replaceIn(detail, !UnofficialMonumentaModClient.abilityHandler.abilityData.isEmpty() ? UnofficialMonumentaModClient.abilityHandler.abilityData.get(0).className.toLowerCase(Locale.ROOT) : "Timed out");
+				case "location" -> {
+					if ((Objects.equals(shard, ShardData.UNKNOWN_SHARD)) || mc.player == null) {
+						continue;
+					}
+					detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
+				}
+				case "version" -> {
+					detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.ModInfo.getVersion());
+				}
+			}
+		}
+
+		return detail;
 	}
 
 	private static class Match {
