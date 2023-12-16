@@ -115,16 +115,10 @@ public class MainCommand extends Constants {
         StringBuilder data = new StringBuilder();
         data.append("[Mod Info]");
 
-        if (FabricLoader.getInstance().isModLoaded(UnofficialMonumentaModClient.MOD_IDENTIFIER)) {
-            ModContainer container = FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).get();
-
-            ModMetadata thisMetadata = container.getMetadata();
-            Version version = thisMetadata.getVersion();
-            String name = thisMetadata.getName();
-            data.append("\nName: ").append(name);
-            data.append("\nVersion: ").append(version.getFriendlyString());
-            data.append("\nFile name: ").append(!FabricLoader.getInstance().isDevelopmentEnvironment() ? container.getOrigin().getPaths().get(0).getFileName().toString() : "Unknown");
-        }
+        String name = UnofficialMonumentaModClient.ModInfo.name;
+        data.append("\nName: ").append(name);
+        data.append("\nVersion: ").append(UnofficialMonumentaModClient.ModInfo.getVersion());
+        data.append("\nFile name: ").append(UnofficialMonumentaModClient.ModInfo.fileName);
 
         data.append("\nMinecraft: ").append(MinecraftClient.getInstance().getGameVersion()).append("-").append(SharedConstants.getGameVersion().getName());
         data.append("\nIn Development environment: ").append(FabricLoader.getInstance().isDevelopmentEnvironment() ? "Yes" : "No");
@@ -159,13 +153,7 @@ public class MainCommand extends Constants {
     }
 
     private static int runSelfInfo() {
-        if (FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).isEmpty()) {
-            return 1;
-        }
-        ModContainer container = FabricLoader.getInstance().getModContainer(UnofficialMonumentaModClient.MOD_IDENTIFIER).get();
-        ModMetadata thisMetadata = container.getMetadata();
-        Version version = thisMetadata.getVersion();
-        String name = thisMetadata.getName();
+        String name = UnofficialMonumentaModClient.ModInfo.name;
 
         MutableText text = Text.literal("[Mod Info]").setStyle(MAIN_INFO_STYLE);
 
@@ -173,10 +161,10 @@ public class MainCommand extends Constants {
         text.append(Text.literal(name).setStyle(VALUE_STYLE));
 
         text.append(Text.literal("\nFile name: ").setStyle(KEY_INFO_STYLE));
-        text.append(Text.literal(!FabricLoader.getInstance().isDevelopmentEnvironment() ? container.getOrigin().getPaths().get(0).getFileName().toString() : "Unknown").setStyle(VALUE_STYLE));
+        text.append(Text.literal(UnofficialMonumentaModClient.ModInfo.fileName).setStyle(VALUE_STYLE));
 
         text.append(Text.literal("\nVersion: ").setStyle(KEY_INFO_STYLE));
-        text.append(Text.literal(version.getFriendlyString()).setStyle(VALUE_STYLE));
+        text.append(Text.literal(UnofficialMonumentaModClient.ModInfo.getVersion()).setStyle(VALUE_STYLE));
 
         text.append(Text.literal("\nMinecraft: ").setStyle(KEY_INFO_STYLE));
         text.append(Text.literal(MinecraftClient.getInstance().getGameVersion() + "-" + SharedConstants.getGameVersion().getName()).setStyle(VALUE_STYLE));

@@ -31,6 +31,9 @@
       "ch.njol.unofficialmonumentamod.compat.HealthBarHook"
     ]
   },
+  "custom" : {
+    "mod_extradata": "${mod_extradata}"
+  },
   "mixins": [
     "unofficial-monumenta-mod.mixins.json"
   ],
