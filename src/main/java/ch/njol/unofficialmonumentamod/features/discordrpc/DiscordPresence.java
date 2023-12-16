@@ -179,7 +179,7 @@ public class DiscordPresence {
 	private boolean shouldUpdate = true;
 
 	private ArrayList<Match> getDetectedDetails(String detailString) {
-		if (!cachedReplacers.isEmpty() && shouldUpdate) {
+		if (!cachedReplacers.isEmpty() && !shouldUpdate) {
 			return cachedReplacers;
 		}
 
@@ -239,9 +239,7 @@ public class DiscordPresence {
 					}
 					detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.locations.getLocation(mc.player.getX(), mc.player.getZ(), shard));
 				}
-				case "version" -> {
-					detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.ModInfo.getVersion());
-				}
+				case "version" -> detail = replacer.replaceIn(detail, UnofficialMonumentaModClient.ModInfo.getVersion());
 			}
 		}
 
