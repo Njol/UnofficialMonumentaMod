@@ -26,6 +26,9 @@
     ],
     "modmenu": [
       "ch.njol.unofficialmonumentamod.options.ConfigMenu"
+    ],
+    "provihealth": [
+      "ch.njol.unofficialmonumentamod.compat.HealthBarHook"
     ]
   },
   "mixins": [
