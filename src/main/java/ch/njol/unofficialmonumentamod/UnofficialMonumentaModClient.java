@@ -6,6 +6,7 @@ import ch.njol.unofficialmonumentamod.core.PersistentData;
 import ch.njol.unofficialmonumentamod.core.commands.MainCommand;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardDebugCommand;
+import ch.njol.unofficialmonumentamod.core.shard.ShardLoader;
 import ch.njol.unofficialmonumentamod.features.calculator.Calculator;
 import ch.njol.unofficialmonumentamod.features.discordrpc.DiscordPresence;
 import ch.njol.unofficialmonumentamod.features.effects.EffectOverlay;
@@ -124,7 +125,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-			ShardData.onWorldLoad();
+			ShardLoader.onWorldLoaded();
 			if (!PersistentData.getInstance().onLogin()) {
 				new Timer().schedule(new TimerTask() {
 					@Override
@@ -134,7 +135,6 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 					}
 				}, 5000);
 			}
-
 			effectOverlay.onJoin();
 		});
 
@@ -178,6 +178,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		abilityHandler.onDisconnect();
 		LocationNotifier.onDisconnect();
 		spoofer.onDisconnect();
+		ShardLoader.onDisconnect();
 		if (PersistentData.isLoaded()) {
 			if (!PersistentData.getInstance().onDisconnect()) {
 				new Timer().schedule(new TimerTask() {

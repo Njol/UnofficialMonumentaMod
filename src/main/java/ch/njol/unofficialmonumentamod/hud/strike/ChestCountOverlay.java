@@ -95,7 +95,6 @@ public class ChestCountOverlay extends HudElement {
 		if (packet.count != null) {
 			currentCount = packet.count;
 		}
-		ShardData.stopSearch();
 	}
 
 	public void addCount(int num) {
