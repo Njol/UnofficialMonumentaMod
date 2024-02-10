@@ -285,6 +285,10 @@ public class SlotLocking {
 	}
 
 	private static boolean isLockKeyPressed() {
+		if (LOCK_KEY.isUnbound()) {
+			return false;
+		}
+
 		if (Objects.equals(((KeyBindingAccessor) LOCK_KEY).getBoundKey().getCategory(), InputUtil.Type.MOUSE)) {
 			return GLFW.glfwGetMouseButton(MinecraftClient.getInstance().getWindow().getHandle(), getLockKeyCode()) == 1;
 		} else {
@@ -322,7 +326,7 @@ public class SlotLocking {
 		final int scaledHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
 		double mouseX = MinecraftClient.getInstance().mouse.getX() * (double)scaledWidth / (double)MinecraftClient.getInstance().getWindow().getWidth();
 		double mouseY = MinecraftClient.getInstance().mouse.getY() * (double)scaledHeight / (double)MinecraftClient.getInstance().getWindow().getHeight();
-		if (LOCK_KEY.matchesKey(code, scancode) && !isHoldingLockKey) {
+		if (!LOCK_KEY.isUnbound() && LOCK_KEY.matchesKey(code, scancode) && !isHoldingLockKey) {
 			isHoldingLockKey = true;
 			
 			Slot slot = ((HandledScreenAccessor) containerScreen).doGetSlotAt(mouseX, mouseY);
