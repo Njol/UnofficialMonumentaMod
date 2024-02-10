@@ -134,6 +134,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 					}
 				}, 5000);
 			}
+
+			effectOverlay.onJoin();
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(ChannelHandler.CHANNEL_ID, new ChannelHandler());
