@@ -133,6 +133,8 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 						PersistentData.getInstance().onLogin();
 					}
 				}, 5000);
+
+				effectOverlay.onJoin();
 			}
 		}));
 
