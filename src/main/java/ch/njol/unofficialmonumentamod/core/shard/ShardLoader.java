@@ -10,7 +10,6 @@ import net.minecraft.world.World;
 
 import static ch.njol.unofficialmonumentamod.core.shard.ShardData.TabShard;
 import static ch.njol.unofficialmonumentamod.core.shard.ShardData.ShardChangedEventCallback;
-import static ch.njol.unofficialmonumentamod.core.shard.ShardData.isExistingShard;
 
 public class ShardLoader {
     public static final String UNKNOWN_SHARD = "unknown";
