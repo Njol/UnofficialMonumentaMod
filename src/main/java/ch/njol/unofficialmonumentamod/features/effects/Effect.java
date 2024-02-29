@@ -22,7 +22,7 @@ import net.minecraft.util.Formatting;
 
 public class Effect {
 
-	private static final DecimalFormat POWER_FORMAT = new DecimalFormat("+0.##;-#");
+	private static final DecimalFormat POWER_FORMAT = new DecimalFormat("0.##;-#");
 	private static final Pattern EFFECT_PATTERN = Pattern.compile("(?:(?<effectPower>[+-]?\\d+(?:\\.\\d+)?)(?<percentage>%)? )?(?<effectName>.*) (?<timeRemaining>\\d*:\\d*)");
 
 	@Expose
@@ -97,7 +97,7 @@ public class Effect {
 	public Text toText(float tickDelta, boolean rightAligned) {
 		Text timeText = MutableText.of(new LiteralTextContent((rightAligned ? " " : "") + getTimeRemainingAsString(tickDelta) + (rightAligned ? "" : " ")));
 		Style effectStyle = Style.EMPTY.withColor((isPositive() == (effectTime >= 0)) ? Formatting.GREEN : Formatting.RED);
-		String effectString = (effectPower != 0 ? POWER_FORMAT.format(effectPower) + (isPercentage ? "%" : "") + " " : "") + name;
+		String effectString = (isPositive() ? "+" : "-") + (effectPower != 0 ? POWER_FORMAT.format(effectPower) + (isPercentage ? "%" : "") + " " : "") + name;
 		Text effectText = MutableText.of(new LiteralTextContent(effectString)).setStyle(effectStyle);
 		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
 		int maxEffectWidth = UnofficialMonumentaModClient.options.effect_width - textRenderer.getWidth(timeText);
