@@ -6,20 +6,18 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 
-//TODO there seems to be quite a few issues with the textfields in here (TO FIX LATER)
-public class CalculatorWidget implements Drawable, Selectable, Element, ParentElement {
+public class CalculatorWidget extends AbstractParentElement implements Drawable, Selectable, Element {
     private static final MinecraftClient client = MinecraftClient.getInstance();
 
     private static CalculatorState state = CalculatorState.CLOSED;
@@ -246,13 +244,21 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         drawContext.fill(dimension.x, dimension.y, (int) dimension.getMaxX(), (int) dimension.getMaxY(), bgColour);
     }
 
-    public void tick() {
-        for (Drawable dr: getDrawables()) {
-            if (dr instanceof TextFieldWidget tfw) {
-                tfw.tick();
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        for (Element element : this.children()) {
+            if (!element.mouseClicked(mouseX, mouseY, button)) {
+                continue;
             }
+            this.setFocused(element);
+            if (button == 0) {
+                this.setDragging(true);
+            }
+            return true;
         }
+        return false;
     }
+
     @Override
     public List<? extends Element> children() {
         return childrens;
@@ -275,27 +281,6 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         this.selectables.add(child);
         this.childrens.add(child);
         return child;
-    }
-
-    @Override
-    public boolean isDragging() {
-        return false;
-    }
-
-    @Override
-    public void setDragging(boolean dragging) {
-
-    }
-
-    @Nullable
-    @Override
-    public Element getFocused() {
-        return focusedElement;
-    }
-
-    @Override
-    public void setFocused(@Nullable Element focused) {
-        focusedElement = focused;
     }
 
     @Override
