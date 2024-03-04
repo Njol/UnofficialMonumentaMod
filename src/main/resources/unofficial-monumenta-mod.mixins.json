@@ -27,6 +27,7 @@
     "item.ItemStackMixin",
     "screen.HandledScreenAccessor",
     "screen.HandledScreenMixin",
+    "screen.ScreenAccessor",
     "screen.ScreenMixin"
   ],
   "injectors": {

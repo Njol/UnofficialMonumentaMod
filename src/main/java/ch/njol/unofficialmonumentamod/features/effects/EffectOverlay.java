@@ -80,6 +80,10 @@ public class EffectOverlay extends HudElement {
 		lastUpdate = System.currentTimeMillis();
 	}
 
+	public void onJoin() {
+		updatingFromPackets = false;
+	}
+
 	public void onMassEffectUpdatePacket(ChannelHandler.MassEffectUpdatePacket packet) {
 		logIfDebug("Received onMassEffectUpdatePacket");
 		effects.clear();
