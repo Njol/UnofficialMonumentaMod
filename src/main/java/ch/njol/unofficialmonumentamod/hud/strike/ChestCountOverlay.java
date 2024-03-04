@@ -6,6 +6,9 @@ import ch.njol.unofficialmonumentamod.ChannelHandler;
 import ch.njol.unofficialmonumentamod.UnofficialMonumentaModClient;
 import ch.njol.unofficialmonumentamod.core.PersistentData;
 import ch.njol.unofficialmonumentamod.core.shard.ShardData;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -20,6 +23,8 @@ import net.minecraft.util.Formatting;
 
 public class ChestCountOverlay extends HudElement {
 	//TODO generalize this class to be able to create one for any actionbar based counter / maybe other sources?
+
+	public static final Pattern ACTIONBAR_PATTERN = Pattern.compile("(?<total>[0-9]{1,3}) total chests added to lootroom\\. \\(\\+(?<added>[0-9])\\)", Pattern.CASE_INSENSITIVE);
 
 	public static final ChestCountOverlay INSTANCE = new ChestCountOverlay();
 
@@ -63,16 +68,19 @@ public class ChestCountOverlay extends HudElement {
 		tr.draw(matrices, text, x, y, color);
 	}
 
-
 	public void onActionbarReceived(Text text) {
-		//first one is non-edited the second one is for edited by vlado's counter mod.
-		if (text.getString().equals("+1 Chest added to lootroom.") || text.getString().matches("\u00a76\\+1 Chest \u00a7cadded to lootroom\\..*")) {
-			addCount(1);
-			return;
-		}
-
-		if (text.getString().equals("+5 Chests added to lootroom.") || text.getString().matches("\u00a76\\+5 Chests \u00a7cadded to lootroom\\..*")) {
-			addCount(5);
+		Matcher matcher = ACTIONBAR_PATTERN.matcher(text.getString());
+		if (matcher.matches()) {
+			@Nullable String total = matcher.group("total");
+			@Nullable String added = matcher.group("added");
+			if (total != null) {
+				//Value given by the server should be trusted more than the local value.
+				currentCount = Integer.parseInt(total);
+			} else if (added != null) {
+				UnofficialMonumentaModClient.LOGGER.warn("Got full match of chest counter but failed to get total\nAttempting to add value to local version instead");
+				int addedInt = Integer.parseInt(added);
+				addCount(addedInt);
+			}
 		}
 	}
 
@@ -96,7 +104,6 @@ public class ChestCountOverlay extends HudElement {
 		if (packet.count != null) {
 			currentCount = packet.count;
 		}
-		ShardData.stopSearch();
 	}
 
 	public void addCount(int num) {

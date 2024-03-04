@@ -53,13 +53,13 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         return mode;
     }
 
-    private static int v1 = -1;
-    private static int v2 = -1;
-    private static int wanted = -1;
+    private static double v1 = -1;
+    private static double v2 = -1;
+    private static double wanted = -1;
 
-    public int tryParseInt(String string) {
+    public double tryParseDouble(String string) {
         try {
-            return Integer.parseInt(string);
+            return Double.parseDouble(string);
         } catch (NumberFormatException ex) {
             return -1;
         }
@@ -100,7 +100,7 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
                 if (v1 != -1) {
                     cWidget.setText(String.valueOf(v1));
                 }
-                cWidget.setChangedListener((string) -> v1 = tryParseInt(string));
+                cWidget.setChangedListener((string) -> v1 = tryParseDouble(string));
 
                 addDrawableChild(cWidget);
 
@@ -112,7 +112,7 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
                 if (v2 != -1) {
                     numWidget.setText(String.valueOf(v2));
                 }
-                numWidget.setChangedListener((string) -> v2 = tryParseInt(string));
+                numWidget.setChangedListener((string) -> v2 = tryParseDouble(string));
 
                 addDrawableChild(numWidget);
                 break;
@@ -144,9 +144,9 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
                     currencyHyperWidget.setText(String.valueOf(wanted));
                 }
 
-                currencyCompressed1Widget.setChangedListener((string) -> v1 = tryParseInt(string));
-                currencyCompressed2Widget.setChangedListener((string) -> v2 = tryParseInt(string));
-                currencyHyperWidget.setChangedListener((string) -> wanted = tryParseInt(string));
+                currencyCompressed1Widget.setChangedListener((string) -> v1 = tryParseDouble(string));
+                currencyCompressed2Widget.setChangedListener((string) -> v2 = tryParseDouble(string));
+                currencyHyperWidget.setChangedListener((string) -> wanted = tryParseDouble(string));
 
                 addDrawableChild(currencyCompressed1Widget);
                 addDrawableChild(currencyCompressed2Widget);
@@ -167,16 +167,19 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         addDrawableChild(buttonBuilder.build());
     }
 
-    private static String formatResult(int result) {
+    private static String formatResult(double result) {
         if (result < 0) {
             return "***";
         }
 
-        return (result / 64) + "H* " + (result % 64) + "C*";
+        double rest = (result % 64);
+        double underCompressed = (rest - Math.floor(rest)) * 8;
+
+        return (int) Math.floor((result / 64)) + "H* " + (int) Math.floor(rest) + "C*" + (underCompressed > 0 ? " " + (int) Math.floor(underCompressed) + "*" : "");
     }
 
     public static String getOutput(CalculatorMode mode) {
-        int output;
+        double output;
         switch (mode) {
             case NORMAL -> output = normalLogic();
             case EXCHANGE -> output = exLogic();
@@ -187,7 +190,7 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         return formatResult(output);
     }
 
-    public static int normalLogic() {
+    public static double normalLogic() {
         if (v1 == -1 || v2 == -1) {
             return -1;
         }
@@ -195,7 +198,7 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         return v1 * v2;
     }
 
-    public static int exLogic() {
+    public static double exLogic() {
         if (v1 == -1 || v2 <= 0 || wanted == -1) {
             return -1;
         }
@@ -203,7 +206,7 @@ public class CalculatorWidget implements Drawable, Selectable, Element, ParentEl
         return (wanted * 64 * v1 + v2 - 1) / v2;
     }
 
-    public static int reverseExLogic() {
+    public static double reverseExLogic() {
         if (v1 <= 0 || v2 == -1 || wanted == -1) {
             return -1;
         }

@@ -1,5 +1,6 @@
 package ch.njol.unofficialmonumentamod.mixins;
 
+import ch.njol.unofficialmonumentamod.core.shard.ShardLoader;
 import ch.njol.unofficialmonumentamod.features.misc.DelveBounty;
 import net.minecraft.client.network.message.MessageHandler;
 import net.minecraft.text.Text;
@@ -13,5 +14,6 @@ public class MessageHandlerMixin {
     @Inject(method = "onGameMessage", at = @At("TAIL"))
     private void umm$onChatMessage(Text message, boolean overlay, CallbackInfo ci) {
         DelveBounty.onMessage(message, overlay);
+        ShardLoader.onMessageReceived(message, overlay);
     }
 }

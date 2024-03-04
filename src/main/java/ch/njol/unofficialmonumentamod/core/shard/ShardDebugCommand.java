@@ -9,7 +9,6 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,7 +63,7 @@ public class ShardDebugCommand extends Constants {
         String shardName = context.getArgument("shard", String.class);
 
         ShardData.editedShard = true;
-        ShardData.onShardChangeSkipChecks(shardName);
+        ShardLoader.onManualShardSet(shardName);
         MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal("The Mod will now believe you are in: " + shardName).setStyle(MAIN_INFO_STYLE.withBold(true)));
         return 0;
     }
@@ -88,11 +87,11 @@ public class ShardDebugCommand extends Constants {
             Integer max = chestCountOverlay.getTotalChests();
             String lastShard = ShardData.getLastShard().shardString;
             String currentShard = ShardData.getCurrentShard().shardString;
-            boolean isSearching = ShardData.isSearchingForShard();
             boolean isEdited = ShardData.editedShard;
+            boolean isWorldSpoofOptionEnabled = ShardLoader.isWorldSpoofingEnabled();
 
             //check if it loaded correctly when entering the shard (should show false if it wasn't able to load the shard after world load)
-            boolean loadedCorrectly = !isSearching && !Objects.equals(lastShard, currentShard);
+            boolean loadedCorrectly = !Objects.equals(lastShard, currentShard);
 
             //count: (if max exists then count/max else just count) loaded shard: lastShard, current shard: currentShard
             MutableText text = Text.literal("[Current Shard]\n").setStyle(MAIN_INFO_STYLE);
@@ -110,7 +109,10 @@ public class ShardDebugCommand extends Constants {
             text.append(Text.literal(loadedCorrectly ? "Yes" : "No").setStyle(VALUE_STYLE));
 
             text.append(Text.literal(" | Was edited: ").setStyle(KEY_INFO_STYLE));
-            text.append(Text.literal(isEdited ? "Yes" : "No").setStyle(VALUE_STYLE));
+            text.append(Text.literal((isEdited ? "Yes" : "No") + "\n").setStyle(VALUE_STYLE));
+
+            text.append(Text.literal("Is World Spoofing Enabled: ").setStyle(KEY_INFO_STYLE));
+            text.append(Text.literal(isWorldSpoofOptionEnabled ? "Yes" : "No").setStyle(VALUE_STYLE));
 
             MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
             return 0;
