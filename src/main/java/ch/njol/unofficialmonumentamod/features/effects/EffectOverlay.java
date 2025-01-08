@@ -157,15 +157,15 @@ public class EffectOverlay extends HudElement {
 		//powa accumulator logic a.k.a multiplicative accumulation
 		if (curr.positiveEffect != acc.positiveEffect) {
 			if (curr.positiveEffect) {
-				curr.effectPower /=  (1 +(acc.effectPower / 100));
+				 curr.effectPower = ((1 - (acc.effectPower / 100)) * (1 + (curr.effectPower / 100)) - 1) * 100;
 			} else {
 				curr.positiveEffect = true;
 				float temp = curr.effectPower;
 				curr.effectPower = acc.effectPower;
-				curr.effectPower /= (1 + (temp / 100));
+				curr.effectPower = ((1 - (temp / 100)) * (1 + (curr.effectPower / 100)) - 1) * 100;
 			}
 		} else {
-			curr.effectPower *=  (1 + (acc.effectPower / 100));
+			curr.effectPower = ((1 + (curr.effectPower / 100)) * (1 + (acc.effectPower / 100)) - 1) * 100;
 		}
 
 		if (acc.effectTime < curr.effectTime) {
