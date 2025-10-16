@@ -198,6 +198,8 @@ public class Options implements ch.njol.minecraft.config.Options {
 	@Category("effectOverlay")
 	@IntSlider(min = 50, max = 500)
 	public int effect_width = 200;
+    @Category("effectOverlay")
+    public boolean effect_tabDisabled = true;
 
 	@Category("chestCountOverlay")
 	public boolean chestCount_enabled = true;

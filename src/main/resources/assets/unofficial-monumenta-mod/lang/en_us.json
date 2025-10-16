@@ -180,6 +180,7 @@
   "unofficial-monumenta-mod.config.option.effect_textAlightRight.tooltip": "When enabled, text will be right-justified.\nBy default (when disabled), it is left-justified.",
   "unofficial-monumenta-mod.config.option.effect_format": "Format related options",
   "unofficial-monumenta-mod.config.option.effect_format.tooltip": "",
+  "unofficial-monumenta-mod.config.option.effect_tabDisabled": "Disable when tab list is opened",
   "unofficial-monumenta-mod.config.option.effect_compress": "Condense cumulative effects",
   "unofficial-monumenta-mod.config.option.effect_compress.tooltip": "While on, will show all cumulative effects as one.",
 

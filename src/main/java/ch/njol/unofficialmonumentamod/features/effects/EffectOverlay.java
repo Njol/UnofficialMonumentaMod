@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -57,7 +59,22 @@ public class EffectOverlay extends HudElement {
 	private long lastUpdate = 0;
 
 	private boolean updatingFromPackets = false;
+    private static boolean isTabOpen;
 
+    public static void registerListeners() {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client == null || client.player == null) return;
+
+            boolean tabPressed = client.options.playerListKey.isPressed();
+
+            // Check if tab list state changed
+            if (tabPressed && !isTabOpen) {
+                isTabOpen = true;
+            } else if (!tabPressed && isTabOpen) {
+                isTabOpen = false;
+            }
+        });
+    }
 	private void logIfDebug(String msg) {
 		if (UnofficialMonumentaModClient.options.logEffectPackets) {
 			System.out.println(msg);
@@ -209,6 +226,7 @@ public class EffectOverlay extends HudElement {
 
 	@Override
 	protected void render(DrawContext drawContext, float tickDelta) {
+        if (isTabOpen && UnofficialMonumentaModClient.options.effect_tabDisabled) return;
 		ArrayList<Effect> visibleEffects = isInEditMode() ? dummyEffects : UnofficialMonumentaModClient.options.effect_compress ? getCumulativeEffects() : effects;
 		TextRenderer textRenderer = client.textRenderer;
 

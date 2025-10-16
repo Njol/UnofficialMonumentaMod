@@ -164,6 +164,7 @@ public class UnofficialMonumentaModClient implements ClientModInitializer {
 		ChestCountOverlay.INSTANCE.initializeListeners();
 		Locations.registerListeners();
 		Calculator.registerListeners();
+        EffectOverlay.registerListeners();
 
 		ShardData.ShardChangedEventCallback.EVENT.register((currentShard, previousShard) -> {
 			if (options.shardDebug) {

@@ -46,7 +46,7 @@ dependencies {
     include('com.github.Ascynx:MCUIFramework:mc1.20.4-SNAPSHOT')
 
     // Optional Mod Integrations
-    modApi "com.github.Provismet:ProviHealth:1.2.4-mc1.20.2" //(no 1.20.4 specific version, mentioned as compatible)
+    modApi "com.github.Provismet:ProviHealth:1aee0a0" //(no 1.20.4 specific version, mentioned as compatible)
 }
 
 java {
