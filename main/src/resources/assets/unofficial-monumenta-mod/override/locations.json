@@ -1,0 +1,232 @@
+{
+  "valley": [
+    {
+      "east": 701,
+      "north": -32,
+      "west": 777,
+      "south": 56,
+      "name": "Kaul Arena"
+    },
+    {
+      "east": -497,
+      "north": -282,
+      "west": -1069,
+      "south": 343,
+      "name": "Sierhaven"
+    },
+    {
+      "east": -78,
+      "north": -166,
+      "west": -180,
+      "south": 29,
+      "name": "Nyr"
+    },
+    {
+      "east": 658,
+      "north": 100,
+      "west": 538,
+      "south": 229,
+      "name": "Farr"
+    },
+    {
+      "east": 1319,
+      "north": -271,
+      "west": 1259,
+      "south": 180,
+      "name": "Highwatch Monument"
+    },
+    {
+      "east": 1319,
+      "north": -271,
+      "west": 1115,
+      "south": -62,
+      "name": "Highwatch"
+    },
+    {
+      "east": 765,
+      "north": 421,
+      "west": 642,
+      "south": 513,
+      "name": "Lowtide"
+    },
+    {
+      "east": 642,
+      "north": 513,
+      "west": 557,
+      "south": 569,
+      "name": "Lowtide"
+    },
+    {
+      "east": -1548,
+      "north": -18,
+      "west": -1685,
+      "south": 165,
+      "name": "Oceangate"
+    },
+    {
+      "east": 520,
+      "north": -400,
+      "west": 380,
+      "south": -340,
+      "name": "Ta'Eldim"
+    },
+    {
+      "east": 1340,
+      "north": -141,
+      "west": 1283,
+      "south": -99,
+      "name": "Azacor Lobby"
+    },
+    {
+      "east": 1645,
+      "north": -596,
+      "west": -1733,
+      "south": 569,
+      "name": "Overworld"
+    }
+  ],
+  "plots": [
+    {
+      "east": -762,
+      "north": 931,
+      "west": -539,
+      "south": 1210,
+      "name": "Player market"
+    }
+  ],
+  "isles": [
+    {
+      "east": -632,
+      "north": 1218,
+      "west": -871,
+      "south": 1487,
+      "name": "Mistport"
+    },
+    {
+      "east": -92,
+      "north": 397,
+      "west": -209,
+      "south": 502,
+      "name": "Rahkeri"
+    },
+    {
+      "east": 460,
+      "north": 640,
+      "west": 289,
+      "south": 865,
+      "name": "Alnera"
+    },
+    {
+      "east": 130,
+      "north": -107,
+      "west": -16,
+      "south": 48,
+      "name": "Hekawt Arena"
+    },
+    {
+      "east": 316,
+      "north": 2,
+      "west": 133,
+      "south": 191,
+      "name": "Molta"
+    },
+    {
+      "east": -1415,
+      "north": 72,
+      "west": -1523,
+      "south": 246,
+      "name": "Eldrask Arena"
+    },
+    {
+      "east": -1332,
+      "north": 528,
+      "west": -1371,
+      "south": 551,
+      "name": "Nightroost"
+    },
+    {
+      "east": -1241,
+      "north": 444,
+      "west": -1362,
+      "south": 527,
+      "name": "Nightroost"
+    },
+    {
+      "east": -1418,
+      "north": 871,
+      "west": -1640,
+      "south": 1086,
+      "name": "Frostgate"
+    },
+    {
+      "east": -1677,
+      "north": -135,
+      "west": -1855,
+      "south": 36,
+      "name": "Wispervale"
+    },
+    {
+      "east": -671,
+      "north": -202,
+      "west": -755,
+      "south": -139,
+      "name": "Breachpoint"
+    },
+    {
+      "east": -511,
+      "north": -548,
+      "west": -545,
+      "south": -514,
+      "name": "Steelmeld Monument"
+    },
+    {
+      "east": -493,
+      "north": -563,
+      "west": -676,
+      "south": -424,
+      "name": "Steelmeld"
+    },
+    {
+      "east": -1155,
+      "north": -569,
+      "west": -1273,
+      "south": -445,
+      "name": "Headless Horseman"
+    },
+    {
+      "east": -412,
+      "north": 1506,
+      "west": -519,
+      "south": 1615,
+      "name": "The Floating Carnival"
+    },
+    {
+      "east": -64,
+      "north": 3248,
+      "west": -223,
+      "south": 3375,
+      "name": "The Black Mist"
+    },
+    {
+      "east": 292,
+      "north": 3367,
+      "west": 225,
+      "south": 3447,
+      "name": "Sealed Remorse"
+    },
+    {
+      "east": -1394,
+      "north": -1342,
+      "west": -1450,
+      "south": -1275,
+      "name": "Darkest Depths"
+    },
+    {
+      "east": 862,
+      "north": -654,
+      "west": -2222,
+      "south": 1902,
+      "name": "Overworld"
+    }
+  ]
+}

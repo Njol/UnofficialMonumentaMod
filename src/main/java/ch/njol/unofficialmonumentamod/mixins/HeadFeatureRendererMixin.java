@@ -89,8 +89,8 @@ public abstract class HeadFeatureRendererMixin<T extends LivingEntity, M extends
 	}
 
 	@Redirect(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(DDD)V"))
-	public void render_MatrixStack_translate(MatrixStack instance, double x, double y, double z) {
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V", ordinal = 2))
+	public void render_MatrixStack_translate(MatrixStack instance, float x, float y, float z) {
 		if (UnofficialMonumentaModClient.options.lowerVillagerHelmets
 				&& x == 0
 				&& y == 0.0625D

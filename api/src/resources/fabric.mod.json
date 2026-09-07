@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "unofficial-monumenta-api",
+  "version": "${mod_version}",
+  "name": "Unofficial Monumenta API",
+  "description": "PLACEHOLDER",
+  "authors": [
+    "Njol"
+  ],
+  "contributors": [
+    "Ascynx"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/unofficial-monumenta-mod",
+    "issues": "https://github.com/Njol/UnofficialMonumentaMod/issues",
+    "sources": "https://github.com/Njol/UnofficialMonumentaMod"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/monumenta-api/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+    ],
+    "main": [
+    ]
+  },
+  "custom" : {
+    "mod_extradata": "${mod_extradata}"
+  },
+  "mixins": [
+    "monumenta-api.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": ">=${fabric_version}",
+    "minecraft": "~${minecraft_version}"
+  },
+  "recommends": {
+    "modmenu": ">=9.2.0",
+    "cloth-config": ">=13.0.138"
+  },
+  "suggests": {
+    "citresewn": "*"
+  }
+}

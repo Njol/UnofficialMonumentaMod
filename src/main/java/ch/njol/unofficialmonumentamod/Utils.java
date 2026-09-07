@@ -1,5 +1,7 @@
 package ch.njol.unofficialmonumentamod;
 
+import ch.njol.unofficialmonumentamod.core.gui.InventoryWidget;
+import ch.njol.unofficialmonumentamod.mixins.screen.ScreenAccessor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.TimeZone;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.BufferRenderer;
@@ -230,6 +233,14 @@ public abstract class Utils {
 			//next reset is later today
 			return instant.toEpochMilli();
 		}
+	}
+
+	public static void addWidget(Screen screen, InventoryWidget widget) {
+		((ScreenAccessor) screen).doAddDrawableChild(widget);
+	}
+
+	public static void removeWidget(Screen screen, InventoryWidget widget) {
+		((ScreenAccessor) screen).doRemove(widget);
 	}
 
 	public static long getNextWeeklyResetOf(long millis) {

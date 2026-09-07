@@ -17,7 +17,7 @@ on:
       - "README.md"
   workflow_dispatch:
 jobs:
-  build:
+  build-main:
     runs-on: ubuntu-latest
     env:
       GIT_URL: ${{ github.server_url }}/${{ github.repository }}/tree/${{ github.sha }}
@@ -26,16 +26,49 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
     steps:
+      - name: Request library build ahead of time
+        run: |
+          JITPACK_URL="https://jitpack.io/com/github/Ascynx/MCConfigFramework/${{ steps.get_version.outputs.VERSION }}"
+          curl -s -m 30 ${JITPACK_URL} || true
+
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: 17
+          java-version: 21
           distribution: temurin
           cache: gradle
       - name: Build with Gradle
-        run: chmod +x ./gradlew && ./gradlew build --no-daemon
+        run: chmod +x ./gradlew && ./gradlew :main:build --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: Artifact
-          path: build/libs/*.jar
+          name: UnofficialMonumentaMod
+          path: main/build/libs/*.jar
+
+  build-api:
+    runs-on: ubuntu-latest
+    env:
+      GIT_URL: ${{ github.server_url }}/${{ github.repository }}/tree/${{ github.sha }}
+      REF_NAME: ${{ github.ref_name }}
+      GITHUB_ACTOR: ${{ secrets.ACTOR }}
+      GITHUB_TOKEN: ${{ secrets.TOKEN }}
+
+    steps:
+      - name: Request library build ahead of time
+        run: |
+          JITPACK_URL="https://jitpack.io/com/github/Ascynx/MCConfigFramework/${{ steps.get_version.outputs.VERSION }}"
+          curl -s -m 30 ${JITPACK_URL} || true
+
+      - uses: actions/checkout@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: gradle
+      - name: Build with Gradle
+        run: chmod +x ./gradlew && ./gradlew :api:build --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MonumentaAPI
+          path: api/build/libs/*.jar

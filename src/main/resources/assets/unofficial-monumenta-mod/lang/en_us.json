@@ -2,6 +2,7 @@
 
   "unofficial-monumenta-mod.keybinds.category": "Unofficial Monumenta Mod",
   "unofficial-monumenta-mod.keybinds.toggleCalculator": "Toggle Calculator (plots shard only)",
+  "unofficial-monumenta-mod.keybinds.toggleNBTOverlay": "Open Item Overlay",
   "unofficial-monumenta-mod.keybinds.lock_slot": "Lock/Unlock selected inventory slot",
 
   "unofficial-monumenta-mod.config.title": "Unofficial Monumenta Mod Configuration",
@@ -75,6 +76,12 @@
   "unofficial-monumenta-mod.config.subcategory.lock": "Slot locking options",
   "unofficial-monumenta-mod.config.option.lock_textCooldown": "Lock blocked messages cooldown",
   "unofficial-monumenta-mod.config.option.lock_textCooldown.tooltip": "Will determine how often the mod can spam the player's chat with messages like \"Stopped dropping of locked item\"",
+
+  "unofficial-monumenta-mod.config.subcategory.idoverlay": "Item Data Overlay",
+  "unofficial-monumenta-mod.config.option.itemdataoverlay_mode": "Item Data Overlay Mode",
+  "unofficial-monumenta-mod.config.option.itemdataoverlay_mode.tooltip": "The type of data shown about the item in the overlay",
+  "njols-config-framework.enum.ItemDataOverlayMode.NBT": "NBT Data",
+  "njols-config-framework.enum.ItemDataOverlayMode.TOOLTIP": "Tooltip",
 
   "unofficial-monumenta-mod.config.category.abilities": "Ability Display",
   "unofficial-monumenta-mod.config.option.abilitiesDisplay_info": "Abilities can be reordered by opening the chat and then dragging them around with the mouse.\nTo move the whole ability display instead, hold ctrl while clicking & dragging.\nAlternatively, press the 'Edit HUD' button to move abilities and the display (assign this key in the Minecraft settings).",
@@ -212,6 +219,6 @@
   "unofficial-monumenta-mod.delvebounty.shiftingcity": "In attempt to keep away outsiders, the denizens of this city doomed themselves to their own shifting hell. They must be freed, one way or another.",
 
   "unofficial-monumenta-mod.delvebounty.blue": "A great upheaval is errupting within the Tree of Life. The great heads of this band of witches must be cut down, lest they unleash a powerful ritual, the consequences of which cannot be undone.",
-  "unofficial-monumenta-mod.delvebounty.brown": "Tales of the Ashkii speak of the Shades, husks of their kin that have been reduced to naught but mindless flesh, and doppelgangers that infiltrate their ranks. These threats must be stamped out by removing the god that lies in the heart of Pelias’ folly."
-
+  "unofficial-monumenta-mod.delvebounty.brown": "Tales of the Ashkii speak of the Shades, husks of their kin that have been reduced to naught but mindless flesh, and doppelgangers that infiltrate their ranks. These threats must be stamped out by removing the god that lies in the heart of Pelias’ folly.",
+  "unofficial-monumenta-mod.delvebounty.indigo": "A tower. inverted, calls out as friends and foes descend upon it. The wool within must be claimed before those with darker motives are able to lay claim to the secrets within."
 }
